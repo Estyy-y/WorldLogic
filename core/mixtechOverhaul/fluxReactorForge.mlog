@@ -1,0 +1,952 @@
+set .processorId "forge"
+set .offsetX 6
+op add *tmp1 @thisx @thisy
+op add *tmp3 *tmp1 1
+op mul *tmp4 *tmp1 *tmp3
+op div *tmp5 *tmp4 2
+op add *tmp6 *tmp5 @thisy
+op mul *tmp0 *tmp6 1000
+op add .idForge *tmp0 1
+op add .idForgeDisplay *tmp0 2
+op add .idForgeUpgrades *tmp0 3
+op add .idForgeAetherDisplay *tmp0 4
+op add .idPopup *tmp0 5
+set .popupDismissed false
+set .upgrade 0
+set .upgradeList*0 "Unit Capacity"
+set .upgradeList*1 ""
+set .upgradeList*2 50
+set .upgradeList*3 50
+set .upgradeList*4 "additive"
+set .upgradeList*5 0
+set .upgradeList*6 25
+set .upgradeList*7 1
+set .upgradeList*8 "Unit Health"
+set .upgradeList*9 ""
+set .upgradeList*10 75
+set .upgradeList*11 2
+set .upgradeList*12 "multiplicative"
+set .upgradeList*13 0
+set .upgradeList*14 0
+set .upgradeList*15 0.2
+set .upgradeList*16 "Unit Damage"
+set .upgradeList*17 ""
+set .upgradeList*18 100
+set .upgradeList*19 2
+set .upgradeList*20 "multiplicative"
+set .upgradeList*21 0
+set .upgradeList*22 0
+set .upgradeList*23 0.2
+set .upgradeList*24 "Unit Cost"
+set .upgradeList*25 ""
+set .upgradeList*26 200
+set .upgradeList*27 1.4
+set .upgradeList*28 "multiplicative"
+set .upgradeList*29 0
+set .upgradeList*30 15
+set .upgradeList*31 -0.05
+set .upgradeList*32 "Unit Build Speed"
+set .upgradeList*33 ""
+set .upgradeList*34 300
+set .upgradeList*35 100
+set .upgradeList*36 "additive"
+set .upgradeList*37 0
+set .upgradeList*38 5
+set .upgradeList*39 0.2
+set .upgradeList*40 "Unit Mining Speed"
+set .upgradeList*41 ""
+set .upgradeList*42 150
+set .upgradeList*43 1.2
+set .upgradeList*44 "multiplicative"
+set .upgradeList*45 0
+set .upgradeList*46 0
+set .upgradeList*47 0.06
+set .upgradeList*48 "Block Health"
+set .upgradeList*49 ""
+set .upgradeList*50 75
+set .upgradeList*51 2
+set .upgradeList*52 "multiplicative"
+set .upgradeList*53 0
+set .upgradeList*54 0
+set .upgradeList*55 0.2
+set .upgradeList*56 "Block Damage"
+set .upgradeList*57 ""
+set .upgradeList*58 100
+set .upgradeList*59 2
+set .upgradeList*60 "multiplicative"
+set .upgradeList*61 0
+set .upgradeList*62 0
+set .upgradeList*63 0.2
+set .upgradeList*64 "Block Build Speed"
+set .upgradeList*65 ""
+set .upgradeList*66 200
+set .upgradeList*67 2.5
+set .upgradeList*68 "multiplicative"
+set .upgradeList*69 0
+set .upgradeList*70 5
+set .upgradeList*71 0.4
+set .baseUnitCap 25
+setrate 1000
+sensor .team @this @team
+set .interfaceX 76.5
+setmarker remove .idForge 0 0 0
+setmarker remove .idForgeDisplay 0 0 0
+setmarker remove .idForgeUpgrades 0 0 0
+setmarker remove .idForgeAetherDisplay 0 0 0
+jump 103 equal @server false
+set :common*retaddr 100
+set :server*retaddr 101
+set :client*retaddr 102
+jump 165 always 0 0
+jump 173 always 0 0
+jump 351 always 0 0
+jump 99 always 0 0
+jump 0 equal @client false
+set :common*retaddr 107
+set :client*retaddr 108
+jump 165 always 0 0
+jump 351 always 0 0
+jump 106 always 0 0
+fetch playerCount :mapButton:playerCount :mapButton:playerTeam 0 0
+set :mapButton:i 0
+op div *tmp21 :mapButton:width 2
+op sub *tmp22 :mapButton:centerX *tmp21
+op add *tmp25 :mapButton:centerX *tmp21
+op div *tmp28 :mapButton:height 2
+op sub *tmp29 :mapButton:centerY *tmp28
+op add *tmp33 :mapButton:centerY *tmp28
+jump 138 greaterThan 0 :mapButton:playerCount
+fetch player :mapButton:player :mapButton:playerTeam :mapButton:i 0
+sensor :mapButton:cursorX :mapButton:player @shootX
+sensor :mapButton:cursorY :mapButton:player @shootY
+op greaterThanEq *tmp23 :mapButton:cursorX *tmp22
+op lessThanEq *tmp26 :mapButton:cursorX *tmp25
+op land *tmp27 *tmp23 *tmp26
+op greaterThanEq *tmp30 :mapButton:cursorY *tmp29
+op land *tmp31 *tmp27 *tmp30
+op lessThanEq *tmp34 :mapButton:cursorY *tmp33
+op land :mapButton:isHovering *tmp31 *tmp34
+sensor :mapButton:isClicking :mapButton:player @shooting
+op land *tmp37 :mapButton:isHovering :mapButton:isClicking
+jump 133 equal *tmp37 false
+set :mapButton*retval 2
+set @counter :mapButton*retaddr
+jump 136 equal :mapButton:isHovering false
+set :mapButton*retval 1
+set @counter :mapButton*retaddr
+op add :mapButton:i :mapButton:i 1
+jump 118 lessThanEq :mapButton:i :mapButton:playerCount
+set :mapButton*retval 0
+set @counter :mapButton*retaddr
+sensor :playerButton:cursorX :playerButton:player @shootX
+sensor :playerButton:cursorY :playerButton:player @shootY
+op div *tmp111 :playerButton:width 2
+op sub *tmp112 :playerButton:centerX *tmp111
+op greaterThanEq *tmp113 :playerButton:cursorX *tmp112
+op add *tmp115 :playerButton:centerX *tmp111
+op lessThanEq *tmp116 :playerButton:cursorX *tmp115
+op land *tmp117 *tmp113 *tmp116
+op div *tmp118 :playerButton:height 2
+op sub *tmp119 :playerButton:centerY *tmp118
+op greaterThanEq *tmp120 :playerButton:cursorY *tmp119
+op land *tmp121 *tmp117 *tmp120
+op add *tmp123 :playerButton:centerY *tmp118
+op lessThanEq *tmp124 :playerButton:cursorY *tmp123
+op land :playerButton:isHovering *tmp121 *tmp124
+sensor :playerButton:isClicking :playerButton:player @shooting
+op land *tmp127 :playerButton:isHovering :playerButton:isClicking
+jump 160 equal *tmp127 false
+set :playerButton*retval 2
+set @counter :playerButton*retaddr
+jump 163 equal :playerButton:isHovering false
+set :playerButton*retval 1
+set @counter :playerButton*retaddr
+set :playerButton*retval 0
+set @counter :playerButton*retaddr
+op equal *tmp195 .forgeBlock null
+sensor *tmp196 .forgeBlock @dead
+op or *tmp198 *tmp195 *tmp196
+jump 170 equal *tmp198 false
+fetch build .forgeBlock @sharded 0 @flux-reactor
+sensor .forgeX .forgeBlock @x
+sensor .forgeY .forgeBlock @y
+set @counter :common*retaddr
+set .aetherProduction 0
+fetch buildCount *tmp204 @sharded 0 @world-processor
+set :server:i 0
+jump 188 greaterThan 0 *tmp204
+fetch build :server:processor @sharded :server:i @world-processor
+read :server:processorId :server:processor ".processorId"
+jump 186 notEqual :server:processorId "totem"
+read *tmp209 :server:processor ".active"
+jump 186 equal *tmp209 0
+read *tmp212 :server:processor ".aetherAmount"
+read *tmp213 :server:processor ".aetherCooldown"
+op div *tmp214 *tmp212 *tmp213
+op add .aetherProduction .aetherProduction *tmp214
+op add :server:i :server:i 1
+jump 177 lessThanEq :server:i *tmp204
+sync .aetherProduction
+sensor *tmp216 .forgeBlock @efficiency
+op mul *tmp217 *tmp216 3
+op add .aetherMultiplier *tmp217 1
+jump 198 lessThanEq @second .nextUpdate
+op add .nextUpdate @second 1
+op mul *tmp222 .aetherProduction .aetherMultiplier
+op add .totalAether .totalAether *tmp222
+sync .totalAether
+sync .aetherMultiplier
+op add *tmp224 .interfaceX .offsetX
+op sub :mapButton:centerX *tmp224 5.75
+set :mapButton:centerY -3.6
+set :mapButton:width 3.5
+set :mapButton:height 2
+set :mapButton:playerTeam .team
+set :mapButton*retaddr 206
+jump 109 always 0 0
+set :server:previousUpgrade :mapButton*retval
+op add *tmp227 .interfaceX .offsetX
+op add :mapButton:centerX *tmp227 5.75
+set :mapButton:centerY -3.6
+set :mapButton:width 3.5
+set :mapButton:height 2
+set :mapButton:playerTeam .team
+set :mapButton*retaddr 215
+jump 109 always 0 0
+op equal *tmp230 :server:previousUpgrade 2
+op greaterThan *tmp231 @second .buttonCooldown
+op land *tmp232 *tmp230 *tmp231
+jump 224 equal *tmp232 false
+jump 222 notEqual .upgrade 0
+set .upgrade 64
+jump 223 always 0 0
+op sub .upgrade .upgrade 8
+op add .buttonCooldown @second 0.5
+op equal *tmp238 :mapButton*retval 2
+op greaterThan *tmp239 @second .buttonCooldown
+op land *tmp240 *tmp238 *tmp239
+jump 233 equal *tmp240 false
+jump 231 notEqual .upgrade 64
+set .upgrade 0
+jump 232 always 0 0
+op add .upgrade .upgrade 8
+op add .buttonCooldown @second 0.5
+sync .upgrade
+op add :mapButton:centerX .interfaceX .offsetX
+set :mapButton:centerY -16.75
+set :mapButton:width 3.5
+set :mapButton:height 2
+set :mapButton:playerTeam .team
+set :mapButton*retaddr 241
+jump 109 always 0 0
+op equal *tmp248 :mapButton*retval 2
+op greaterThan *tmp249 @second .buttonCooldown
+op land *tmp250 *tmp248 *tmp249
+jump 323 equal *tmp250 false
+op add *tmp252 .upgrade 2
+set .upgradeList*rret 249
+op mul *tmp502 *tmp252 2
+op add @counter 662 *tmp502
+jump 322 lessThan .totalAether .upgradeList*r
+op add *tmp257 .upgrade 5
+set .upgradeList*rret 254
+op mul *tmp503 *tmp257 2
+op add @counter 662 *tmp503
+set :server:level .upgradeList*r
+op add *tmp260 .upgrade 6
+set .upgradeList*rret 259
+op mul *tmp504 *tmp260 2
+op add @counter 662 *tmp504
+op lessThan *tmp263 :server:level .upgradeList*r
+op add *tmp265 .upgrade 6
+set .upgradeList*rret 264
+op mul *tmp505 *tmp265 2
+op add @counter 662 *tmp505
+op equal *tmp267 .upgradeList*r null
+op or *tmp269 *tmp263 *tmp267
+jump 322 equal *tmp269 false
+op add *tmp272 .upgrade 5
+set .upgradeList*rret 271
+op mul *tmp506 *tmp272 2
+op add @counter 662 *tmp506
+op add *tmp274 .upgradeList*r 1
+set .upgradeList*wret 275
+set .upgradeList*w *tmp274
+op add @counter 806 *tmp506
+op add *tmp276 .upgrade 2
+set .upgradeList*rret 279
+op mul *tmp508 *tmp276 2
+op add @counter 662 *tmp508
+op sub .totalAether .totalAether .upgradeList*r
+sync .totalAether
+sync .upgradeList*5
+sync .upgradeList*13
+sync .upgradeList*21
+sync .upgradeList*29
+sync .upgradeList*37
+sync .upgradeList*45
+sync .upgradeList*53
+sync .upgradeList*61
+sync .upgradeList*69
+op add *tmp280 .upgrade 4
+set .upgradeList*rret 294
+op mul *tmp509 *tmp280 2
+op add @counter 662 *tmp509
+jump 309 notEqual .upgradeList*r "additive"
+op add *tmp285 .upgrade 2
+op add *tmp287 .upgrade 3
+set .upgradeList*rret 300
+op mul *tmp510 *tmp287 2
+op add @counter 662 *tmp510
+set *tmp289 .upgradeList*r
+set .upgradeList*rret 304
+op mul *tmp511 *tmp285 2
+op add @counter 662 *tmp511
+op add *tmp290 .upgradeList*r *tmp289
+set .upgradeList*wret 308
+set .upgradeList*w *tmp290
+op add @counter 806 *tmp511
+jump 322 always 0 0
+op add *tmp292 .upgrade 2
+op add *tmp294 .upgrade 3
+set .upgradeList*rret 314
+op mul *tmp513 *tmp294 2
+op add @counter 662 *tmp513
+set *tmp296 .upgradeList*r
+set .upgradeList*rret 318
+op mul *tmp514 *tmp292 2
+op add @counter 662 *tmp514
+op mul *tmp297 .upgradeList*r *tmp296
+set .upgradeList*wret 322
+set .upgradeList*w *tmp297
+op add @counter 806 *tmp514
+op add .buttonCooldown @second 0.5
+op mul *tmp299 .upgradeList*7 .upgradeList*5
+op add *tmp300 .baseUnitCap *tmp299
+setrule unitCap *tmp300 0 0 0 0
+op mul *tmp301 .upgradeList*15 .upgradeList*13
+op add *tmp302 1 *tmp301
+setrule unitHealth *tmp302 .team 0 0 0
+op mul *tmp303 .upgradeList*23 .upgradeList*21
+op add *tmp304 1 *tmp303
+setrule unitDamage *tmp304 .team 0 0 0
+op mul *tmp305 .upgradeList*31 .upgradeList*29
+op add *tmp306 1 *tmp305
+setrule unitCost *tmp306 .team 0 0 0
+op mul *tmp307 .upgradeList*39 .upgradeList*37
+op add *tmp308 1 *tmp307
+setrule unitBuildSpeed *tmp308 .team 0 0 0
+op mul *tmp309 .upgradeList*47 .upgradeList*45
+op add :setMiningSpeed:value 1 *tmp309
+setrule unitMineSpeed :setMiningSpeed:value .team
+op mul *tmp311 .upgradeList*55 .upgradeList*53
+op add *tmp312 1 *tmp311
+setrule blockHealth *tmp312 .team 0 0 0
+op mul *tmp313 .upgradeList*63 .upgradeList*61
+op add *tmp314 1 *tmp313
+setrule blockDamage *tmp314 .team 0 0 0
+op mul *tmp315 .upgradeList*71 .upgradeList*69
+op add *tmp316 1 *tmp315
+setrule buildSpeed *tmp316 .team 0 0 0
+set @counter :server*retaddr
+jump 354 notEqual .team 1
+set :client:color %ffd37f
+jump 356 always 0 0
+jump 356 notEqual .team 2
+set :client:color %f25555
+sensor *tmp319 .forgeBlock @efficiency
+op mul *tmp320 *tmp319 3
+op add .aetherMultiplier *tmp320 1
+print "[orange] - - - - - - - - - - - - - - - - - - - - \nAether Forge\n\n\n\n\n\n"
+makemarker text .idForge 0 0 false
+setmarker fontSize .idForge 3 0 0
+setmarker labelFlags .idForge 0 1 0
+setmarker pos .idForge .interfaceX 3 0
+setmarker flushText .idForge 0 0 0
+jump 367 equal .forgeBlock .lastForgeBlock
+setmarker remove .idForgeDisplay 0 0 0
+set .lastForgeBlock .forgeBlock
+jump 374 equal .forgeBlock null
+makemarker texture .idForgeDisplay 0 0 false
+setmarker texture .idForgeDisplay 0 "flux-reactor" 0
+op sub *tmp326 .interfaceX 9
+setmarker pos .idForgeDisplay *tmp326 -4 0
+jump 382 always 0 0
+makemarker text .idForgeDisplay 0 0 false
+setmarker fontSize .idForgeDisplay 5 0 0
+print "[white] "
+setmarker flushText .idForgeDisplay 0 0 0
+setmarker pos .idForgeDisplay .interfaceX -5 0
+setmarker remove .idForgeUpgrades 0 0 0
+setmarker remove .idForgeAetherDisplay 0 0 0
+setmarker remove .idPopup 0 0 0
+jump 661 equal .forgeBlock null
+sensor *tmp329 .forgeBlock @size
+op div :client:halfSize *tmp329 2
+set :client:i 0
+op mul *tmp331 @second .aetherMultiplier
+op div *tmp332 *tmp331 2
+op add *tmp333 *tmp332 :client:i
+op mod :client:t *tmp333 4
+jump 397 greaterThanEq :client:t 1
+op sub *tmp337 .forgeX :client:halfSize
+op mul *tmp338 :client:t 2
+op mul *tmp339 *tmp338 :client:halfSize
+op add :client:x *tmp337 *tmp339
+op sub :client:y .forgeY :client:halfSize
+jump 419 always 0 0
+jump 405 greaterThanEq :client:t 2
+op add :client:x .forgeX :client:halfSize
+op sub *tmp345 .forgeY :client:halfSize
+op sub *tmp346 :client:t 1
+op mul *tmp347 *tmp346 2
+op mul *tmp348 *tmp347 :client:halfSize
+op add :client:y *tmp345 *tmp348
+jump 419 always 0 0
+jump 413 greaterThanEq :client:t 3
+op add *tmp352 .forgeX :client:halfSize
+op sub *tmp353 :client:t 2
+op mul *tmp354 *tmp353 2
+op mul *tmp355 *tmp354 :client:halfSize
+op sub :client:x *tmp352 *tmp355
+op add :client:y .forgeY :client:halfSize
+jump 419 always 0 0
+op sub :client:x .forgeX :client:halfSize
+op add *tmp359 .forgeY :client:halfSize
+op sub *tmp360 :client:t 3
+op mul *tmp361 *tmp360 2
+op mul *tmp362 *tmp361 :client:halfSize
+op sub :client:y *tmp359 *tmp362
+effect trail :client:x :client:y 2.5 :client:color 0
+op add :client:i :client:i 1
+jump 386 lessThanEq :client:i 3
+op add *tmp364 .interfaceX .offsetX
+op sub :mapButton:centerX *tmp364 5.75
+set :mapButton:centerY -3.6
+set :mapButton:width 3.5
+set :mapButton:height 2
+set :mapButton:playerTeam .team
+set :mapButton*retaddr 430
+jump 109 always 0 0
+set :client:color1 "[white]"
+jump 433 equal :mapButton*retval 0
+set :client:color1 "[blue]"
+op add *tmp369 .interfaceX .offsetX
+op add :mapButton:centerX *tmp369 5.75
+set :mapButton:centerY -3.6
+set :mapButton:width 3.5
+set :mapButton:height 2
+set :mapButton:playerTeam .team
+set :mapButton*retaddr 441
+jump 109 always 0 0
+set *tmp373 "[white]"
+jump 444 equal :mapButton*retval 0
+set *tmp373 "[blue]"
+op add *tmp375 .upgrade 1
+print :client:color1
+print "[  ]    [gold]"
+set .upgradeList*rret 450
+op mul *tmp516 *tmp375 2
+op add @counter 662 *tmp516
+print .upgradeList*r
+print *tmp373
+print "    [  ][white]\n\n"
+set *tmp377 .upgrade
+set .upgradeList*rret 457
+op mul *tmp517 *tmp377 2
+op add @counter 662 *tmp517
+print .upgradeList*r
+op add *tmp380 .upgrade 7
+set .upgradeList*rret 462
+op mul *tmp518 *tmp380 2
+op add @counter 662 *tmp518
+jump 478 lessThan .upgradeList*r 1
+op add *tmp386 .upgrade 7
+op add *tmp389 .upgrade 5
+set .upgradeList*rret 468
+op mul *tmp519 *tmp386 2
+op add @counter 662 *tmp519
+set *tmp387 .upgradeList*r
+set .upgradeList*rret 472
+op mul *tmp520 *tmp389 2
+op add @counter 662 *tmp520
+op mul *tmp391 *tmp387 .upgradeList*r
+op idiv *tmp393 *tmp391 0.01
+op div *tmp394 *tmp393 100
+print "[white]\n(+{0})"
+format *tmp394
+jump 505 always 0 0
+op add *tmp396 .upgrade 7
+op add *tmp399 .upgrade 5
+set .upgradeList*rret 483
+op mul *tmp521 *tmp396 2
+op add @counter 662 *tmp521
+set *tmp397 .upgradeList*r
+set .upgradeList*rret 487
+op mul *tmp522 *tmp399 2
+op add @counter 662 *tmp522
+op mul *tmp401 *tmp397 .upgradeList*r
+op mul *tmp402 *tmp401 100
+op add *tmp403 *tmp402 0.5
+op floor *tmp404 *tmp403 0
+op div *tmp405 *tmp404 100
+op add :client:value 1 *tmp405
+op floor :client:intPart :client:value 0
+op sub *tmp408 :client:value :client:intPart
+op mul *tmp409 *tmp408 100
+op add *tmp410 *tmp409 0.5
+op floor :client:fracPart *tmp410 0
+set *tmp413 ""
+jump 501 greaterThanEq :client:fracPart 10
+set *tmp413 "0"
+print "[white]\n(x{0}.{0}{0})"
+format :client:intPart
+format *tmp413
+format :client:fracPart
+op add *tmp415 .upgrade 5
+print "[white]\n\nLevel: [gold]"
+set .upgradeList*rret 510
+op mul *tmp523 *tmp415 2
+op add @counter 662 *tmp523
+print .upgradeList*r
+op add *tmp418 .upgrade 6
+set .upgradeList*rret 515
+op mul *tmp524 *tmp418 2
+op add @counter 662 *tmp524
+jump 522 equal .upgradeList*r null
+op add *tmp424 .upgrade 6
+print " / "
+set .upgradeList*rret 521
+op mul *tmp525 *tmp424 2
+op add @counter 662 *tmp525
+print .upgradeList*r
+op add *tmp428 .upgrade 5
+op add *tmp431 .upgrade 6
+set .upgradeList*rret 527
+op mul *tmp526 *tmp428 2
+op add @counter 662 *tmp526
+set *tmp429 .upgradeList*r
+set .upgradeList*rret 531
+op mul *tmp527 *tmp431 2
+op add @counter 662 *tmp527
+op equal *tmp433 *tmp429 .upgradeList*r
+op add *tmp434 .upgrade 6
+set .upgradeList*rret 536
+op mul *tmp528 *tmp434 2
+op add @counter 662 *tmp528
+op notEqual *tmp437 .upgradeList*r 0
+op land *tmp438 *tmp433 *tmp437
+jump 541 equal *tmp438 false
+print "\n[white]Cost: [gold]Maxed!"
+jump 548 always 0 0
+op add *tmp441 .upgrade 2
+set .upgradeList*rret 545
+op mul *tmp529 *tmp441 2
+op add @counter 662 *tmp529
+op ceil *tmp443 .upgradeList*r 0
+print "[white]\nCost: [gold]{0} Aether"
+format *tmp443
+op add :mapButton:centerX .interfaceX .offsetX
+set :mapButton:centerY -16.75
+set :mapButton:width 3.5
+set :mapButton:height 2
+set :mapButton:playerTeam .team
+set :mapButton*retaddr 555
+jump 109 always 0 0
+jump 558 equal :mapButton*retval 0
+print "[blue]"
+jump 559 always 0 0
+print "[white]"
+print "\n\n[  ]"
+makemarker text .idForgeUpgrades 0 0 false
+setmarker fontSize .idForgeUpgrades 3 0 0
+setmarker flushText .idForgeUpgrades 0 0 0
+op add *tmp448 .interfaceX .offsetX
+setmarker pos .idForgeUpgrades *tmp448 -3 0
+printflush :client:message1
+sensor *tmp449 .forgeBlock @efficiency
+op mul *tmp450 *tmp449 3
+op add *tmp451 *tmp450 1
+op mul *tmp452 .aetherProduction *tmp451
+op idiv *tmp454 *tmp452 0.1
+op div :client:aetherProductionC *tmp454 10
+op floor :client:totalAetherC .totalAether 0
+print "[gold]Aether \n[white]{0}\n({0}/s)[gold]\n\nHeat \n[white]{0}x Aether"
+format :client:totalAetherC
+format :client:aetherProductionC
+sensor *tmp457 .forgeBlock @efficiency
+op mul *tmp458 *tmp457 3
+op add *tmp459 *tmp458 1
+op idiv *tmp461 *tmp459 0.1
+op div *tmp462 *tmp461 10
+format *tmp462
+makemarker text .idForgeAetherDisplay 0 0 false
+setmarker fontSize .idForgeAetherDisplay 3 0 0
+setmarker flushText .idForgeAetherDisplay 0 0 0
+op sub *tmp463 .interfaceX 9
+setmarker pos .idForgeAetherDisplay *tmp463 -8 0
+sensor *tmp464 .forgeBlock @x
+sensor *tmp465 .forgeBlock @y
+sensor *tmp466 .forgeBlock @size
+set :popup:idPopup .idPopup
+set :popup:processorId .processorId
+set :popup:x *tmp464
+set :popup:y *tmp465
+set :popup:size *tmp466
+jump 660 notEqual .popupDismissed false
+print "[orange] New Feature [white]\n\nOpen the minimap to read\n about it.\n\n"
+op sub *tmp469 *tmp464 3
+op add *tmp470 *tmp465 *tmp466
+op sub *tmp471 *tmp470 0.5
+set :playerButton:centerX *tmp469
+set :playerButton:centerY *tmp471
+set :playerButton:width 3.5
+set :playerButton:height 1.5
+set :playerButton:player @clientUnit
+set :playerButton*retaddr 607
+jump 140 always 0 0
+set :popup:closeButton :playerButton*retval
+jump 611 equal :playerButton*retval 0
+print "[blue]"
+jump 612 always 0 0
+print "[white]"
+print "[ Close ][white] / "
+op add *tmp475 :popup:x 2.3
+op add *tmp476 :popup:y :popup:size
+op sub *tmp477 *tmp476 0.5
+set :playerButton:centerX *tmp475
+set :playerButton:centerY *tmp477
+set :playerButton:width 4.5
+set :playerButton:height 1.5
+set :playerButton:player @clientUnit
+set :playerButton*retaddr 623
+jump 140 always 0 0
+jump 626 equal :playerButton*retval 0
+print "[blue]"
+jump 627 always 0 0
+print "[white]"
+print "[ Close All ]"
+jump 631 equal :playerButton*retval 0
+print "[blue]"
+jump 632 always 0 0
+print "[white]"
+op equal *tmp483 :popup:closeButton 2
+op equal *tmp484 :playerButton*retval 2
+op or *tmp486 *tmp483 *tmp484
+jump 652 equal *tmp486 false
+sensor *tmp488 @clientUnit @team
+fetch buildCount *tmp490 *tmp488 0 @world-processor
+set :popup:i 0
+jump 652 greaterThan 0 *tmp490
+sensor *tmp491 @clientUnit @team
+fetch build :popup:processor *tmp491 :popup:i @world-processor
+read *tmp493 :popup:processor ".processorId"
+op equal *tmp494 *tmp493 :popup:processorId
+op land *tmp496 *tmp494 *tmp483
+jump 648 equal *tmp496 false
+write 1 :popup:processor ".popupDismissed"
+jump 650 always 0 0
+jump 650 notEqual :playerButton*retval 2
+write 1 :popup:processor ".popupDismissed"
+op add :popup:i :popup:i 1
+jump 640 lessThanEq :popup:i *tmp490
+makemarker text :popup:idPopup 0 0 false
+setmarker flushText :popup:idPopup 0 0 0
+setmarker autoscale :popup:idPopup 0 0 0
+setmarker fontSize :popup:idPopup 1.5 0 0
+op add *tmp500 :popup:y :popup:size
+op add *tmp501 *tmp500 4
+setmarker pos :popup:idPopup :popup:x *tmp501 0
+set @counter :client*retaddr
+setmarker remove .idPopup 0 0 0
+set @counter :client*retaddr
+set .upgradeList*r .upgradeList*0
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*1
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*2
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*3
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*4
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*5
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*6
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*7
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*8
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*9
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*10
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*11
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*12
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*13
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*14
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*15
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*16
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*17
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*18
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*19
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*20
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*21
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*22
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*23
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*24
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*25
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*26
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*27
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*28
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*29
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*30
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*31
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*32
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*33
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*34
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*35
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*36
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*37
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*38
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*39
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*40
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*41
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*42
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*43
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*44
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*45
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*46
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*47
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*48
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*49
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*50
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*51
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*52
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*53
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*54
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*55
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*56
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*57
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*58
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*59
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*60
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*61
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*62
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*63
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*64
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*65
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*66
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*67
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*68
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*69
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*70
+set @counter .upgradeList*rret
+set .upgradeList*r .upgradeList*71
+set @counter .upgradeList*rret
+set .upgradeList*0 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*1 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*2 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*3 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*4 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*5 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*6 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*7 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*8 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*9 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*10 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*11 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*12 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*13 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*14 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*15 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*16 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*17 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*18 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*19 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*20 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*21 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*22 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*23 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*24 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*25 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*26 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*27 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*28 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*29 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*30 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*31 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*32 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*33 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*34 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*35 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*36 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*37 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*38 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*39 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*40 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*41 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*42 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*43 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*44 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*45 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*46 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*47 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*48 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*49 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*50 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*51 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*52 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*53 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*54 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*55 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*56 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*57 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*58 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*59 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*60 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*61 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*62 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*63 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*64 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*65 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*66 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*67 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*68 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*69 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*70 .upgradeList*w
+set @counter .upgradeList*wret
+set .upgradeList*71 .upgradeList*w
+set @counter .upgradeList*wret
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

@@ -1,0 +1,242 @@
+set overwriteFloodableTiles null
+set cMin 1.5
+set cMax 0.75
+set cL 0.05
+set cU 0.95
+set nMin 0.75
+set nMax 1.5
+set nL 0
+set nU 0.75
+set tValue 3600
+set tMin 0.75
+set tMax 1.5
+set tL 0
+set tU 1
+setrate 1000
+jump 44 notEqual overwriteFloodableTiles null
+set :y 0
+jump 45 greaterThan 0 @maph
+set :x 0
+jump 41 greaterThan 0 @mapw
+getblock building *tmp2 :x :y
+jump 24 equal *tmp2 null
+op add .floodableTiles .floodableTiles 1
+jump 39 always 0 0
+getblock block *tmp6 :x :y
+jump 39 notEqual *tmp6 @air
+getblock floor :isFloodable:floor :x :y
+jump 34 equal :isFloodable:floor @deep-water
+jump 34 equal :isFloodable:floor @deep-tainted-water
+jump 34 equal :isFloodable:floor @tar
+jump 34 equal :isFloodable:floor @cryofluid
+jump 34 equal :isFloodable:floor @slag
+jump 34 equal :isFloodable:floor @space
+jump 36 notEqual :isFloodable:floor @empty
+set *tmp10 false
+jump 37 always 0 0
+set *tmp10 true
+jump 39 equal *tmp10 false
+op add .floodableTiles .floodableTiles 1
+op add :x :x 1
+jump 20 lessThanEq :x @mapw
+op add :y :y 1
+jump 18 lessThanEq :y @maph
+jump 45 always 0 0
+set .floodableTiles overwriteFloodableTiles
+fetch coreCount *tmp15 @blue 0 0
+fetch buildCount *tmp16 @blue 0 @launch-pad
+op add *tmp17 *tmp15 *tmp16
+fetch buildCount *tmp18 @blue 0 @interplanetary-accelerator
+op add .totalEmitters *tmp17 *tmp18
+jump 148 equal @server false
+fetch buildCount *tmp193 @blue 0 @scrap-wall
+fetch buildCount *tmp194 @blue 0 @titanium-wall
+op add *tmp195 *tmp193 *tmp194
+fetch buildCount *tmp196 @blue 0 @thorium-wall
+op add *tmp197 *tmp195 *tmp196
+fetch buildCount *tmp198 @blue 0 @phase-wall
+op add *tmp199 *tmp197 *tmp198
+fetch buildCount *tmp200 @blue 0 @surge-wall
+op add *tmp201 *tmp199 *tmp200
+fetch buildCount *tmp202 @blue 0 @reinforced-surge-wall
+op add *tmp203 *tmp201 *tmp202
+fetch buildCount *tmp204 @blue 0 @plastanium-wall
+op add *tmp205 *tmp203 *tmp204
+fetch buildCount *tmp206 @blue 0 @beryllium-wall
+op add *tmp207 *tmp205 *tmp206
+fetch buildCount *tmp208 @blue 0 @tungsten-wall
+op add *tmp209 *tmp207 *tmp208
+fetch buildCount *tmp210 @blue 0 @carbide-wall
+op add .floodedTiles *tmp209 *tmp210
+op div .coverage .floodedTiles .floodableTiles
+fetch coreCount *tmp213 @blue 0 0
+fetch buildCount *tmp214 @blue 0 @launch-pad
+op add *tmp215 *tmp213 *tmp214
+fetch buildCount *tmp216 @blue 0 @interplanetary-accelerator
+op add *tmp217 *tmp215 *tmp216
+op sub .nullifiedEmitters .totalEmitters *tmp217
+op div .nullified .nullifiedEmitters .totalEmitters
+set .commonTime .serverTime
+op div .time .serverTime tValue
+op sub *tmp259 .coverage cL
+op sub *tmp260 cU cL
+op div :calculateModifier:normalized *tmp259 *tmp260
+op max *tmp262 :calculateModifier:normalized 0
+op min :calculateModifier:normalized *tmp262 1
+op sub *tmp264 cMax cMin
+op mul *tmp265 :calculateModifier:normalized *tmp264
+op add .coverageMultiplier cMin *tmp265
+op sub *tmp259 .nullified nL
+op sub *tmp260 nU nL
+op div :calculateModifier:normalized *tmp259 *tmp260
+op max *tmp262 :calculateModifier:normalized 0
+op min :calculateModifier:normalized *tmp262 1
+op sub *tmp264 nMax nMin
+op mul *tmp265 :calculateModifier:normalized *tmp264
+op add .nullifiedMultiplier nMin *tmp265
+op sub *tmp259 .time tL
+op sub *tmp260 tU tL
+op div :calculateModifier:normalized *tmp259 *tmp260
+op max *tmp262 :calculateModifier:normalized 0
+op min :calculateModifier:normalized *tmp262 1
+op sub *tmp264 tMax tMin
+op mul *tmp265 :calculateModifier:normalized *tmp264
+op add :calculateModifier:modifier tMin *tmp265
+op mul *tmp224 .coverageMultiplier .nullifiedMultiplier
+op mul .healthMultiplier *tmp224 :calculateModifier:modifier
+jump 108 equal @client false
+end
+set .serverTime @second
+sync .serverTime
+setrule blockHealth .healthMultiplier @blue 0 0 0
+op idiv *tmp227 .healthMultiplier 0.01
+op div :client:healthMultiplierDisplay *tmp227 100
+op idiv *tmp230 .coverage 0.0001
+op div :client:coverageDisplay *tmp230 100
+op idiv *tmp233 .coverageMultiplier 0.01
+op div :client:coverageMultiplierDisplay *tmp233 100
+op idiv *tmp236 .nullifiedMultiplier 0.01
+op div :client:nullifiedMultiplierDisplay *tmp236 100
+op idiv *tmp239 :calculateModifier:modifier 0.01
+op div :client:timeMultiplierDisplay *tmp239 100
+print "[royal] Flood Health: [sky]{0}x\n\n[royal] Flood Coverage: [sky]{0}x  {0}%\n\n[royal] Emitters Nullified: [sky]{0}x  {0} / {0}\n\n[royal] Time passed: [sky]\n{0}x  "
+format :client:healthMultiplierDisplay
+format :client:coverageMultiplierDisplay
+format :client:coverageDisplay
+format :client:nullifiedMultiplierDisplay
+format .nullifiedEmitters
+format .totalEmitters
+format :client:timeMultiplierDisplay
+op idiv :formatTime:hours .commonTime 3600
+op div *tmp243 .commonTime 60
+op mod *tmp244 *tmp243 60
+op floor :formatTime:minutes *tmp244 0
+op mod *tmp246 .commonTime 60
+op floor :formatTime:seconds *tmp246 0
+jump 137 greaterThanEq :formatTime:hours 10
+print "0"
+print :formatTime:hours
+print ":"
+jump 141 greaterThanEq :formatTime:minutes 10
+print "0"
+print :formatTime:minutes
+print ":"
+jump 145 greaterThanEq :formatTime:seconds 10
+print "0"
+print :formatTime:seconds
+message mission 0 :client:success
+jump 51 always 0 0
+jump 0 equal @client false
+fetch buildCount *tmp193 @blue 0 @scrap-wall
+fetch buildCount *tmp194 @blue 0 @titanium-wall
+op add *tmp195 *tmp193 *tmp194
+fetch buildCount *tmp196 @blue 0 @thorium-wall
+op add *tmp197 *tmp195 *tmp196
+fetch buildCount *tmp198 @blue 0 @phase-wall
+op add *tmp199 *tmp197 *tmp198
+fetch buildCount *tmp200 @blue 0 @surge-wall
+op add *tmp201 *tmp199 *tmp200
+fetch buildCount *tmp202 @blue 0 @reinforced-surge-wall
+op add *tmp203 *tmp201 *tmp202
+fetch buildCount *tmp204 @blue 0 @plastanium-wall
+op add *tmp205 *tmp203 *tmp204
+fetch buildCount *tmp206 @blue 0 @beryllium-wall
+op add *tmp207 *tmp205 *tmp206
+fetch buildCount *tmp208 @blue 0 @tungsten-wall
+op add *tmp209 *tmp207 *tmp208
+fetch buildCount *tmp210 @blue 0 @carbide-wall
+op add .floodedTiles *tmp209 *tmp210
+op div .coverage .floodedTiles .floodableTiles
+fetch coreCount *tmp213 @blue 0 0
+fetch buildCount *tmp214 @blue 0 @launch-pad
+op add *tmp215 *tmp213 *tmp214
+fetch buildCount *tmp216 @blue 0 @interplanetary-accelerator
+op add *tmp217 *tmp215 *tmp216
+op sub .nullifiedEmitters .totalEmitters *tmp217
+op div .nullified .nullifiedEmitters .totalEmitters
+op div .time .serverTime tValue
+op sub *tmp259 .coverage cL
+op sub *tmp260 cU cL
+op div :calculateModifier:normalized *tmp259 *tmp260
+op max *tmp262 :calculateModifier:normalized 0
+op min :calculateModifier:normalized *tmp262 1
+op sub *tmp264 cMax cMin
+op mul *tmp265 :calculateModifier:normalized *tmp264
+op add .coverageMultiplier cMin *tmp265
+op sub *tmp259 .nullified nL
+op sub *tmp260 nU nL
+op div :calculateModifier:normalized *tmp259 *tmp260
+op max *tmp262 :calculateModifier:normalized 0
+op min :calculateModifier:normalized *tmp262 1
+op sub *tmp264 nMax nMin
+op mul *tmp265 :calculateModifier:normalized *tmp264
+op add .nullifiedMultiplier nMin *tmp265
+op sub *tmp259 .time tL
+op sub *tmp260 tU tL
+op div :calculateModifier:normalized *tmp259 *tmp260
+op max *tmp262 :calculateModifier:normalized 0
+op min :calculateModifier:normalized *tmp262 1
+op sub *tmp264 tMax tMin
+op mul *tmp265 :calculateModifier:normalized *tmp264
+op add :calculateModifier:modifier tMin *tmp265
+op mul *tmp224 .coverageMultiplier .nullifiedMultiplier
+op mul .healthMultiplier *tmp224 :calculateModifier:modifier
+op idiv *tmp227 .healthMultiplier 0.01
+op div :client:healthMultiplierDisplay *tmp227 100
+op idiv *tmp230 .coverage 0.0001
+op div :client:coverageDisplay *tmp230 100
+op idiv *tmp233 .coverageMultiplier 0.01
+op div :client:coverageMultiplierDisplay *tmp233 100
+op idiv *tmp236 .nullifiedMultiplier 0.01
+op div :client:nullifiedMultiplierDisplay *tmp236 100
+op idiv *tmp239 :calculateModifier:modifier 0.01
+op div :client:timeMultiplierDisplay *tmp239 100
+print "[royal] Flood Health: [sky]{0}x\n\n[royal] Flood Coverage: [sky]{0}x  {0}%\n\n[royal] Emitters Nullified: [sky]{0}x  {0} / {0}\n\n[royal] Time passed: [sky]\n{0}x  "
+format :client:healthMultiplierDisplay
+format :client:coverageMultiplierDisplay
+format :client:coverageDisplay
+format :client:nullifiedMultiplierDisplay
+format .nullifiedEmitters
+format .totalEmitters
+format :client:timeMultiplierDisplay
+op idiv :formatTime:hours .serverTime 3600
+op div *tmp243 .serverTime 60
+op mod *tmp244 *tmp243 60
+op floor :formatTime:minutes *tmp244 0
+op mod *tmp246 .serverTime 60
+op floor :formatTime:seconds *tmp246 0
+jump 229 greaterThanEq :formatTime:hours 10
+print "0"
+print :formatTime:hours
+print ":"
+jump 233 greaterThanEq :formatTime:minutes 10
+print "0"
+print :formatTime:minutes
+print ":"
+jump 237 greaterThanEq :formatTime:seconds 10
+print "0"
+print :formatTime:seconds
+message mission 0 :client:success
+jump 149 always 0 0
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

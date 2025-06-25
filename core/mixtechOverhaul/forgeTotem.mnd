@@ -1,0 +1,414 @@
+#set syntax = strict;
+#set goal = speed;
+require "../../core/libs/interfaceLibrary.mnd";
+
+param totemX = 169;
+param totemY = 159;
+
+
+volatile processorId = "totem";
+var popupDismissed = false;
+
+// Tiles per second
+const aetherSpeed = 20;
+const baseAetherCooldown = 5;
+const baseAetherAmount = 1;
+const totemRange = 25;
+const CCCBoost = 1;
+
+noinit team, active;
+noinit forge, forgeX, forgeY;
+noinit totemBlock, totemType, aetherCooldown, nextAether, aetherAmount, aetherSize;
+noinit closestChamber1, closestChamber2, closestChamber3;
+noinit closestPyro1, closestPyro2, closestPyro3;
+noinit time, deltaTime;
+
+// Marker Stuff
+const length = 50;
+linked bufferX = cell1;
+linked bufferY = cell2;
+linked bufferSize = cell3;
+var id = getId(out id);
+var idTotem1 = id + length + 1;
+var idTotem2 = id + length + 2;
+var idTotem3 = id + length + 3;
+var idTotem4 = id + length + 4;
+var idTotem5 = id + length + 5;
+var idTotemRange = id + length + 6;
+var idCCC1 = id + length + 7;
+var idCCC2 = id + length + 8;
+var idCCC3 = id + length + 9;
+var idPG1 = id + length + 10;
+var idPG2 = id + length + 11;
+var idPG3 = id + length + 12;
+var idInfo = id + length + 13;
+var idPopup = id + length + 14;
+
+const titleColor = "[orange]";
+const subtitleColor = "[gold]";
+const highlightColor = "[blue]";
+const textColor = "[white]";
+
+begin
+
+    setrate(1000);
+
+    for var i in 0 .. length - 1 do
+        setmarker(:remove, id + i);
+        bufferX[i] = null;
+        bufferY[i] = null;
+    end;
+
+    setmarker(:remove, idTotem1);
+    setmarker(:remove, idTotem2);
+    setmarker(:remove, idTotem3);
+    setmarker(:remove, idTotem4);
+    setmarker(:remove, idTotem5);
+    setmarker(:remove, idTotemRange);
+    setmarker(:remove, idCCC1);
+    setmarker(:remove, idCCC2);
+    setmarker(:remove, idCCC3);
+    setmarker(:remove, idPG1);
+    setmarker(:remove, idPG2);
+    setmarker(:remove, idPG3);
+    setmarker(:remove, idInfo);
+    setmarker(:remove, idPopup);
+
+
+    initialize();
+
+    if @server then do
+        common();
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        common();
+        client();
+    while true; end;
+
+end;
+
+noinline void common()
+
+    totemBlock = getblock(:building, totemX, totemY);
+    totemType = totemBlock.sensor(@type);
+    if totemType != @battery then totemBlock = null; end;
+
+
+    if totemBlock != null then
+
+        team = totemBlock.sensor(@team);
+
+        if forge == null || forge.sensor(@dead) || team != forge.sensor(@team) then
+            forge = fetch(:build, team, 0, @flux-reactor);
+            forgeX = forge.sensor(@x);
+            forgeY = forge.sensor(@y);
+        end;
+
+        // cant be bothered to make it consume power, setprop totalPower is  a janky way to do it
+        // and mindcode was deleting variables
+
+    end;
+    // 3 closest chemical combustion chambers
+
+    active = totemBlock != null && forge != null;
+
+    closestChamber1 = null;
+    closestChamber2 = null;
+    closestChamber3 = null;
+
+    var min1 = null, min2 = null, min3 = null;
+    var dist1 = null, dist2 = null, dist3 = null;
+
+    for var i in 0 .. fetch(:buildCount, team, @chemical-combustion-chamber) do
+        var build = fetch(:build, team, i, @chemical-combustion-chamber);
+        if build.sensor(@dead) || build.sensor(@efficiency) != 1 then continue; end;
+        var distance = len(build.sensor(@x) - totemX, build.sensor(@y) - totemY);
+        if distance > totemRange then continue; end;
+
+        if dist1 == null || distance < dist1 then
+            dist3 = dist2; min3 = min2;
+            dist2 = dist1; min2 = min1;
+            dist1 = distance; min1 = build;
+        else if dist2 == null || distance < dist2 then
+            dist3 = dist2; min3 = min2;
+            dist2 = distance; min2 = build;
+        else if dist3 == null || distance < dist3 then
+            dist3 = distance; min3 = build;
+        end; end; end;
+    end;
+
+    closestChamber1 = min1;
+    closestChamber2 = min2;
+    closestChamber3 = min3;
+
+
+    aetherCooldown = baseAetherCooldown - closestChamber1.sensor(@efficiency) -
+                     closestChamber2.sensor(@efficiency) -
+                     closestChamber3.sensor(@efficiency);
+
+
+    // 3 closest pyrolysis generators
+
+     closestPyro1 = null;
+     closestPyro2 = null;
+     closestPyro3 = null;
+
+     min1 = null; min2 = null; min3 = null;
+     dist1 = null; dist2 = null; dist3 = null;
+
+     for var i in 0 .. fetch(:buildCount, team, @pyrolysis-generator) do
+         var build = fetch(:build, team, i, @pyrolysis-generator);
+         if build.sensor(@dead) || build.sensor(@efficiency) != 1 then continue; end;
+         var distance = len(build.sensor(@x) - totemX, build.sensor(@y) - totemY);
+         if distance > totemRange then continue; end;
+
+         if dist1 == null || distance < dist1 then
+             dist3 = dist2; min3 = min2;
+             dist2 = dist1; min2 = min1;
+             dist1 = distance; min1 = build;
+         else if dist2 == null || distance < dist2 then
+             dist3 = dist2; min3 = min2;
+             dist2 = distance; min2 = build;
+         else if dist3 == null || distance < dist3 then
+             dist3 = distance; min3 = build;
+         end; end; end;
+     end;
+
+     closestPyro1 = min1;
+     closestPyro2 = min2;
+     closestPyro3 = min3;
+
+     aetherAmount = baseAetherAmount + closestPyro1.sensor(@efficiency) +
+                      closestPyro2.sensor(@efficiency) +
+                      closestPyro3.sensor(@efficiency);
+
+
+end;
+
+noinline void server()
+
+
+end;
+
+noinline void client()
+
+
+    wait(1/60/60);
+    deltaTime = @second - time;
+    time = @second;
+
+    noinit color;
+    case team
+        when 1 then color = %ffd37f;
+        when 2 then color = %f25555;
+    end;
+    var angle = angle(forgeX - totemX, forgeY - totemY);
+
+    // Visual effects
+    noinit rotation;
+    if active != null then
+        rotation = (((baseAetherCooldown - aetherCooldown) / baseAetherCooldown) + 1)**3 * @tick;
+    end;
+
+    // ugly rotation snapping needs fix
+    setmarker(:rotation, idTotem2, rotation + 90);
+    setmarker(:rotation, idTotem3, rotation + 45);
+    setmarker(:rotation, idTotem4, rotation + 135);
+
+    // Mouse interaction
+
+    if len(@clientUnit.sensor(@shootX) - totemX, @clientUnit.sensor(@shootY) - totemY) < 2 then
+
+        makemarker(:shape, idTotemRange, 0, 0, false);
+        setmarker(:shape, idTotemRange, 50, 0, 1);
+        setmarker(:pos, idTotemRange, totemX, totemY);
+        setmarker(:radius, idTotemRange, totemRange * 8);
+
+        if closestChamber1 != null then
+            makemarker(:line, idCCC1, 0, 0, false);
+            setmarker(:pos, idCCC1, totemX, totemY);
+            setmarker(:endPos, idCCC1, closestChamber1.sensor(@x), closestChamber1.sensor(@y));
+            setmarker(:color, idCCC1, color);
+            setmarker(:drawLayer, idCCC1, 100);
+        end;
+        if closestChamber2 != null then
+            makemarker(:line, idCCC2, 0, 0, false);
+            setmarker(:pos, idCCC2, totemX, totemY);
+            setmarker(:endPos, idCCC2, closestChamber2.sensor(@x), closestChamber2.sensor(@y));
+            setmarker(:color, idCCC2, color);
+            setmarker(:drawLayer, idCCC2, 100);
+        end;
+        if closestChamber3 != null then
+            makemarker(:line, idCCC3, 0, 0, false);
+            setmarker(:pos, idCCC3, totemX, totemY);
+            setmarker(:endPos, idCCC3, closestChamber3.sensor(@x), closestChamber3.sensor(@y));
+            setmarker(:color, idCCC3, color);
+            setmarker(:drawLayer, idCCC3, 100);
+        end;
+        if closestPyro1 != null then
+            makemarker(:line, idPG1, 0, 0, false);
+            setmarker(:pos, idPG1, totemX, totemY);
+            setmarker(:endPos, idPG1, closestPyro1.sensor(@x), closestPyro1.sensor(@y));
+            setmarker(:color, idPG1, color);
+            setmarker(:drawLayer, idPG1, 100);
+        end;
+        if closestPyro2 != null then
+            makemarker(:line, idPG2, 0, 0, false);
+            setmarker(:pos, idPG2, totemX, totemY);
+            setmarker(:endPos, idPG2, closestPyro2.sensor(@x), closestPyro2.sensor(@y));
+            setmarker(:color, idPG2, color);
+            setmarker(:drawLayer, idPG2, 100);
+        end;
+        if closestPyro3 != null then
+            makemarker(:line, idPG3, 0, 0, false);
+            setmarker(:pos, idPG3, totemX, totemY);
+            setmarker(:endPos, idPG3, closestPyro3.sensor(@x), closestPyro3.sensor(@y));
+            setmarker(:color, idPG3, color);
+            setmarker(:drawLayer, idPG3, 100);
+        end;
+
+        print(titleColor, " Aether Totem \n", textColor);
+
+        if active == null then
+            print(textColor, "Build a battery  to\nconnect it to the network.\n\n Build the Forge \nto start generating Aether.");
+        else
+            print(subtitleColor, "Interval:", textColor, " ", floor(aetherCooldown * 10) / 10);
+            print( " (", closestChamber1 + closestChamber2 + closestChamber3, " / 3 )");
+            print(subtitleColor, "\nAmount:", textColor, " ", floor(aetherAmount * 10) / 10);
+            print( " (", closestPyro1 + closestPyro2 + closestPyro3, " / 3 )");
+        end;
+
+        makemarker(:text, idInfo, 0, 0, false);
+        setmarker(:flushText, idInfo, 0);
+        setmarker(:autoscale, idInfo, 0);
+        setmarker(:fontSize, idInfo, 1.5);
+        setmarker(:pos, idInfo, totemX, totemY - 2);
+
+    else
+        setmarker(:remove, idTotemRange);
+        setmarker(:remove, idCCC1);
+        setmarker(:remove, idCCC2);
+        setmarker(:remove, idCCC3);
+        setmarker(:remove, idPG1);
+        setmarker(:remove, idPG2);
+        setmarker(:remove, idPG3);
+        setmarker(:remove, idInfo);
+    end;
+
+    // Popup
+
+    popup(idPopup, processorId, popupDismissed, totemX, totemY, 3);
+
+    // Aether packets
+
+    aetherSize = aetherAmount * 4;
+
+    if active != null then
+        if @second > nextAether then
+            nextAether = @second + aetherCooldown;
+            for var i in 0 .. length - 1 do
+                if bufferX[i] == null then
+                    bufferX[i] = totemX;
+                    bufferY[i] = totemY;
+                    bufferSize[i] = 0;
+
+                    makemarker(:shape, id + i, 0, 0, false);
+                    setmarker(:shape, id + i, 8, 0, 1);
+                    setmarker(:stroke, id + i, 2);
+                    setmarker(:drawLayer, id + i , 100);
+                    setmarker(:color, id + i, color);
+
+                    effect(:smokePuff, totemX, totemY, color);
+
+                    break;
+                end;
+            end;
+        end;
+    end;
+
+    for var i in 0 .. length - 1 do
+        if bufferX[i] != null then
+
+            noinit newSize;
+            if len(bufferX[i] - forgeX, bufferY[i] - forgeY) < 0.5 then
+                bufferX[i] = forgeX;
+                bufferY[i] = forgeY;
+                newSize = max(bufferSize[i] + aetherSpeed * -deltaTime, 0);
+                if newSize == 0 then
+                    bufferX[i] = null;
+                    bufferY[i] = null;
+                    setmarker(:remove, id + i);
+                else
+                    bufferSize[i] = newSize;
+                    setmarker(:pos, id + i, forgeX, forgeY);
+                    setmarker(:radius, id + i, newSize);
+                    setmarker(:rotation, id + i, @tick);
+                end;
+            else
+
+                newSize = min(bufferSize[i] + aetherSpeed * deltaTime, aetherSize);
+                var newX = bufferX[i] + aetherSpeed * cos(angle) * deltaTime;
+                var newY = bufferY[i] + aetherSpeed * sin(angle) * deltaTime;
+
+                if newSize != aetherSize && len(bufferX[i] - totemX, bufferY[i] - totemY) < 0.5 then
+                    newX = totemX;
+                    newY = totemY;
+                end;
+
+                bufferX[i] = newX;
+                bufferY[i] = newY;
+                bufferSize[i] = newSize;
+
+                setmarker(:pos, id + i, newX, newY);
+                setmarker(:radius, id + i , newSize);
+                setmarker(:rotation, id + i, @tick);
+
+            end;
+        end;
+    end;
+end;
+
+void initialize()
+
+        makemarker(:shape, idTotem1, 0, 0, false);
+        setmarker(:shape, idTotem1, 4, 1, 1);
+        setmarker(:pos, idTotem1, totemX, totemY);
+        setmarker(:radius, idTotem1, 10);
+        setmarker(:drawLayer, idTotem1, 35);
+
+        makemarker(:shape, idTotem2, 0, 0, false);
+        setmarker(:shape, idTotem2, 4, 1, 1);
+        setmarker(:pos, idTotem2, totemX, totemY);
+        setmarker(:radius, idTotem2, 4);
+
+        setmarker(:drawLayer, idTotem2, 100);
+        setmarker(:color, idTotem2, %ff4646);
+
+        makemarker(:texture, idTotem3, 0, 0, false);
+        setmarker(:texture, idTotem3, 0, "ring-item");
+        setmarker(:pos, idTotem3, totemX, totemY);
+
+        setmarker(:textureSize, idTotem3, 1, 3.5);
+        setmarker(:drawLayer, idTotem3, 35.1);
+        setmarker(:color, idTotem3, %24e404);
+
+        makemarker(:texture, idTotem4, 0, 0, false);
+        setmarker(:texture, idTotem4, 0, "ring-item");
+        setmarker(:pos, idTotem4, totemX, totemY);
+
+        setmarker(:textureSize, idTotem4, 1, 3.5);
+        setmarker(:drawLayer, idTotem4, 35.1);
+        setmarker(:color, idTotem4, %24e404);
+
+        makemarker(:texture, idTotem5, 0, 0, false);
+        setmarker(:texture, idTotem5, 0, "square-shadow");
+        setmarker(:pos, idTotem5, totemX, totemY);
+        setmarker(:rotation, idTotem5, 45);
+        setmarker(:textureSize, idTotem5, 3, 3);
+        setmarker(:color, idTotem5, %00000099);
+        setmarker(:drawLayer, idTotem5, 29);
+
+end;

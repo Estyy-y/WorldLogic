@@ -1,0 +1,260 @@
+#set syntax = strict;
+require "../../core/libs/interfaceLibrary.mnd";
+
+
+// param makes the compiled variable name the same
+param popupDismissed = false;
+
+const copperByproducts[] = (@lead, 0.75, @beryllium, 0.4, @oxide, 0.1);
+const leadByproducts[] = (@sand, 0.8, @pyratite, 0.3, @thorium, 0.05);
+const coalByproducts[] = (@graphite, 0.35, @carbide, 0.02, null, null);
+const sandByproducts[] = (@metaglass, 0.5, @silicon, 0.2, @phase-fabric, 0.02);
+const scrapByproducts[] = (@titanium, 0.25, @plastanium, 0.1, @surge-alloy, 0.04);
+const titaniumByproducts[] = (@lead, 0.9, @graphite, 0.4, @tungsten, 0.08);
+const thoriumByproducts[] = (@fissile-matter, 0.75, @phase-fabric, 0.2, null, null);
+const berylliumByproducts[] = (@copper, 0.5, @graphite, 0.4, @thorium, 0.03);
+const tungstenByproducts[] = (@coal, 0.8, @titanium, 0.6, @carbide, 0.08);
+
+const impactMultiplier = 0.75;
+const eruptionMultiplier = 2.0;
+
+noinit byproduct1, byproductChance1, byproduct2, byproductChance2, byproduct3, byproductChance3;
+
+var id = getId(out id);
+var idInfo = id;
+var idPopup = id + 1;
+
+var titleColor = "[orange]";
+var subtitleColor = "[gold]";
+var highlightColor = "[blue]";
+var textColor = "[white]";
+
+begin
+
+    setrate(100);
+
+    if @server then do
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        client();
+    while true; end;
+
+end;
+
+void server()
+
+    if @client then end(); end;
+
+    for var team in @sharded, @crux do
+
+        var core = fetch(:core, team, 0);
+
+        for var i in 0 .. fetch(:buildCount, team, @impact-drill) do
+            var drill = fetch(:build, team, i,  @impact-drill);
+
+            var resource = drill.sensor(@firstItem);
+            var resourceAmount = drill.sensor(resource);
+
+            if resourceAmount > 0 then
+                drill.setprop(resource, 0);
+
+                getResources(resource);
+
+                resourceAmount *= impactMultiplier;
+                core.setprop(resource, core.sensor(resource) + resourceAmount);
+                if rand(1) < byproductChance1 then core.setprop(byproduct1, core.sensor(byproduct1) + resourceAmount); end;
+                if rand(1) < byproductChance2 then core.setprop(byproduct2, core.sensor(byproduct2) + resourceAmount); end;
+                if rand(1) < byproductChance3 then core.setprop(byproduct3, core.sensor(byproduct3) + resourceAmount); end;
+
+            end;
+        end;
+    end;
+
+    for var team in @sharded, @crux do
+
+        var core = fetch(:core, team, 0);
+
+        for var i in 0 .. fetch(:buildCount, team, @eruption-drill) do
+            var drill = fetch(:build, team, i, @eruption-drill);
+
+            var resource = drill.sensor(@firstItem);
+            var resourceAmount = drill.sensor(resource);
+
+            if resourceAmount > 0 then
+                drill.setprop(resource, 0);
+
+                getResources(resource);
+
+                resourceAmount *= eruptionMultiplier;
+                core.setprop(resource, core.sensor(resource) + resourceAmount);
+                if rand(1) < byproductChance1 then core.setprop(byproduct1, core.sensor(byproduct1) + resourceAmount); end;
+                if rand(1) < byproductChance2 then core.setprop(byproduct2, core.sensor(byproduct2) + resourceAmount); end;
+                if rand(1) < byproductChance3 then core.setprop(byproduct3, core.sensor(byproduct3) + resourceAmount); end;
+
+            end;
+        end;
+    end;
+end;
+
+void client()
+
+    var cursorX = @clientUnit.sensor(@shootX);
+    var cursorY = @clientUnit.sensor(@shootY);
+    var drill = getblock(:building, cursorX, cursorY);
+
+    if drill.sensor(@type) == @impact-drill || drill.sensor(@type) == @eruption-drill then
+
+        var resource = drill.sensor(@firstItem);
+
+        getResources(resource);
+        print(titleColor, " Byproducts ", textColor);
+        print("\n");
+        printchar(byproduct1);
+        print(" ", byproductChance1 * 100, "%");
+        print("\n");
+        printchar(byproduct2);
+        print(" ", byproductChance2 * 100, "%");
+        if byproduct3 != null then
+            print("\n");
+            printchar(byproduct3);
+            print(" ", byproductChance3 * 100, "%");
+        end;
+
+        makemarker(:text, idInfo, 0, 0, false);
+        setmarker(:flushText, idInfo, 0);
+        setmarker(:autoscale, idInfo, 0);
+        setmarker(:fontSize, idInfo, 1.5);
+        setmarker(:pos, idInfo, drill.sensor(@x), drill.sensor(@y) - drill.sensor(@size) + 1);
+
+
+    else
+        setmarker(:remove, idInfo);
+    end;
+
+    if !popupDismissed then
+
+        var closestDistance = 9999;
+        noinit closestDrill;
+
+        var cameraX = @clientUnit.sensor(@cameraX);
+        var cameraY = @clientUnit.sensor(@cameraY);
+
+        for var i in 0 .. fetch(:buildCount, @clientUnit.sensor(@team), @impact-drill) do
+            var drillTemp = fetch(:build, @clientUnit.sensor(@team), i, @impact-drill);
+            var distanceTemp = len(drillTemp.sensor(@x) - cameraX, drillTemp.sensor(@y) - cameraY);
+            if closestDistance > distanceTemp then
+                closestDistance = distanceTemp;
+                closestDrill = drillTemp;
+            end;
+        end;
+
+        if closestDrill != null then
+
+            var drillX = closestDrill.sensor(@x);
+            var drillY = closestDrill.sensor(@y);
+
+            print(titleColor, " ", textColor, "", titleColor, " / ", textColor, "", titleColor, " Rework ",
+                  textColor, "\n\nOpen the minimap to read\n about the changes.\n\n");
+
+            var closeButton = playerButton(in drillX - 3, in drillY + closestDrill.sensor(@size) - 0.5, in 3.5, in 1.5, in @clientUnit);
+            print(closeButton != 0 ? highlightColor : textColor);
+            print("[ Close ]");
+            print(textColor, " / ");
+            var closeAllButton = playerButton(in drillX + 2.3, in drillY + closestDrill.sensor(@size) - 0.5, in 4.5, in 1.5, in @clientUnit);
+            print(closeAllButton != 0 ? highlightColor : textColor);
+            print("[ Close All ]");
+            print(closeAllButton != 0 ? highlightColor : textColor);
+
+            if closeButton == 2 then
+                popupDismissed = true;
+            end;
+
+            makemarker(:text, idPopup, 0, 0, false);
+            setmarker(:flushText, idPopup, 0);
+            setmarker(:autoscale, idPopup, 0);
+            setmarker(:fontSize, idPopup, 1.5);
+            setmarker(:pos, idPopup, drillX, drillY + closestDrill.sensor(@size) + 4);
+
+        end;
+    else
+        setmarker(:remove, idPopup);
+    end;
+end;
+
+void getResources(in resource)
+    case resource
+        when @copper then
+            byproduct1 = copperByproducts[0];
+            byproductChance1 = copperByproducts[1];
+            byproduct2 = copperByproducts[2];
+            byproductChance2 = copperByproducts[3];
+            byproduct3 = copperByproducts[4];
+            byproductChance3 = copperByproducts[5];
+        when @lead then
+            byproduct1 = leadByproducts[0];
+            byproductChance1 = leadByproducts[1];
+            byproduct2 = leadByproducts[2];
+            byproductChance2 = leadByproducts[3];
+            byproduct3 = leadByproducts[4];
+            byproductChance3 = leadByproducts[5];
+        when @coal then
+            byproduct1 = coalByproducts[0];
+            byproductChance1 = coalByproducts[1];
+            byproduct2 = coalByproducts[2];
+            byproductChance2 = coalByproducts[3];
+            byproduct3 = coalByproducts[4];
+            byproductChance3 = coalByproducts[5];
+        when @sand then
+            byproduct1 = sandByproducts[0];
+            byproductChance1 = sandByproducts[1];
+            byproduct2 = sandByproducts[2];
+            byproductChance2 = sandByproducts[3];
+            byproduct3 = sandByproducts[4];
+            byproductChance3 = sandByproducts[5];
+        when @scrap then
+            byproduct1 = scrapByproducts[0];
+            byproductChance1 = scrapByproducts[1];
+            byproduct2 = scrapByproducts[2];
+            byproductChance2 = scrapByproducts[3];
+            byproduct3 = scrapByproducts[4];
+            byproductChance3 = scrapByproducts[5];
+        when @titanium then
+            byproduct1 = titaniumByproducts[0];
+            byproductChance1 = titaniumByproducts[1];
+            byproduct2 = titaniumByproducts[2];
+            byproductChance2 = titaniumByproducts[3];
+            byproduct3 = titaniumByproducts[4];
+            byproductChance3 = titaniumByproducts[5];
+        when @thorium then
+            byproduct1 = thoriumByproducts[0];
+            byproductChance1 = thoriumByproducts[1];
+            byproduct2 = thoriumByproducts[2];
+            byproductChance2 = thoriumByproducts[3];
+            byproduct3 = thoriumByproducts[4];
+            byproductChance3 = thoriumByproducts[5];
+        when @beryllium then
+            byproduct1 = berylliumByproducts[0];
+            byproductChance1 = berylliumByproducts[1];
+            byproduct2 = berylliumByproducts[2];
+            byproductChance2 = berylliumByproducts[3];
+            byproduct3 = berylliumByproducts[4];
+            byproductChance3 = berylliumByproducts[5];
+        when @tungsten then
+            byproduct1 = tungstenByproducts[0];
+            byproductChance1 = tungstenByproducts[1];
+            byproduct2 = tungstenByproducts[2];
+            byproductChance2 = tungstenByproducts[3];
+            byproduct3 = tungstenByproducts[4];
+            byproductChance3 = tungstenByproducts[5];
+        else
+            byproduct1 = null;
+            byproductChance1 = 0;
+            byproduct2 = null;
+            byproductChance2 = 0;
+            byproduct3 = null;
+            byproductChance3 = 0;
+    end;
+end;

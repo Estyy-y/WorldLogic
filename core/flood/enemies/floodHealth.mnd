@@ -1,0 +1,141 @@
+#set syntax = strict;
+require "../../../core/libs/interfaceLibrary.mnd";
+
+param overwriteFloodableTiles = null;
+
+noinit healthMultiplier;
+
+noinit floodableTiles, floodedTiles, coverage, coverageMultiplier;
+param cMin= 1.5;
+param cMax = 0.75;
+param cL = 0.05;
+param cU= 0.95;
+
+noinit totalEmitters, nullifiedEmitters, nullified, nullifiedMultiplier;
+param nMin = 0.75;
+param nMax = 1.5;
+param nL = 0;
+param nU = 0.75;
+
+noinit serverTime, commonTime, time, timeMultiplier;
+param tValue = 3600;
+param tMin = 0.75;
+param tMax = 1.5;
+param tL = 0;
+param tU = 1;
+
+begin
+
+    setrate(1000);
+
+    if overwriteFloodableTiles == null then
+        for var y in 0 .. @maph do
+            for var x in 0 .. @mapw do
+                if getblock(:building, x, y) != null then
+                    floodableTiles++;
+                    continue;
+                end;
+                if getblock(:block, x, y) != @air then continue; end;
+                if isFloodable(getblock(:floor, x, y)) then floodableTiles++; end;
+            end;
+        end;
+    else floodableTiles = overwriteFloodableTiles; end;
+
+    totalEmitters = fetch(:coreCount, @blue) +
+                    fetch(:buildCount, @blue, @launch-pad) +
+                    fetch(:buildCount, @blue, @interplanetary-accelerator);
+
+    commonTime = @second;
+
+    if @server then do
+        common();
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        common();
+        client();
+    while true; end;
+
+end;
+
+void common()
+
+    floodedTiles = fetch(:buildCount, @blue, @scrap-wall) +
+                   fetch(:buildCount, @blue, @titanium-wall) +
+                   fetch(:buildCount, @blue, @thorium-wall) +
+                   fetch(:buildCount, @blue, @phase-wall) +
+                   fetch(:buildCount, @blue, @surge-wall) +
+                   fetch(:buildCount, @blue, @reinforced-surge-wall) +
+                   fetch(:buildCount, @blue, @plastanium-wall) +
+                   fetch(:buildCount, @blue, @beryllium-wall) +
+                   fetch(:buildCount, @blue, @tungsten-wall) +
+                   fetch(:buildCount, @blue, @carbide-wall);
+
+    coverage = floodedTiles / floodableTiles;
+
+    nullifiedEmitters = totalEmitters - (
+                        fetch(:coreCount, @blue) +
+                        fetch(:buildCount, @blue, @launch-pad) +
+                        fetch(:buildCount, @blue, @interplanetary-accelerator));
+
+    nullified = nullifiedEmitters / totalEmitters;
+
+    commonTime = serverTime;
+    time = commonTime / tValue;
+
+    coverageMultiplier = calculateModifier(coverage, cL, cU, cMin, cMax);
+    nullifiedMultiplier = calculateModifier(nullified, nL, nU, nMin, nMax);
+    timeMultiplier = calculateModifier(time, tL, tU, tMin, tMax);
+
+    healthMultiplier = coverageMultiplier * nullifiedMultiplier * timeMultiplier;
+
+end;
+
+void server()
+
+    if @client then end(); end;
+
+    serverTime = @second;
+    sync(serverTime);
+
+    setrule(:blockHealth, healthMultiplier, @blue);
+
+end;
+
+void client()
+
+    var success;
+    var healthMultiplierDisplay = floor(healthMultiplier * 100) / 100;
+    var coverageDisplay = floor(coverage * 10000) / 100;
+    var coverageMultiplierDisplay = floor(coverageMultiplier * 100) / 100;
+    var nullifiedMultiplierDisplay = floor(nullifiedMultiplier * 100) / 100;
+    var timeMultiplierDisplay = floor(timeMultiplier * 100) / 100;
+
+    print("[royal] Flood Health: [sky]", healthMultiplierDisplay ,"x\n\n");
+    print("[royal] Flood Coverage: [sky]", coverageMultiplierDisplay, "x  ", coverageDisplay, "%\n\n");
+    print("[royal] Emitters Nullified: [sky]", nullifiedMultiplierDisplay , "x  ", nullifiedEmitters, " / ", totalEmitters, "\n\n");
+    print("[royal] Time passed: [sky]\n");
+    print(timeMultiplierDisplay, "x  ");
+    formatTime(commonTime, 1, 1, 1);
+
+    message(:mission, out success);
+
+end;
+
+def calculateModifier(in value, in lower, in upper, in minVal, in maxVal)
+    var normalized = (value - lower) / (upper - lower);
+    normalized = min(max(normalized, 0), 1);
+    var modifier = minVal + normalized * (maxVal - minVal);
+    return modifier;
+end;
+
+def isFloodable(in floor)
+    case floor
+        when @deep-water, @deep-tainted-water, @tar, @cryofluid, @slag, @space, @empty then return false;
+        else return true;
+    end;
+end;
+
+

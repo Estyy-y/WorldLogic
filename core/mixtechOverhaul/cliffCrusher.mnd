@@ -1,0 +1,57 @@
+#set syntax = strict;
+//require "../../../core/libs/interfaceLibrary.mnd";
+
+noinit nextUpdate;
+
+begin
+
+    setrate(100);
+
+    if @server then do
+        common();
+    while true; end;
+
+    if @client then do
+        common();
+    while true; end;
+
+end;
+
+void common()
+
+    var secondLocked = @second;
+    noinit updated;
+
+    for var team in @sharded, @crux do
+        for var i in 0 .. fetch(:buildCount, team, @cliff-crusher) do
+            var crusher = fetch(:build, team, i,  @cliff-crusher);
+
+            var crusherHealth = crusher.sensor(@health);
+            var crusherMaxHealth = crusher.sensor(@maxHealth);
+
+            if secondLocked > nextUpdate then
+                if crusherHealth > crusherMaxHealth * 0.1 then
+                    crusher.setprop(@health, crusherHealth - crusherMaxHealth * 0.05);
+                else
+                    effect(:hit, crusher.sensor(@x), crusher.sensor(@y), %ff7f7f);
+                end;
+                updated = 1;
+            end;
+
+
+            if crusherHealth > crusherMaxHealth * 0.1 then
+                crusher.enabled(1);
+            else
+                crusher.enabled(0);
+                if crusher.sensor(@enabled) == 1 then crusher.setprop(@health, 0); end;
+            end;
+
+        end;
+    end;
+
+    if @second > nextUpdate && updated == 1 then
+        nextUpdate = @second + 1;
+        updated = 0;
+    end;
+
+end;

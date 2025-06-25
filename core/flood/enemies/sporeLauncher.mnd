@@ -1,0 +1,69 @@
+#set syntax = strict;
+require "../../../core/libs/interfaceLibrary.mnd";
+
+noinit launcher, serverTime;
+param startingDelay = 600;
+
+var id = getId(out id);
+var idText = id;
+
+begin
+
+    var link = getlink(0);
+    do
+        launcher = getblock(:building, link.sensor(@x), link.sensor(@y));
+    while launcher.sensor(@type) != @thorium-reactor;
+
+    if @server then do
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        client();
+    while true; end;
+
+end;
+
+void server();
+
+    if @client then end(); end;
+
+    if @second < startingDelay then
+        launcher.enabled = false;
+    else
+        launcher.enabled = true;
+    end;
+
+    serverTime = @second;
+    sync(serverTime);
+
+end;
+
+void client();
+
+    if launcher.sensor(@dead) then
+        setmarker(:remove, idText);
+        end();
+    end;
+
+    var clientTime = serverTime;
+    if clientTime <= startingDelay then
+
+
+        var launcherX = launcher.sensor(@x);
+        var launcherY = launcher.sensor(@y);
+
+        makemarker(:text, idText, 0, 0, false);
+        setmarker(:autoscale, idText, true);
+        setmarker(:pos, idText, launcherX, launcherY - launcher.sensor(@size));
+
+        formatTime(startingDelay - clientTime, 0, 1, 1);
+        setmarker(:flushText, idText, 0);
+
+    else
+
+        setmarker(:remove, idText);
+
+    end;
+end;

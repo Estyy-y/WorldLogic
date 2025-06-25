@@ -1,0 +1,128 @@
+setrate 100
+jump 124 equal @server false
+set :server:index 0
+set :server:team @sharded
+set *tmp1 6
+jump 14 always 0 0
+set :server:team @crux
+set *tmp1 9
+jump 14 always 0 0
+set :server:team @malis
+set *tmp1 12
+jump 14 always 0 0
+set :server:team @green
+set *tmp1 123
+fetch buildCount *tmp4 :server:team 0 @vent-condenser
+set :server:i 0
+jump 122 greaterThan 0 *tmp4
+fetch build :server:condenser :server:team :server:i @vent-condenser
+op mul *tmp196 :server:index 2
+op add @counter *tmp196 20
+set .buildings*0 :server:condenser
+jump 119 always 0 0
+set .buildings*1 :server:condenser
+jump 119 always 0 0
+set .buildings*2 :server:condenser
+jump 119 always 0 0
+set .buildings*3 :server:condenser
+jump 119 always 0 0
+set .buildings*4 :server:condenser
+jump 119 always 0 0
+set .buildings*5 :server:condenser
+jump 119 always 0 0
+set .buildings*6 :server:condenser
+jump 119 always 0 0
+set .buildings*7 :server:condenser
+jump 119 always 0 0
+set .buildings*8 :server:condenser
+jump 119 always 0 0
+set .buildings*9 :server:condenser
+jump 119 always 0 0
+set .buildings*10 :server:condenser
+jump 119 always 0 0
+set .buildings*11 :server:condenser
+jump 119 always 0 0
+set .buildings*12 :server:condenser
+jump 119 always 0 0
+set .buildings*13 :server:condenser
+jump 119 always 0 0
+set .buildings*14 :server:condenser
+jump 119 always 0 0
+set .buildings*15 :server:condenser
+jump 119 always 0 0
+set .buildings*16 :server:condenser
+jump 119 always 0 0
+set .buildings*17 :server:condenser
+jump 119 always 0 0
+set .buildings*18 :server:condenser
+jump 119 always 0 0
+set .buildings*19 :server:condenser
+jump 119 always 0 0
+set .buildings*20 :server:condenser
+jump 119 always 0 0
+set .buildings*21 :server:condenser
+jump 119 always 0 0
+set .buildings*22 :server:condenser
+jump 119 always 0 0
+set .buildings*23 :server:condenser
+jump 119 always 0 0
+set .buildings*24 :server:condenser
+jump 119 always 0 0
+set .buildings*25 :server:condenser
+jump 119 always 0 0
+set .buildings*26 :server:condenser
+jump 119 always 0 0
+set .buildings*27 :server:condenser
+jump 119 always 0 0
+set .buildings*28 :server:condenser
+jump 119 always 0 0
+set .buildings*29 :server:condenser
+jump 119 always 0 0
+set .buildings*30 :server:condenser
+jump 119 always 0 0
+set .buildings*31 :server:condenser
+jump 119 always 0 0
+set .buildings*32 :server:condenser
+jump 119 always 0 0
+set .buildings*33 :server:condenser
+jump 119 always 0 0
+set .buildings*34 :server:condenser
+jump 119 always 0 0
+set .buildings*35 :server:condenser
+jump 119 always 0 0
+set .buildings*36 :server:condenser
+jump 119 always 0 0
+set .buildings*37 :server:condenser
+jump 119 always 0 0
+set .buildings*38 :server:condenser
+jump 119 always 0 0
+set .buildings*39 :server:condenser
+jump 119 always 0 0
+set .buildings*40 :server:condenser
+jump 119 always 0 0
+set .buildings*41 :server:condenser
+jump 119 always 0 0
+set .buildings*42 :server:condenser
+jump 119 always 0 0
+set .buildings*43 :server:condenser
+jump 119 always 0 0
+set .buildings*44 :server:condenser
+jump 119 always 0 0
+set .buildings*45 :server:condenser
+jump 119 always 0 0
+set .buildings*46 :server:condenser
+jump 119 always 0 0
+set .buildings*47 :server:condenser
+jump 119 always 0 0
+set .buildings*48 :server:condenser
+jump 119 always 0 0
+set .buildings*49 :server:condenser
+op add :server:index :server:index 1
+op add :server:i :server:i 1
+jump 17 lessThanEq :server:i *tmp4
+set @counter *tmp1
+jump 2 always 0 0
+jump 0 equal @client false
+jump 125 always 0 0
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

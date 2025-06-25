@@ -1,0 +1,317 @@
+#set syntax = strict;
+#set goal = size;
+require "../../core/libs/interfaceLibrary.mnd";
+
+volatile processorId = "forge";
+
+noinit interfaceX;
+var offsetX = 6;
+
+noinit team;
+noinit forgeBlock, lastForgeBlock, forgeX, forgeY;
+volatile noinit aetherProduction, totalAether, nextUpdate, aetherMultiplier;
+noinit buttonCooldown;
+
+var id = getId(out id);
+var idForge = id + 1;
+var idForgeDisplay = id + 2;
+var idForgeUpgrades = id + 3;
+var idForgeAetherDisplay = id + 4;
+var idPopup = id + 5;
+var popupDismissed = false;
+
+const titleColor = "[orange]";
+const subtitleColor = "[gold]";
+const highlightColor = "[blue]";
+const textColor = "[white]";
+
+const dataSize = 8;
+const upgradeCount = 9;
+volatile upgrade = 0;
+// Text, symbol, cost, cost increase, increaseType, level, max level, buff number
+volatile upgradeList[] = (
+    "Unit Capacity", "", 50, 50, "additive", 0, 25, 1,
+    "Unit Health", "", 75, 2, "multiplicative", 0, 0, 0.2,
+    "Unit Damage", "", 100, 2, "multiplicative", 0, 0, 0.2,
+    "Unit Cost", "", 200, 1.4, "multiplicative", 0, 15, -0.05,
+    "Unit Build Speed", "", 300, 100, "additive", 0, 5, 0.2,
+    "Unit Mining Speed", "", 150, 1.2, "multiplicative", 0, 0, 0.06,
+    "Block Health", "",  75, 2, "multiplicative", 0, 0, 0.2,
+    "Block Damage",  "", 100, 2, "multiplicative", 0, 0, 0.2,
+    "Block Build Speed", "", 200, 2.5, "multiplicative", 0, 5, 0.4
+
+);
+
+var baseUnitCap = 25;
+
+begin
+
+    setrate(1000);
+    team = @this.sensor(@team);
+
+    interfaceX = 76.5;
+    //totalAether = 1000000;
+    setmarker(:remove, idForge);
+    setmarker(:remove, idForgeDisplay);
+    setmarker(:remove, idForgeUpgrades);
+    setmarker(:remove, idForgeAetherDisplay);
+
+    if @server then do
+        common();
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        common();
+        client();
+    while true; end;
+
+end;
+
+noinline void common()
+
+    if forgeBlock == null || forgeBlock.sensor(@dead) then
+        forgeBlock = fetch(:build, @sharded, 0, @flux-reactor);
+    end;
+
+    forgeX = forgeBlock.sensor(@x);
+    forgeY = forgeBlock.sensor(@y);
+
+end;
+
+noinline void server()
+
+    aetherProduction = 0;
+    noinit processorId;
+    for var i in 0 .. fetch(:buildCount, @sharded, @world-processor) do
+        var processor = fetch(:build, @sharded, i, @world-processor);
+        // If the processor doesn't have the variable it keeps the last value (anuke issue)
+        // make sure all processors have the variable
+        processorId = processor.read(".processorId");
+        if processorId == "totem" then
+            if processor.read(".active") == 0 then
+                continue;
+            end;
+            aetherProduction += processor.read(".aetherAmount") / processor.read(".aetherCooldown");
+        end;
+    end;
+
+    sync(aetherProduction);
+
+    aetherMultiplier = forgeBlock.sensor(@efficiency) * 3 + 1;
+
+    if @second > nextUpdate then
+        nextUpdate = @second + 1;
+        totalAether += aetherProduction * aetherMultiplier;
+        sync(totalAether);
+        sync(aetherMultiplier);
+    end;
+
+    var previousUpgrade = mapButton(interfaceX + offsetX - 5.75, -3.6, 3.5, 2, team);
+    var nextUpgrade = mapButton(interfaceX + offsetX + 5.75, -3.6, 3.5, 2, team);
+
+    if previousUpgrade == 2 && @second > buttonCooldown then
+        if upgrade == 0 then
+            upgrade = (upgradeCount - 1) * dataSize;
+        else
+            upgrade -= dataSize;
+        end;
+        buttonCooldown = @second + 0.5;
+    end;
+
+    if nextUpgrade == 2 && @second > buttonCooldown then
+        if upgrade == (upgradeCount - 1) * dataSize then
+            upgrade = 0;
+        else
+            upgrade += dataSize;
+        end;
+        buttonCooldown = @second + 0.5;
+    end;
+
+    sync(upgrade);
+
+    var buyButton = mapButton(interfaceX + offsetX, -16.75, 3.5, 2, team);
+
+    if buyButton == 2 && @second > buttonCooldown then
+        if totalAether >= upgradeList[upgrade + 2] then
+            var level = upgradeList[upgrade + 5];
+            if level < upgradeList[upgrade + 6] || upgradeList[upgrade + 6] == null then
+                upgradeList[upgrade + 5] += 1;
+                totalAether -= upgradeList[upgrade + 2];
+                sync(totalAether);
+
+                sync(upgradeList[dataSize * 0 + 5]);
+                sync(upgradeList[dataSize * 1 + 5]);
+                sync(upgradeList[dataSize * 2 + 5]);
+                sync(upgradeList[dataSize * 3 + 5]);
+                sync(upgradeList[dataSize * 4 + 5]);
+                sync(upgradeList[dataSize * 5 + 5]);
+                sync(upgradeList[dataSize * 6 + 5]);
+                sync(upgradeList[dataSize * 7 + 5]);
+                sync(upgradeList[dataSize * 8 + 5]);
+
+                if upgradeList[upgrade + 4] == "additive" then
+                    upgradeList[upgrade + 2] += upgradeList[upgrade + 3];
+                else
+                    upgradeList[upgrade + 2] *= upgradeList[upgrade + 3];
+                end;
+            end;
+        end;
+        buttonCooldown = @second + 0.5;
+    end;
+
+    setrule(:unitCap, baseUnitCap + upgradeList[dataSize * 0 + 7] * upgradeList[dataSize * 0 + 5]);
+    setrule(:unitHealth, 1 + upgradeList[dataSize * 1 + 7] * upgradeList[dataSize * 1 + 5], team);
+    setrule(:unitDamage, 1 + upgradeList[dataSize * 2 + 7] * upgradeList[dataSize * 2 + 5], team);
+    setrule(:unitCost, 1 + upgradeList[dataSize * 3 + 7] * upgradeList[dataSize * 3 + 5], team);
+    setrule(:unitBuildSpeed, 1 + upgradeList[dataSize * 4 + 7] * upgradeList[dataSize * 4 + 5], team);
+    setMiningSpeed(1 + upgradeList[dataSize * 5 + 7] * upgradeList[dataSize * 5 + 5], team);
+    setrule(:blockHealth, 1 + upgradeList[dataSize * 6 + 7] * upgradeList[dataSize * 6 + 5], team);
+    setrule(:blockDamage, 1 + upgradeList[dataSize * 7 + 7] * upgradeList[dataSize * 7 + 5], team);
+    setrule(:buildSpeed, 1 + upgradeList[dataSize * 8 + 7] * upgradeList[dataSize * 8 + 5], team);
+
+
+end;
+
+noinline void client()
+
+    noinit color;
+    case team
+        when 1 then color = %ffd37f;
+        when 2 then color = %f25555;
+    end;
+
+    aetherMultiplier = forgeBlock.sensor(@efficiency) * 3 + 1;
+
+    print(titleColor, " - - - - - - - - - - - - - - - - - - - - ");
+    print("\nAether Forge\n\n\n\n\n\n");
+
+    makemarker(:text, idForge, 0, 0, false);
+    setmarker(:fontSize, idForge, 3);
+    setmarker(:labelFlags, idForge, 0, 1);
+    setmarker(:pos, idForge, interfaceX, 3);
+    setmarker(:flushText, idForge, 0);
+
+    if forgeBlock != lastForgeBlock then
+        //effect(:placeBlockSpark, interfaceX - 12, -4, @flux-reactor.sensor(@size));
+        setmarker(:remove, idForgeDisplay);
+    end;
+    lastForgeBlock = forgeBlock;
+
+    if forgeBlock != null then
+        // Block
+        makemarker(:texture, idForgeDisplay, 0, 0, false);
+        setmarker(:texture, idForgeDisplay, 0, "flux-reactor");
+        setmarker(:pos, idForgeDisplay, interfaceX - 9, -4);
+
+
+    else
+        // Lock
+        makemarker(:text, idForgeDisplay, 0, 0, false);
+        setmarker(:fontSize, idForgeDisplay, 5);
+        print(textColor, " ");
+        setmarker(:flushText, idForgeDisplay, 0);
+        setmarker(:pos, idForgeDisplay, interfaceX, -5);
+
+        setmarker(:remove, idForgeUpgrades);
+        setmarker(:remove, idForgeAetherDisplay);
+        setmarker(:remove, idPopup);
+    end;
+
+    if forgeBlock != null then
+
+        // Block effect
+
+        var halfSize = forgeBlock.sensor(@size) / 2;
+
+        for var i in 0 .. 3 do
+            var t = ((@second * aetherMultiplier / 2) + i) % 4;
+            var x, y;
+            if t < 1 then
+                x = forgeX - halfSize + t * 2 * halfSize;
+                y = forgeY - halfSize;
+            else if t < 2 then
+                x = forgeX + halfSize;
+                y = forgeY - halfSize + (t - 1) * 2 * halfSize;
+            else if t < 3 then
+                x = forgeX + halfSize - (t - 2) * 2 * halfSize;
+                y = forgeY + halfSize;
+            else
+                x = forgeX - halfSize;
+                y = forgeY + halfSize - (t - 3) * 2 * halfSize;
+            end; end; end;
+            effect(:trail, x, y, 2.5, color);
+        end;
+
+        // Upgrade "wheel
+
+        var previousUpgrade = mapButton(interfaceX + offsetX - 5.75, -3.6, 3.5, 2, team);
+        var color1 = (previousUpgrade != 0 ? highlightColor : textColor);
+
+        var nextUpgrade = mapButton(interfaceX + offsetX + 5.75, -3.6, 3.5, 2, team);
+        var color2 = (nextUpgrade != 0 ? highlightColor : textColor);
+
+        print(color1, "[  ]    ", subtitleColor, upgradeList[upgrade + 1], color2,  "    [  ]");
+        print(textColor, "\n\n", upgradeList[upgrade]);
+        if upgradeList[upgrade + 7] >= 1 then
+            print(textColor, "\n(+", floor(upgradeList[upgrade + 7] * upgradeList[upgrade + 5] * 100) / 100, ")");
+        else
+            // print(textColor, "\n(x", 1 + floor(upgradeList[upgrade + 7] * upgradeList[upgrade + 5] * 100) / 100, ")");
+            // Stupid rounding fix
+            var value = 1 + floor(upgradeList[upgrade + 7] * upgradeList[upgrade + 5] * 100 + 0.5) / 100;
+            var intPart = floor(value);
+            var fracPart = floor((value - intPart) * 100 + 0.5);
+            print(textColor, "\n(x", intPart, ".", (fracPart < 10 ? "0" : ""), fracPart, ")");
+        end;
+
+
+        print(textColor, "\n\nLevel: ", subtitleColor, upgradeList[upgrade + 5]);
+        if upgradeList[upgrade + 6] != null then print(" / ", upgradeList[upgrade + 6]); end;
+
+
+        if upgradeList[upgrade + 5] == upgradeList[upgrade + 6] && upgradeList[upgrade + 6] != 0 then
+            print("\n", textColor, "Cost: ", subtitleColor, "Maxed!");
+        else
+            print(textColor, "\nCost: ", subtitleColor, ceil(upgradeList[upgrade + 2]), " Aether");
+        end;
+
+        var buyButton = mapButton(interfaceX + offsetX, -16.75, 3.5, 2, team);
+        print(buyButton != 0 ? highlightColor : textColor);
+
+        print("\n\n[  ]");
+
+
+
+        makemarker(:text, idForgeUpgrades, 0, 0, false);
+        setmarker(:fontSize, idForgeUpgrades, 3);
+        setmarker(:flushText, idForgeUpgrades, 0);
+        setmarker(:pos, idForgeUpgrades, interfaceX + offsetX, -3);
+
+        var message1;
+        message1.printflush();
+
+        var aetherProductionC = floor(aetherProduction * (forgeBlock.sensor(@efficiency) * 3 + 1) * 10) / 10;
+        var totalAetherC = floor(totalAether);
+
+        print(subtitleColor, "Aether \n");
+        print(textColor, totalAetherC, "\n(", aetherProductionC, "/s)");
+
+        print(subtitleColor, "\n\nHeat \n");
+        print(textColor, floor((forgeBlock.sensor(@efficiency) * 3 + 1) * 10) / 10, "x Aether");
+
+        makemarker(:text, idForgeAetherDisplay, 0, 0, false);
+        setmarker(:fontSize, idForgeAetherDisplay, 3);
+        setmarker(:flushText, idForgeAetherDisplay, 0);
+        setmarker(:pos, idForgeAetherDisplay, interfaceX - 9, -8);
+
+        popup(idPopup, processorId, popupDismissed, forgeBlock.sensor(@x), forgeBlock.sensor(@y), forgeBlock.sensor(@size));
+
+    end;
+
+
+end;
+
+inline void setMiningSpeed(in value, in team)
+    mlog("setrule", "unitMineSpeed", in value, in team);
+end;

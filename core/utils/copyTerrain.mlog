@@ -1,0 +1,88 @@
+jump 0 equal wall1 null
+jump 1 equal wall2 null
+jump 2 equal wall3 null
+set mode 1
+setrate 1000
+sensor :targetX wall3 @x
+sensor :targetY wall3 @y
+sensor :i wall1 @x
+sensor *tmp4 wall2 @x
+jump 84 greaterThan :i *tmp4
+sensor :j wall1 @y
+sensor *tmp7 wall2 @y
+jump 82 greaterThan :j *tmp7
+getblock block :blockCopy :i :j
+getblock floor :floorCopy :i :j
+op equal *tmp10 :floorCopy @space
+op equal *tmp11 :blockCopy @air
+op land *tmp12 *tmp10 *tmp11
+jump 80 notEqual *tmp12 false
+jump 80 equal :blockCopy @copper-wall
+jump 33 notEqual mode 0
+op add *tmp18 :targetX :i
+sensor *tmp19 wall1 @x
+op sub *tmp20 *tmp18 *tmp19
+op add *tmp21 :targetY :j
+sensor *tmp22 wall2 @y
+op sub *tmp23 *tmp21 *tmp22
+setblock block :blockCopy *tmp20 *tmp23 0 0
+sensor *tmp25 wall1 @x
+op sub *tmp26 *tmp18 *tmp25
+sensor *tmp28 wall2 @y
+op sub *tmp29 *tmp21 *tmp28
+setblock floor :floorCopy *tmp26 *tmp29 0 0
+jump 49 notEqual mode 1
+sensor *tmp32 wall1 @x
+sensor *tmp33 wall2 @x
+op add *tmp34 *tmp32 *tmp33
+op idiv :centerX *tmp34 2
+sensor *tmp37 wall1 @y
+sensor *tmp38 wall2 @y
+op add *tmp39 *tmp37 *tmp38
+op idiv :centerY *tmp39 2
+op sub *tmp42 :i :centerX
+op sub *tmp43 :j :centerY
+print :blockCopy
+print " {0} {0} {0}\n"
+format :floorCopy
+format *tmp42
+format *tmp43
+jump 65 notEqual mode 2
+sensor *tmp46 wall1 @x
+sensor *tmp47 wall2 @x
+op add *tmp48 *tmp46 *tmp47
+op idiv :centerX.1 *tmp48 2
+sensor *tmp51 wall1 @y
+sensor *tmp52 wall2 @y
+op add *tmp53 *tmp51 *tmp52
+op idiv :centerY.1 *tmp53 2
+op sub *tmp56 :j :centerY.1
+op sub *tmp57 :i :centerX.1
+print :blockCopy
+print " {0} {0} {0}\n"
+format :floorCopy
+format *tmp56
+format *tmp57
+jump 80 notEqual mode 3
+sensor *tmp60 wall1 @x
+sensor *tmp61 wall2 @x
+op add *tmp62 *tmp60 *tmp61
+op idiv :centerX.2 *tmp62 2
+sensor *tmp65 wall1 @y
+sensor *tmp66 wall2 @y
+op add *tmp67 *tmp65 *tmp66
+op idiv :centerY.2 *tmp67 2
+effect warn :i :j 0 0 0
+op sub *tmp70 :i :centerX.2
+op sub *tmp71 :j :centerY.2
+print "({0}, {0}), "
+format *tmp70
+format *tmp71
+op add :j :j 1
+jump 13 lessThanEq :j *tmp7
+op add :i :i 1
+jump 10 lessThanEq :i *tmp4
+printflush message1
+stop
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

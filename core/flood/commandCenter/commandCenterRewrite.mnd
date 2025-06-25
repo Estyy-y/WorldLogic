@@ -1,0 +1,384 @@
+#set syntax = strict;
+require "../../../core/libs/interfaceLibrary.mnd";
+
+param starterCoreX = null;
+param starterCoreY = null;
+param unlocked = false;
+param coreNumber = 2;
+param resource1 = @copper;
+param resourceQuantity1 = 1000;
+param resource2 = @lead;
+param resourceQuantity2 = 750;
+param resource3 = @graphite;
+param resourceQuantity3 = 250;
+
+var id = getId(out id);
+var idCore = id;
+var idCoreDisplay = id + 1;
+var idCorePlace = id + 2;
+
+var playerTeam = @sharded;
+var titleColor = "[orange]";
+var subtitleColor = "[gold]";
+var highlightColor = "[blue]";
+var textColor = "[white]";
+
+noinit core, coreX, coreY, coreType, prevCoreType, coreTexture, coreNumberText;
+noinit UIX, placingPlayer, playerCursorX, playerCursorY;
+noinit placeTimeout, buttonCooldown, landTime, landTimeClient, repairTime, repairTimeClient;
+noinit volatile coreEffectTrigger;
+
+linked coreEffect = processor1;
+
+begin
+
+    setrate(1000);
+    setmarker(:remove, idCore);
+    setmarker(:remove, idCoreDisplay);
+    setmarker(:remove, idCorePlace);
+    UIX = 17 + (17 * (coreNumber - 1));
+
+    case coreNumber
+        when 1 then coreNumberText = "I";
+        when 2 then coreNumberText = "II";
+        when 3 then coreNumberText = "III";
+        when 4 then coreNumberText = "IV";
+        when 5 then coreNumberText = "V";
+        when 6 then coreNumberText = "VI";
+        when 7 then coreNumberText = "VII";
+    end;
+
+    if unlocked then coreType = @core-shard; end;
+
+    if coreX != null then
+        var coreSize = coreType.sensor(@size);
+        spawn(@mace, coreX + coreSize, coreY + coreSize, 0, playerTeam);
+        spawn(@mace, coreX - coreSize, coreY + coreSize, 0, playerTeam);
+        spawn(@mace, coreX - coreSize, coreY - coreSize, 0, playerTeam);
+        spawn(@mace, coreX + coreSize, coreY - coreSize, 0, playerTeam);
+    end;
+
+
+    initialize();
+
+    if @server then do
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        client();
+    while true; end;
+
+end;
+
+void server()
+
+    if @client then end(); end;
+
+    case null
+        when coreType then unlockCoreServer();
+        when coreX then placeCoreServer();
+        when core then landCoreServer();
+        else manageCoreServer();
+
+    end;
+
+    sync(coreType);
+    sync(coreX);
+    sync(coreY);
+    sync(core);
+    sync(placingPlayer);
+    sync(playerCursorX);
+    sync(playerCursorY);
+    sync(landTimeClient);
+    sync(repairTimeClient);
+    sync(recallTimeClient);
+
+
+end;
+
+void unlockCoreServer()
+
+    var rCore = fetch(:core, playerTeam, 0);
+    if rCore.sensor(resource1) >= resourceQuantity1 &&
+       rCore.sensor(resource2) >= resourceQuantity2 &&
+       rCore.sensor(resource3) >= resourceQuantity3 then
+
+        var unlockButton = mapButton(UIX, -9, 9, 3, playerTeam);
+        if unlockButton == 2 then
+
+
+            rCore.setprop(resource1, rCore.sensor(resource1) - resourceQuantity1);
+            rCore.setprop(resource2, rCore.sensor(resource2) - resourceQuantity2);
+            rCore.setprop(resource3, rCore.sensor(resource3) - resourceQuantity3);
+            coreType = @core-shard;
+            buttonCooldown = @tick + 60;
+
+        end;
+    end;
+end;
+
+void placeCoreServer()
+
+    if repairTime != null then repairTimeClient = ceil((repairTime - @tick) / 60); end;
+    sync(repairTimeClient);
+
+    if @tick > repairTime then
+        repairTime == null;
+        if placingPlayer == null && @tick > buttonCooldown then
+            var placeButton = mapButton(UIX, -9, 9, 3, playerTeam, out placingPlayer);
+            if placeButton == 2 then
+                placeTimeout = @tick + 1500;
+                buttonCooldown = @tick + 60;
+            end;
+        else
+            playerCursorX = floor(placingPlayer.sensor(@shootX));
+            playerCursorY = floor(placingPlayer.sensor(@shootY));
+
+            if @tick > placeTimeout then
+                placingPlayer = null;
+                playerCursorX = null;
+                playerCursorY = null;
+                coreX = null;
+                coreY = null;
+            end;
+
+            if placingPlayer.sensor(@shooting) && @tick > buttonCooldown then
+                if validPlacement(playerCursorX, playerCursorY, coreType.sensor(@size), coreType.sensor(@size)) then
+                    landTime = @tick + 600;
+                    buttonCooldown = @tick + 60;
+                    coreX = playerCursorX;
+                    coreY = playerCursorY;
+                    placingPlayer = null;
+                    playerCursorX = null;
+                    playerCursorY = null;
+                end;
+            end;
+        end;
+    end;
+end;
+
+void landCoreServer()
+
+    landTimeClient = ceil((landTime - @tick) / 60);
+    sync(landTimeClient);
+
+    var cancelButton = mapButton(UIX, -9, 9, 3, playerTeam);
+    if cancelButton == 2 then
+        coreX = null;
+        coreY = null;
+        landTime == null;
+        buttonCooldown = @tick + 60;
+    end;
+
+    if @tick > landTime then
+        setblock(:block, coreType, coreX, coreY, playerTeam, 0);
+        var coreSize = coreType.sensor(@size);
+        var spawnUnit = spawn(@mace, coreX + coreSize, coreY + coreSize, 0, playerTeam);
+        spawnUnit = spawn(@mace, coreX - coreSize, coreY + coreSize, 0, playerTeam);
+        spawnUnit = spawn(@mace, coreX - coreSize, coreY - coreSize, 0, playerTeam);
+        spawnUnit = spawn(@mace, coreX + coreSize, coreY - coreSize, 0, playerTeam);
+        coreEffectTrigger = 1;
+        sync(coreEffectTrigger);
+    end;
+    core = getblock(:building, coreX, coreY);
+
+end;
+
+void manageCoreServer();
+
+    core = getblock(:building, coreX, coreY);
+    if recallTime != null then recallTimeClient = ceil((recallTime - @tick) / 60); end;
+
+    var recallButton = mapButton(UIX, -9, 9, 3, playerTeam);
+    if recallButton == 2 then
+        buttonCooldown = @tick + 60;
+        recallTime = @tick + 600;
+    end;
+
+    if @tick > recallTime then
+
+        coreX = null;
+        coreY = null;
+        setblock(:block, coreX, coreY, air);
+
+    end;
+
+    if core == null then
+        coreX = null;
+        coreY = null;
+        repairTime = @tick + 60 * 60;
+        return;
+    end;
+
+    coreType = core.sensor(@type);
+
+end;
+
+void client()
+
+    print(titleColor, " - - - - - - - - ");
+    print("\nCore ", coreNumberText,"\n\n\n\n\n\n");
+
+    makemarker(:text, idCore, 0, 0, false);
+    setmarker(:fontSize, idCore, 3);
+    setmarker(:labelFlags, idCore, 0, 1);
+    setmarker(:pos, idCore, UIX, 3);
+
+    if coreType != prevCoreType then
+        effect(:placeBlockSpark, UIX, -4, coreType.sensor(@size));
+        setmarker(:remove, idCoreDisplay);
+         case coreType
+                when @core-shard then coreTexture = "block-core-shard-full";
+                when @core-foundation then coreTexture = "block-core-foundation-full";
+                when @core-nucleus then coreTexture = "block-core-nucleus-full";
+         end;
+    end;
+
+    prevCoreType = coreType;
+    if coreType != null then
+        makemarker(:texture, idCoreDisplay, 0, 0, false);
+        setmarker(:texture, idCoreDisplay, 0, coreTexture);
+        setmarker(:pos, idCoreDisplay, UIX, -4);
+    end;
+
+    if coreEffectTrigger then
+        coreEffectTrigger = 0;
+        coreEffect.write(coreX, ".effectX");
+        coreEffect.write(coreY, ".effectY");
+        coreEffect.write(coreType.sensor(@size), ".coreSize");
+    end;
+
+    case null
+        when coreType then unlockCoreClient();
+        when coreX then placeCoreClient();
+        when core then landCoreClient();
+        else manageCoreClient();
+    end;
+end;
+
+void unlockCoreClient()
+
+    var unlockButton = mapButton(UIX, -9, 9, 3, playerTeam);
+    print(unlockButton != 0 ? highlightColor : textColor);
+    print("[ Unlock ]\n\n");
+
+    resourceTooltip(fetch(:core, playerTeam, 0), resource1, resourceQuantity1);
+    resourceTooltip(fetch(:core, playerTeam, 0), resource2, resourceQuantity2);
+    resourceTooltip(fetch(:core, playerTeam, 0), resource3, resourceQuantity3);
+    setmarker(:flushText, idCore, 0);
+
+    //Reset print buffer
+    var message1;
+    printflush(message1);
+
+    makemarker(:text, idCoreDisplay, 0, 0, false);
+    setmarker(:fontSize, idCoreDisplay, 5);
+    print(textColor, "");
+    setmarker(:flushText, idCoreDisplay, 0);
+    setmarker(:pos, idCoreDisplay, UIX, -3.25);
+
+end;
+
+void placeCoreClient()
+
+    if repairTimeClient > 0 then
+        print("[red]Damaged!\n\n");
+        print(textColor, "Repairs finished\nin ", repairTimeClient, "...");
+    else
+        var placeButton = mapButton(UIX, -9, 9, 3, playerTeam);
+        print(placeButton != 0 ? highlightColor : textColor);
+        print("[ Land ]\n\n");
+
+        if placingPlayer != null then
+            print(placingPlayer.sensor(@name), textColor, " is choosing\nthe location.");
+        end;
+
+
+        if playerCursorX != null then
+
+            makemarker(:shape, idCorePlace, 0, 0, false);
+            setmarker(:rotation , idCorePlace, 45);
+            setmarker(:radius, idCorePlace, coreType.sensor(@size) * 6);
+            setmarker(:drawLayer, idCorePlace, 100);
+            setmarker(:pos, idCorePlace, playerCursorX, playerCursorY);
+            //i dont give a shit
+            var shooting = placingPlayer.sensor(@shooting);
+            var valid = validPlacement(playerCursorX, playerCursorY, coreType.sensor(@size), coreType.sensor(@size));
+
+            if valid then
+                setmarker(:color, idCorePlace, %ffd37f);
+                if shooting then effect(:placeBlock, playerCursorX, playerCursorY, coreType.sensor(@size)); end;
+            else
+                setmarker(:color, idCorePlace, %f9515e);
+            end;
+        end;
+        if playerCursorX == null && coreX == null then setmarker(:remove, idCorePlace); end;
+
+    end;
+    setmarker(:flushText, idCore, 0);
+end;
+
+void landCoreClient()
+
+    var cancelButton = mapButton(UIX, -9, 9, 3, playerTeam);
+    print(cancelButton != 0 ? highlightColor : textColor);
+    setmarker(:pos, idCorePlace, coreX, coreY);
+
+    print("[ Cancel ]\n\n");
+    print(textColor, "Landing at\n", coreX, ", ", coreY, " in ", landTimeClient, "...");
+    setmarker(:flushText, idCore, 0);
+end;
+
+void manageCoreClient()
+
+    //print("[green] - ", ceil(core.sensor(@health) / core.sensor(@maxHealth) * 100), "%");
+    print(subtitleColor, "Landed!");// core.sensor(@x), ", ", core.sensor(@y));
+
+    setmarker(:remove, idCorePlace);
+    setmarker(:flushText, idCore, 0);
+
+    if recallTimeClient == null then
+
+        var recallButton = mapButton(UIX, -9, 9, 3, playerTeam);
+        print(recallButton != 0 ? highlightColor : textColor);
+        setmarker(:pos, idCorePlace, coreX, coreY);
+
+        print("[ Recall ]\n\n");
+        setmarker(:flushText, idCore, 0);
+
+    else
+
+        var cancelButton = mapButton(UIX, -9, 9, 3, playerTeam);
+        print(cancelButton != 0 ? highlightColor : textColor);
+        setmarker(:pos, idCorePlace, coreX, coreY);
+
+        print("[ Cancel ]\n\n");
+        print(textColor, "Recalling in...\n", landTimeClient, "...");
+        setmarker(:flushText, idCore, 0);
+
+    end;
+end;
+
+void initialize()
+    if starterCoreX != null then
+        coreX = starterCoreX;
+        coreY = starterCoreY;
+        core = getblock(:building, coreX, coreY);
+        coreType = core.sensor(@type);
+    end;
+end;
+
+def validPlacement(in x, in y, in width, in height)
+    var xStart = x - floor(width / 2);
+    var xEnd = x + ceil(width / 2) - 1;
+    var yStart = y - floor(height / 2);
+    var yEnd = y + ceil(height / 2) - 1;
+    for var dx in xStart .. xEnd do
+        for var dy in yStart .. yEnd do
+            if getblock(:block, dx, dy) != @air then return 0; end;
+        end;
+    end;
+    return 1;
+end;

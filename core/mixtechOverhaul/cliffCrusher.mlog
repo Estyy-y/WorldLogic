@@ -1,0 +1,127 @@
+setrate 100
+jump 63 equal @server false
+set :common:secondLocked @second
+fetch buildCount *tmp4 @sharded 0 @cliff-crusher
+set :common:i 0
+jump 30 greaterThan 0 *tmp4
+fetch build :common:crusher @sharded :common:i @cliff-crusher
+sensor :common:crusherHealth :common:crusher @health
+sensor :common:crusherMaxHealth :common:crusher @maxHealth
+jump 20 lessThanEq :common:secondLocked .nextUpdate
+op mul *tmp10 :common:crusherMaxHealth 0.1
+jump 16 lessThanEq :common:crusherHealth *tmp10
+op mul *tmp13 :common:crusherMaxHealth 0.05
+op sub *tmp14 :common:crusherHealth *tmp13
+setprop @health :common:crusher *tmp14
+jump 19 always 0 0
+sensor *tmp15 :common:crusher @x
+sensor *tmp16 :common:crusher @y
+effect hit *tmp15 *tmp16 0 %ff7f7f 0
+set :common:updated 1
+op mul *tmp17 :common:crusherMaxHealth 0.1
+jump 24 lessThanEq :common:crusherHealth *tmp17
+control enabled :common:crusher 1 0 0 0
+jump 28 always 0 0
+control enabled :common:crusher 0 0 0 0
+sensor *tmp20 :common:crusher @enabled
+jump 28 notEqual *tmp20 1
+setprop @health :common:crusher 0
+op add :common:i :common:i 1
+jump 6 lessThanEq :common:i *tmp4
+fetch buildCount *tmp4 @crux 0 @cliff-crusher
+set :common:i 0
+jump 57 greaterThan 0 *tmp4
+fetch build :common:crusher @crux :common:i @cliff-crusher
+sensor :common:crusherHealth :common:crusher @health
+sensor :common:crusherMaxHealth :common:crusher @maxHealth
+jump 47 lessThanEq :common:secondLocked .nextUpdate
+op mul *tmp10 :common:crusherMaxHealth 0.1
+jump 43 lessThanEq :common:crusherHealth *tmp10
+op mul *tmp13 :common:crusherMaxHealth 0.05
+op sub *tmp14 :common:crusherHealth *tmp13
+setprop @health :common:crusher *tmp14
+jump 46 always 0 0
+sensor *tmp15 :common:crusher @x
+sensor *tmp16 :common:crusher @y
+effect hit *tmp15 *tmp16 0 %ff7f7f 0
+set :common:updated 1
+op mul *tmp17 :common:crusherMaxHealth 0.1
+jump 51 lessThanEq :common:crusherHealth *tmp17
+control enabled :common:crusher 1 0 0 0
+jump 55 always 0 0
+control enabled :common:crusher 0 0 0 0
+sensor *tmp20 :common:crusher @enabled
+jump 55 notEqual *tmp20 1
+setprop @health :common:crusher 0
+op add :common:i :common:i 1
+jump 33 lessThanEq :common:i *tmp4
+op greaterThan *tmp23 @second .nextUpdate
+op equal *tmp24 :common:updated 1
+op land *tmp25 *tmp23 *tmp24
+jump 2 equal *tmp25 false
+op add .nextUpdate @second 1
+jump 2 always 0 0
+jump 0 equal @client false
+set :common:secondLocked @second
+fetch buildCount *tmp4 @sharded 0 @cliff-crusher
+set :common:i 0
+jump 92 greaterThan 0 *tmp4
+fetch build :common:crusher @sharded :common:i @cliff-crusher
+sensor :common:crusherHealth :common:crusher @health
+sensor :common:crusherMaxHealth :common:crusher @maxHealth
+jump 82 lessThanEq :common:secondLocked .nextUpdate
+op mul *tmp10 :common:crusherMaxHealth 0.1
+jump 78 lessThanEq :common:crusherHealth *tmp10
+op mul *tmp13 :common:crusherMaxHealth 0.05
+op sub *tmp14 :common:crusherHealth *tmp13
+setprop @health :common:crusher *tmp14
+jump 81 always 0 0
+sensor *tmp15 :common:crusher @x
+sensor *tmp16 :common:crusher @y
+effect hit *tmp15 *tmp16 0 %ff7f7f 0
+set :common:updated 1
+op mul *tmp17 :common:crusherMaxHealth 0.1
+jump 86 lessThanEq :common:crusherHealth *tmp17
+control enabled :common:crusher 1 0 0 0
+jump 90 always 0 0
+control enabled :common:crusher 0 0 0 0
+sensor *tmp20 :common:crusher @enabled
+jump 90 notEqual *tmp20 1
+setprop @health :common:crusher 0
+op add :common:i :common:i 1
+jump 68 lessThanEq :common:i *tmp4
+fetch buildCount *tmp4 @crux 0 @cliff-crusher
+set :common:i 0
+jump 119 greaterThan 0 *tmp4
+fetch build :common:crusher @crux :common:i @cliff-crusher
+sensor :common:crusherHealth :common:crusher @health
+sensor :common:crusherMaxHealth :common:crusher @maxHealth
+jump 109 lessThanEq :common:secondLocked .nextUpdate
+op mul *tmp10 :common:crusherMaxHealth 0.1
+jump 105 lessThanEq :common:crusherHealth *tmp10
+op mul *tmp13 :common:crusherMaxHealth 0.05
+op sub *tmp14 :common:crusherHealth *tmp13
+setprop @health :common:crusher *tmp14
+jump 108 always 0 0
+sensor *tmp15 :common:crusher @x
+sensor *tmp16 :common:crusher @y
+effect hit *tmp15 *tmp16 0 %ff7f7f 0
+set :common:updated 1
+op mul *tmp17 :common:crusherMaxHealth 0.1
+jump 113 lessThanEq :common:crusherHealth *tmp17
+control enabled :common:crusher 1 0 0 0
+jump 117 always 0 0
+control enabled :common:crusher 0 0 0 0
+sensor *tmp20 :common:crusher @enabled
+jump 117 notEqual *tmp20 1
+setprop @health :common:crusher 0
+op add :common:i :common:i 1
+jump 95 lessThanEq :common:i *tmp4
+op greaterThan *tmp23 @second .nextUpdate
+op equal *tmp24 :common:updated 1
+op land *tmp25 *tmp23 *tmp24
+jump 64 equal *tmp25 false
+op add .nextUpdate @second 1
+jump 64 always 0 0
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

@@ -1,0 +1,87 @@
+fetch coreCount :coreCount @sharded 0 0
+set :i 0
+jump 42 greaterThan 0 :coreCount
+fetch core :core @sharded :i 0
+sensor :coreX :core @x
+sensor :coreY :core @y
+sensor *tmp7 :core @type
+jump 17 notEqual *tmp7 @core-shard
+op sub *tmp9 :coreX 2
+op sub *tmp10 :coreY 2
+spawn @mace *tmp9 *tmp10 0 @sharded 0
+op add *tmp12 :coreX 2
+spawn @dagger *tmp12 *tmp10 0 @sharded 0
+op add *tmp16 :coreY 2
+spawn @dagger *tmp9 *tmp16 0 @sharded 0
+spawn @mace *tmp12 *tmp16 0 @sharded 0
+jump 40 always 0 0
+jump 27 notEqual *tmp7 @core-foundation
+op sub *tmp21 :coreX 3
+op sub *tmp22 :coreY 3
+spawn @mace *tmp21 *tmp22 0 @sharded 0
+op add *tmp24 :coreX 3
+spawn @mace *tmp24 *tmp22 0 @sharded 0
+op add *tmp28 :coreY 3
+spawn @mace *tmp21 *tmp28 0 @sharded 0
+spawn @mace *tmp24 *tmp28 0 @sharded 0
+jump 40 always 0 0
+jump 40 notEqual *tmp7 @core-nucleus
+op sub *tmp33 :coreX 4
+spawn @dagger *tmp33 :coreY 0 @sharded 0
+op sub *tmp35 :coreY 4
+spawn @dagger :coreX *tmp35 0 @sharded 0
+op add *tmp37 :coreY 4
+spawn @dagger :coreX *tmp37 0 @sharded 0
+op add *tmp39 :coreX 4
+spawn @dagger *tmp39 :coreY 0 @sharded 0
+spawn @mace *tmp33 *tmp35 0 @sharded 0
+spawn @mace *tmp39 *tmp35 0 @sharded 0
+spawn @mace *tmp33 *tmp37 0 @sharded 0
+spawn @mace *tmp39 *tmp37 0 @sharded 0
+op add :i :i 1
+jump 3 lessThanEq :i :coreCount
+fetch coreCount :coreCount @crux 0 0
+set :i 0
+jump 84 greaterThan 0 :coreCount
+fetch core :core @crux :i 0
+sensor :coreX :core @x
+sensor :coreY :core @y
+sensor *tmp7 :core @type
+jump 59 notEqual *tmp7 @core-shard
+op sub *tmp9 :coreX 2
+op sub *tmp10 :coreY 2
+spawn @mace *tmp9 *tmp10 0 @crux 0
+op add *tmp12 :coreX 2
+spawn @dagger *tmp12 *tmp10 0 @crux 0
+op add *tmp16 :coreY 2
+spawn @dagger *tmp9 *tmp16 0 @crux 0
+spawn @mace *tmp12 *tmp16 0 @crux 0
+jump 82 always 0 0
+jump 69 notEqual *tmp7 @core-foundation
+op sub *tmp21 :coreX 3
+op sub *tmp22 :coreY 3
+spawn @mace *tmp21 *tmp22 0 @crux 0
+op add *tmp24 :coreX 3
+spawn @mace *tmp24 *tmp22 0 @crux 0
+op add *tmp28 :coreY 3
+spawn @mace *tmp21 *tmp28 0 @crux 0
+spawn @mace *tmp24 *tmp28 0 @crux 0
+jump 82 always 0 0
+jump 82 notEqual *tmp7 @core-nucleus
+op sub *tmp33 :coreX 4
+spawn @dagger *tmp33 :coreY 0 @crux 0
+op sub *tmp35 :coreY 4
+spawn @dagger :coreX *tmp35 0 @crux 0
+op add *tmp37 :coreY 4
+spawn @dagger :coreX *tmp37 0 @crux 0
+op add *tmp39 :coreX 4
+spawn @dagger *tmp39 :coreY 0 @crux 0
+spawn @mace *tmp33 *tmp35 0 @crux 0
+spawn @mace *tmp39 *tmp35 0 @crux 0
+spawn @mace *tmp33 *tmp37 0 @crux 0
+spawn @mace *tmp39 *tmp37 0 @crux 0
+op add :i :i 1
+jump 45 lessThanEq :i :coreCount
+stop
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

@@ -1,0 +1,83 @@
+set startingDelay 600
+op add *tmp1 @thisx @thisy
+op add *tmp3 *tmp1 1
+op mul *tmp4 *tmp1 *tmp3
+op div *tmp5 *tmp4 2
+op add *tmp6 *tmp5 @thisy
+op mul *tmp0 *tmp6 1000
+getlink :link 0
+sensor *tmp9 :link @x
+sensor *tmp10 :link @y
+getblock building .launcher *tmp9 *tmp10
+sensor *tmp12 .launcher @type
+jump 8 notEqual *tmp12 @thorium-reactor
+jump 51 equal @server false
+jump 16 equal @client false
+end
+jump 19 greaterThanEq @second startingDelay
+control enabled .launcher false 0 0 0
+jump 20 always 0 0
+control enabled .launcher true 0 0 0
+set .serverTime @second
+sync .serverTime
+sensor *tmp185 .launcher @dead
+jump 26 equal *tmp185 false
+setmarker remove *tmp0 0 0 0
+end
+jump 49 greaterThan .serverTime startingDelay
+sensor :client:launcherX .launcher @x
+sensor :client:launcherY .launcher @y
+makemarker text *tmp0 0 0 false
+setmarker autoscale *tmp0 true 0 0
+sensor *tmp191 .launcher @size
+op sub *tmp192 :client:launcherY *tmp191
+setmarker pos *tmp0 :client:launcherX *tmp192 0
+op sub :formatTime:time startingDelay .serverTime
+op div *tmp196 :formatTime:time 60
+op mod *tmp197 *tmp196 60
+op floor :formatTime:minutes *tmp197 0
+op mod *tmp199 :formatTime:time 60
+op floor :formatTime:seconds *tmp199 0
+jump 42 greaterThanEq :formatTime:minutes 10
+print "0"
+print :formatTime:minutes
+print ":"
+jump 46 greaterThanEq :formatTime:seconds 10
+print "0"
+print :formatTime:seconds
+setmarker flushText *tmp0 0 0 0
+jump 14 always 0 0
+setmarker remove *tmp0 0 0 0
+jump 14 always 0 0
+jump 0 equal @client false
+sensor *tmp185 .launcher @dead
+jump 56 equal *tmp185 false
+setmarker remove *tmp0 0 0 0
+end
+jump 79 greaterThan .serverTime startingDelay
+sensor :client:launcherX .launcher @x
+sensor :client:launcherY .launcher @y
+makemarker text *tmp0 0 0 false
+setmarker autoscale *tmp0 true 0 0
+sensor *tmp191 .launcher @size
+op sub *tmp192 :client:launcherY *tmp191
+setmarker pos *tmp0 :client:launcherX *tmp192 0
+op sub :formatTime:time startingDelay .serverTime
+op div *tmp196 :formatTime:time 60
+op mod *tmp197 *tmp196 60
+op floor :formatTime:minutes *tmp197 0
+op mod *tmp199 :formatTime:time 60
+op floor :formatTime:seconds *tmp199 0
+jump 72 greaterThanEq :formatTime:minutes 10
+print "0"
+print :formatTime:minutes
+print ":"
+jump 76 greaterThanEq :formatTime:seconds 10
+print "0"
+print :formatTime:seconds
+setmarker flushText *tmp0 0 0 0
+jump 52 always 0 0
+setmarker remove *tmp0 0 0 0
+jump 52 always 0 0
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

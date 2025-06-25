@@ -1,0 +1,38 @@
+#set syntax = strict;
+
+begin
+
+    for var team in @sharded, @crux do
+        var coreCount = fetch(:coreCount, team);
+        for var i in 0 .. coreCount do
+
+            var core = fetch(:core, team, i);
+
+            var coreX = core.sensor(@x);
+            var coreY = core.sensor(@y);
+
+            case core.sensor(@type)
+                when @core-shard then
+                    spawn(@mace, coreX - 2, coreY - 2, 0, team);
+                    spawn(@dagger, coreX + 2, coreY - 2, 0, team);
+                    spawn(@dagger, coreX - 2, coreY + 2, 0, team);
+                    spawn(@mace, coreX + 2, coreY + 2, 0, team);
+                when @core-foundation then
+                    spawn(@mace, coreX - 3, coreY - 3, 0, team);
+                    spawn(@mace, coreX + 3, coreY - 3, 0, team);
+                    spawn(@mace, coreX - 3, coreY + 3, 0, team);
+                    spawn(@mace, coreX + 3, coreY + 3, 0, team);
+                when @core-nucleus then
+                    spawn(@dagger, coreX - 4, coreY, 0, team);
+                    spawn(@dagger, coreX, coreY - 4, 0, team);
+                    spawn(@dagger, coreX, coreY + 4, 0, team);
+                    spawn(@dagger, coreX + 4, coreY, 0, team);
+                    spawn(@mace, coreX - 4, coreY - 4, 0, team);
+                    spawn(@mace, coreX + 4, coreY - 4, 0, team);
+                    spawn(@mace, coreX - 4, coreY + 4, 0, team);
+                    spawn(@mace, coreX + 4, coreY + 4, 0, team);
+            end;
+        end;
+    end;
+    stopProcessor();
+end;

@@ -1,0 +1,53 @@
+linked startBlock = wall1;
+linked endBlock = wall2;
+linked targetBlock = wall3;
+
+param mode = 1;
+
+begin
+
+    setrate(1000);
+
+
+    var targetX = targetBlock.sensor(@x);
+    var targetY = targetBlock.sensor(@y);
+
+    for var i in startBlock.sensor(@x) .. endBlock.sensor(@x) do
+        for var j in startBlock.sensor(@y) .. endBlock.sensor(@y) do
+
+            blockCopy = getblock(:block, i, j);
+            floorCopy = getblock(:floor, i ,j);
+
+            if floorCopy == @space && blockCopy == @air then continue; end;
+            if blockCopy == @copper-wall then continue; end;
+
+            if mode == 0 then
+
+                setblock(:block, blockCopy, targetX + i - startBlock.sensor(@x) , targetY + j - endBlock.sensor(@y), 0, 0);
+                setblock(:floor, floorCopy, targetX + i - startBlock.sensor(@x), targetY + j - endBlock.sensor(@y));
+
+            end;
+
+            if mode == 1 then
+                var centerX = floor((startBlock.sensor(@x) + endBlock.sensor(@x)) / 2);
+                var centerY = floor((startBlock.sensor(@y) + endBlock.sensor(@y)) / 2);
+                print(blockCopy, " ", floorCopy, " ", i - centerX, " ", j - centerY, "\n");
+            end;
+
+            if mode == 2 then
+                var centerX = floor((startBlock.sensor(@x) + endBlock.sensor(@x)) / 2);
+                var centerY = floor((startBlock.sensor(@y) + endBlock.sensor(@y)) / 2);
+                print(blockCopy, " ", floorCopy, " ",j - centerY , " ", i - centerX, "\n");
+            end;
+
+            if mode == 3 then
+                var centerX = floor((startBlock.sensor(@x) + endBlock.sensor(@x)) / 2);
+                var centerY = floor((startBlock.sensor(@y) + endBlock.sensor(@y)) / 2);
+                effect(:warn, i, j);
+                print("(", i - centerX, ", ", j - centerY, "), ");
+        end;    end;
+    end;
+
+   message1.printflush();
+   stopProcessor();
+end;

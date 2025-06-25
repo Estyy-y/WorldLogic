@@ -1,0 +1,711 @@
+set totemX 169
+set totemY 159
+set .processorId "totem"
+set .popupDismissed false
+op add *tmp1 @thisx @thisy
+op add *tmp3 *tmp1 1
+op mul *tmp4 *tmp1 *tmp3
+op div *tmp5 *tmp4 2
+op add *tmp6 *tmp5 @thisy
+op mul *tmp0 *tmp6 1000
+set .id *tmp0
+op add .idTotem1 *tmp0 51
+op add .idTotem2 *tmp0 52
+op add .idTotem3 *tmp0 53
+op add .idTotem4 *tmp0 54
+op add .idTotem5 *tmp0 55
+op add .idTotemRange *tmp0 56
+op add .idCCC1 *tmp0 57
+op add .idCCC2 *tmp0 58
+op add .idCCC3 *tmp0 59
+op add .idPG1 *tmp0 60
+op add .idPG2 *tmp0 61
+op add .idPG3 *tmp0 62
+op add .idInfo *tmp0 63
+op add .idPopup *tmp0 64
+setrate 1000
+setmarker remove *tmp0 0 0 0
+write null cell1 0
+write null cell2 0
+op add *tmp36 *tmp0 1
+setmarker remove *tmp36 0 0 0
+write null cell1 1
+write null cell2 1
+op add *tmp36 *tmp0 2
+setmarker remove *tmp36 0 0 0
+write null cell1 2
+write null cell2 2
+op add *tmp36 *tmp0 3
+setmarker remove *tmp36 0 0 0
+write null cell1 3
+write null cell2 3
+op add *tmp36 *tmp0 4
+setmarker remove *tmp36 0 0 0
+write null cell1 4
+write null cell2 4
+op add *tmp36 *tmp0 5
+setmarker remove *tmp36 0 0 0
+write null cell1 5
+write null cell2 5
+op add *tmp36 *tmp0 6
+setmarker remove *tmp36 0 0 0
+write null cell1 6
+write null cell2 6
+op add *tmp36 *tmp0 7
+setmarker remove *tmp36 0 0 0
+write null cell1 7
+write null cell2 7
+op add *tmp36 *tmp0 8
+setmarker remove *tmp36 0 0 0
+write null cell1 8
+write null cell2 8
+op add *tmp36 *tmp0 9
+setmarker remove *tmp36 0 0 0
+write null cell1 9
+write null cell2 9
+op add *tmp36 *tmp0 10
+setmarker remove *tmp36 0 0 0
+write null cell1 10
+write null cell2 10
+op add *tmp36 *tmp0 11
+setmarker remove *tmp36 0 0 0
+write null cell1 11
+write null cell2 11
+op add *tmp36 *tmp0 12
+setmarker remove *tmp36 0 0 0
+write null cell1 12
+write null cell2 12
+op add *tmp36 *tmp0 13
+setmarker remove *tmp36 0 0 0
+write null cell1 13
+write null cell2 13
+op add *tmp36 *tmp0 14
+setmarker remove *tmp36 0 0 0
+write null cell1 14
+write null cell2 14
+op add *tmp36 *tmp0 15
+setmarker remove *tmp36 0 0 0
+write null cell1 15
+write null cell2 15
+op add *tmp36 *tmp0 16
+setmarker remove *tmp36 0 0 0
+write null cell1 16
+write null cell2 16
+op add *tmp36 *tmp0 17
+setmarker remove *tmp36 0 0 0
+write null cell1 17
+write null cell2 17
+op add *tmp36 *tmp0 18
+setmarker remove *tmp36 0 0 0
+write null cell1 18
+write null cell2 18
+op add *tmp36 *tmp0 19
+setmarker remove *tmp36 0 0 0
+write null cell1 19
+write null cell2 19
+op add *tmp36 *tmp0 20
+setmarker remove *tmp36 0 0 0
+write null cell1 20
+write null cell2 20
+op add *tmp36 *tmp0 21
+setmarker remove *tmp36 0 0 0
+write null cell1 21
+write null cell2 21
+op add *tmp36 *tmp0 22
+setmarker remove *tmp36 0 0 0
+write null cell1 22
+write null cell2 22
+op add *tmp36 *tmp0 23
+setmarker remove *tmp36 0 0 0
+write null cell1 23
+write null cell2 23
+op add *tmp36 *tmp0 24
+setmarker remove *tmp36 0 0 0
+write null cell1 24
+write null cell2 24
+op add *tmp36 *tmp0 25
+setmarker remove *tmp36 0 0 0
+write null cell1 25
+write null cell2 25
+op add *tmp36 *tmp0 26
+setmarker remove *tmp36 0 0 0
+write null cell1 26
+write null cell2 26
+op add *tmp36 *tmp0 27
+setmarker remove *tmp36 0 0 0
+write null cell1 27
+write null cell2 27
+op add *tmp36 *tmp0 28
+setmarker remove *tmp36 0 0 0
+write null cell1 28
+write null cell2 28
+op add *tmp36 *tmp0 29
+setmarker remove *tmp36 0 0 0
+write null cell1 29
+write null cell2 29
+op add *tmp36 *tmp0 30
+setmarker remove *tmp36 0 0 0
+write null cell1 30
+write null cell2 30
+op add *tmp36 *tmp0 31
+setmarker remove *tmp36 0 0 0
+write null cell1 31
+write null cell2 31
+op add *tmp36 *tmp0 32
+setmarker remove *tmp36 0 0 0
+write null cell1 32
+write null cell2 32
+op add *tmp36 *tmp0 33
+setmarker remove *tmp36 0 0 0
+write null cell1 33
+write null cell2 33
+op add *tmp36 *tmp0 34
+setmarker remove *tmp36 0 0 0
+write null cell1 34
+write null cell2 34
+op add *tmp36 *tmp0 35
+setmarker remove *tmp36 0 0 0
+write null cell1 35
+write null cell2 35
+op add *tmp36 *tmp0 36
+setmarker remove *tmp36 0 0 0
+write null cell1 36
+write null cell2 36
+op add *tmp36 *tmp0 37
+setmarker remove *tmp36 0 0 0
+write null cell1 37
+write null cell2 37
+op add *tmp36 *tmp0 38
+setmarker remove *tmp36 0 0 0
+write null cell1 38
+write null cell2 38
+op add *tmp36 *tmp0 39
+setmarker remove *tmp36 0 0 0
+write null cell1 39
+write null cell2 39
+op add *tmp36 *tmp0 40
+setmarker remove *tmp36 0 0 0
+write null cell1 40
+write null cell2 40
+op add *tmp36 *tmp0 41
+setmarker remove *tmp36 0 0 0
+write null cell1 41
+write null cell2 41
+op add *tmp36 *tmp0 42
+setmarker remove *tmp36 0 0 0
+write null cell1 42
+write null cell2 42
+op add *tmp36 *tmp0 43
+setmarker remove *tmp36 0 0 0
+write null cell1 43
+write null cell2 43
+op add *tmp36 *tmp0 44
+setmarker remove *tmp36 0 0 0
+write null cell1 44
+write null cell2 44
+op add *tmp36 *tmp0 45
+setmarker remove *tmp36 0 0 0
+write null cell1 45
+write null cell2 45
+op add *tmp36 *tmp0 46
+setmarker remove *tmp36 0 0 0
+write null cell1 46
+write null cell2 46
+op add *tmp36 *tmp0 47
+setmarker remove *tmp36 0 0 0
+write null cell1 47
+write null cell2 47
+op add *tmp36 *tmp0 48
+setmarker remove *tmp36 0 0 0
+write null cell1 48
+write null cell2 48
+op add *tmp36 *tmp0 49
+setmarker remove *tmp36 0 0 0
+write null cell1 49
+write null cell2 49
+setmarker remove .idTotem1 0 0 0
+setmarker remove .idTotem2 0 0 0
+setmarker remove .idTotem3 0 0 0
+setmarker remove .idTotem4 0 0 0
+setmarker remove .idTotem5 0 0 0
+setmarker remove .idTotemRange 0 0 0
+setmarker remove .idCCC1 0 0 0
+setmarker remove .idCCC2 0 0 0
+setmarker remove .idCCC3 0 0 0
+setmarker remove .idPG1 0 0 0
+setmarker remove .idPG2 0 0 0
+setmarker remove .idPG3 0 0 0
+setmarker remove .idInfo 0 0 0
+setmarker remove .idPopup 0 0 0
+makemarker shape .idTotem1 0 0 false
+setmarker shape .idTotem1 4 1 1
+setmarker pos .idTotem1 totemX totemY 0
+setmarker radius .idTotem1 10 0 0
+setmarker drawLayer .idTotem1 35 0 0
+makemarker shape .idTotem2 0 0 false
+setmarker shape .idTotem2 4 1 1
+setmarker pos .idTotem2 totemX totemY 0
+setmarker radius .idTotem2 4 0 0
+setmarker drawLayer .idTotem2 100 0 0
+setmarker color .idTotem2 %ff4646 0 0
+makemarker texture .idTotem3 0 0 false
+setmarker texture .idTotem3 0 "ring-item" 0
+setmarker pos .idTotem3 totemX totemY 0
+setmarker textureSize .idTotem3 1 3.5 0
+setmarker drawLayer .idTotem3 35.1 0 0
+setmarker color .idTotem3 %24e404 0 0
+makemarker texture .idTotem4 0 0 false
+setmarker texture .idTotem4 0 "ring-item" 0
+setmarker pos .idTotem4 totemX totemY 0
+setmarker textureSize .idTotem4 1 3.5 0
+setmarker drawLayer .idTotem4 35.1 0 0
+setmarker color .idTotem4 %24e404 0 0
+makemarker texture .idTotem5 0 0 false
+setmarker texture .idTotem5 0 "square-shadow" 0
+setmarker pos .idTotem5 totemX totemY 0
+setmarker rotation .idTotem5 45 0 0
+setmarker textureSize .idTotem5 3 3 0
+setmarker color .idTotem5 %00000099 0 0
+setmarker drawLayer .idTotem5 29 0 0
+jump 277 equal @server false
+set :common*retaddr 274
+set :server*retaddr 275
+set :client*retaddr 276
+jump 283 always 0 0
+jump 420 always 0 0
+jump 421 always 0 0
+jump 273 always 0 0
+jump 0 equal @client false
+set :common*retaddr 281
+set :client*retaddr 282
+jump 283 always 0 0
+jump 421 always 0 0
+jump 280 always 0 0
+getblock building .totemBlock totemX totemY
+sensor .totemType .totemBlock @type
+jump 287 equal .totemType @battery
+set .totemBlock null
+jump 300 equal .totemBlock null
+sensor .team .totemBlock @team
+op equal *tmp229 .forge null
+sensor *tmp230 .forge @dead
+op or *tmp232 *tmp229 *tmp230
+op notEqual *tmp231 *tmp232 false
+sensor *tmp233 .forge @team
+op notEqual *tmp234 .team *tmp233
+op or *tmp236 *tmp231 *tmp234
+jump 300 equal *tmp236 false
+fetch build .forge .team 0 @flux-reactor
+sensor .forgeX .forge @x
+sensor .forgeY .forge @y
+op notEqual *tmp241 .totemBlock null
+op notEqual *tmp242 .forge null
+op land .active *tmp241 *tmp242
+set :common:min1 null
+set :common:min2 null
+set :common:min3 null
+set :common:dist1 null
+set :common:dist2 null
+set :common:dist3 null
+fetch buildCount *tmp245 .team 0 @chemical-combustion-chamber
+set :common:i 0
+jump 352 greaterThan 0 *tmp245
+fetch build :common:build .team :common:i @chemical-combustion-chamber
+sensor *tmp247 :common:build @dead
+sensor *tmp248 :common:build @efficiency
+op notEqual *tmp249 *tmp248 1
+op or *tmp251 *tmp247 *tmp249
+jump 350 notEqual *tmp251 false
+sensor *tmp253 :common:build @x
+op sub *tmp254 *tmp253 totemX
+sensor *tmp255 :common:build @y
+op sub *tmp256 *tmp255 totemY
+op len :common:distance *tmp254 *tmp256
+jump 350 greaterThan :common:distance 25
+op equal *tmp260 :common:dist1 null
+op lessThan *tmp261 :common:distance :common:dist1
+op or *tmp263 *tmp260 *tmp261
+jump 335 equal *tmp263 false
+set :common:dist3 :common:dist2
+set :common:min3 :common:min2
+set :common:dist2 :common:dist1
+set :common:min2 :common:min1
+set :common:dist1 :common:distance
+set :common:min1 :common:build
+jump 350 always 0 0
+op equal *tmp265 :common:dist2 null
+op lessThan *tmp266 :common:distance :common:dist2
+op or *tmp268 *tmp265 *tmp266
+jump 344 equal *tmp268 false
+set :common:dist3 :common:dist2
+set :common:min3 :common:min2
+set :common:dist2 :common:distance
+set :common:min2 :common:build
+jump 350 always 0 0
+op equal *tmp270 :common:dist3 null
+op lessThan *tmp271 :common:distance :common:dist3
+op or *tmp273 *tmp270 *tmp271
+jump 350 equal *tmp273 false
+set :common:dist3 :common:distance
+set :common:min3 :common:build
+op add :common:i :common:i 1
+jump 312 lessThanEq :common:i *tmp245
+set .closestChamber1 :common:min1
+set .closestChamber2 :common:min2
+set .closestChamber3 :common:min3
+sensor *tmp275 :common:min1 @efficiency
+op sub *tmp276 5 *tmp275
+sensor *tmp277 :common:min2 @efficiency
+op sub *tmp278 *tmp276 *tmp277
+sensor *tmp279 :common:min3 @efficiency
+op sub .aetherCooldown *tmp278 *tmp279
+set :common:min1 null
+set :common:min2 null
+set :common:min3 null
+set :common:dist1 null
+set :common:dist2 null
+set :common:dist3 null
+fetch buildCount *tmp282 .team 0 @pyrolysis-generator
+set :common:i.1 0
+jump 410 greaterThan 0 *tmp282
+fetch build :common:build.1 .team :common:i.1 @pyrolysis-generator
+sensor *tmp284 :common:build.1 @dead
+sensor *tmp285 :common:build.1 @efficiency
+op notEqual *tmp286 *tmp285 1
+op or *tmp288 *tmp284 *tmp286
+jump 408 notEqual *tmp288 false
+sensor *tmp290 :common:build.1 @x
+op sub *tmp291 *tmp290 totemX
+sensor *tmp292 :common:build.1 @y
+op sub *tmp293 *tmp292 totemY
+op len :common:distance.1 *tmp291 *tmp293
+jump 408 greaterThan :common:distance.1 25
+op equal *tmp297 :common:dist1 null
+op lessThan *tmp298 :common:distance.1 :common:dist1
+op or *tmp300 *tmp297 *tmp298
+jump 393 equal *tmp300 false
+set :common:dist3 :common:dist2
+set :common:min3 :common:min2
+set :common:dist2 :common:dist1
+set :common:min2 :common:min1
+set :common:dist1 :common:distance.1
+set :common:min1 :common:build.1
+jump 408 always 0 0
+op equal *tmp302 :common:dist2 null
+op lessThan *tmp303 :common:distance.1 :common:dist2
+op or *tmp305 *tmp302 *tmp303
+jump 402 equal *tmp305 false
+set :common:dist3 :common:dist2
+set :common:min3 :common:min2
+set :common:dist2 :common:distance.1
+set :common:min2 :common:build.1
+jump 408 always 0 0
+op equal *tmp307 :common:dist3 null
+op lessThan *tmp308 :common:distance.1 :common:dist3
+op or *tmp310 *tmp307 *tmp308
+jump 408 equal *tmp310 false
+set :common:dist3 :common:distance.1
+set :common:min3 :common:build.1
+op add :common:i.1 :common:i.1 1
+jump 370 lessThanEq :common:i.1 *tmp282
+set .closestPyro1 :common:min1
+set .closestPyro2 :common:min2
+set .closestPyro3 :common:min3
+sensor *tmp312 :common:min1 @efficiency
+op add *tmp313 1 *tmp312
+sensor *tmp314 :common:min2 @efficiency
+op add *tmp315 *tmp313 *tmp314
+sensor *tmp316 :common:min3 @efficiency
+op add .aetherAmount *tmp315 *tmp316
+set @counter :common*retaddr
+set @counter :server*retaddr
+wait 0.0002777777777777778
+op sub .deltaTime @second .time
+set .time @second
+jump 427 notEqual .team 1
+set :client:color %ffd37f
+jump 429 always 0 0
+jump 429 notEqual .team 2
+set :client:color %f25555
+op sub *tmp322 .forgeX totemX
+op sub *tmp323 .forgeY totemY
+op angle :client:angle *tmp322 *tmp323
+jump 438 equal .active null
+op sub *tmp327 5 .aetherCooldown
+op div *tmp328 *tmp327 5
+op add *tmp329 *tmp328 1
+op pow *tmp330 *tmp329 3
+op mul :client:rotation *tmp330 @tick
+op add *tmp332 :client:rotation 90
+setmarker rotation .idTotem2 *tmp332 0 0
+op add *tmp333 :client:rotation 45
+setmarker rotation .idTotem3 *tmp333 0 0
+op add *tmp334 :client:rotation 135
+setmarker rotation .idTotem4 *tmp334 0 0
+sensor *tmp335 @clientUnit @shootX
+op sub *tmp336 *tmp335 totemX
+sensor *tmp337 @clientUnit @shootY
+op sub *tmp338 *tmp337 totemY
+op len *tmp339 *tmp336 *tmp338
+jump 526 greaterThanEq *tmp339 2
+makemarker shape .idTotemRange 0 0 false
+setmarker shape .idTotemRange 50 0 1
+setmarker pos .idTotemRange totemX totemY 0
+setmarker radius .idTotemRange 200 0 0
+jump 462 equal .closestChamber1 null
+makemarker line .idCCC1 0 0 false
+setmarker pos .idCCC1 totemX totemY 0
+sensor *tmp344 .closestChamber1 @x
+sensor *tmp345 .closestChamber1 @y
+setmarker endPos .idCCC1 *tmp344 *tmp345 0
+setmarker color .idCCC1 :client:color 0 0
+setmarker drawLayer .idCCC1 100 0 0
+jump 470 equal .closestChamber2 null
+makemarker line .idCCC2 0 0 false
+setmarker pos .idCCC2 totemX totemY 0
+sensor *tmp348 .closestChamber2 @x
+sensor *tmp349 .closestChamber2 @y
+setmarker endPos .idCCC2 *tmp348 *tmp349 0
+setmarker color .idCCC2 :client:color 0 0
+setmarker drawLayer .idCCC2 100 0 0
+jump 478 equal .closestChamber3 null
+makemarker line .idCCC3 0 0 false
+setmarker pos .idCCC3 totemX totemY 0
+sensor *tmp352 .closestChamber3 @x
+sensor *tmp353 .closestChamber3 @y
+setmarker endPos .idCCC3 *tmp352 *tmp353 0
+setmarker color .idCCC3 :client:color 0 0
+setmarker drawLayer .idCCC3 100 0 0
+jump 486 equal .closestPyro1 null
+makemarker line .idPG1 0 0 false
+setmarker pos .idPG1 totemX totemY 0
+sensor *tmp356 .closestPyro1 @x
+sensor *tmp357 .closestPyro1 @y
+setmarker endPos .idPG1 *tmp356 *tmp357 0
+setmarker color .idPG1 :client:color 0 0
+setmarker drawLayer .idPG1 100 0 0
+jump 494 equal .closestPyro2 null
+makemarker line .idPG2 0 0 false
+setmarker pos .idPG2 totemX totemY 0
+sensor *tmp360 .closestPyro2 @x
+sensor *tmp361 .closestPyro2 @y
+setmarker endPos .idPG2 *tmp360 *tmp361 0
+setmarker color .idPG2 :client:color 0 0
+setmarker drawLayer .idPG2 100 0 0
+jump 502 equal .closestPyro3 null
+makemarker line .idPG3 0 0 false
+setmarker pos .idPG3 totemX totemY 0
+sensor *tmp364 .closestPyro3 @x
+sensor *tmp365 .closestPyro3 @y
+setmarker endPos .idPG3 *tmp364 *tmp365 0
+setmarker color .idPG3 :client:color 0 0
+setmarker drawLayer .idPG3 100 0 0
+print "[orange] Aether Totem \n[white]"
+jump 506 notEqual .active null
+print "[white]Build a battery  to\nconnect it to the network.\n\n Build the Forge \nto start generating Aether."
+jump 519 always 0 0
+op idiv *tmp369 .aetherCooldown 0.1
+op div *tmp370 *tmp369 10
+print "[gold]Interval:[white] {0} ({0} / 3 )[gold]\nAmount:[white] {0} ({0} / 3 )"
+format *tmp370
+op add *tmp371 .closestChamber1 .closestChamber2
+op add *tmp372 *tmp371 .closestChamber3
+format *tmp372
+op idiv *tmp374 .aetherAmount 0.1
+op div *tmp375 *tmp374 10
+format *tmp375
+op add *tmp376 .closestPyro1 .closestPyro2
+op add *tmp377 *tmp376 .closestPyro3
+format *tmp377
+makemarker text .idInfo 0 0 false
+setmarker flushText .idInfo 0 0 0
+setmarker autoscale .idInfo 0 0 0
+setmarker fontSize .idInfo 1.5 0 0
+op sub *tmp378 totemY 2
+setmarker pos .idInfo totemX *tmp378 0
+jump 534 always 0 0
+setmarker remove .idTotemRange 0 0 0
+setmarker remove .idCCC1 0 0 0
+setmarker remove .idCCC2 0 0 0
+setmarker remove .idCCC3 0 0 0
+setmarker remove .idPG1 0 0 0
+setmarker remove .idPG2 0 0 0
+setmarker remove .idPG3 0 0 0
+setmarker remove .idInfo 0 0 0
+set :popup:processorId .processorId
+jump 625 notEqual .popupDismissed false
+print "[orange] New Feature [white]\n\nOpen the minimap to read\n about it.\n\n"
+sensor :playerButton:cursorX @clientUnit @shootX
+sensor :playerButton:cursorY @clientUnit @shootY
+op sub *tmp139 totemX 4.75
+op greaterThanEq *tmp140 :playerButton:cursorX *tmp139
+op sub *tmp142 totemX 1.25
+op lessThanEq *tmp143 :playerButton:cursorX *tmp142
+op land *tmp144 *tmp140 *tmp143
+op add *tmp146 totemY 1.75
+op greaterThanEq *tmp147 :playerButton:cursorY *tmp146
+op land *tmp148 *tmp144 *tmp147
+op add *tmp150 totemY 3.25
+op lessThanEq *tmp151 :playerButton:cursorY *tmp150
+op land :playerButton:isHovering *tmp148 *tmp151
+sensor :playerButton:isClicking @clientUnit @shooting
+op land *tmp154 :playerButton:isHovering :playerButton:isClicking
+jump 555 equal *tmp154 false
+set :playerButton*retval 2
+jump 560 always 0 0
+jump 558 equal :playerButton:isHovering false
+set :playerButton*retval 1
+jump 560 always 0 0
+set :playerButton*retval 0
+jump 560 always 0 0
+set :popup:closeButton :playerButton*retval
+jump 564 equal :playerButton*retval 0
+print "[blue]"
+jump 565 always 0 0
+print "[white]"
+print "[ Close ][white] / "
+sensor :playerButton:cursorX @clientUnit @shootX
+sensor :playerButton:cursorY @clientUnit @shootY
+op add *tmp139 totemX 0.04999999999999982
+op greaterThanEq *tmp140 :playerButton:cursorX *tmp139
+op add *tmp142 totemX 4.55
+op lessThanEq *tmp143 :playerButton:cursorX *tmp142
+op land *tmp144 *tmp140 *tmp143
+op add *tmp146 totemY 1.75
+op greaterThanEq *tmp147 :playerButton:cursorY *tmp146
+op land *tmp148 *tmp144 *tmp147
+op add *tmp150 totemY 3.25
+op lessThanEq *tmp151 :playerButton:cursorY *tmp150
+op land :playerButton:isHovering *tmp148 *tmp151
+sensor :playerButton:isClicking @clientUnit @shooting
+op land *tmp154 :playerButton:isHovering :playerButton:isClicking
+jump 584 equal *tmp154 false
+set :playerButton*retval 2
+jump 589 always 0 0
+jump 587 equal :playerButton:isHovering false
+set :playerButton*retval 1
+jump 589 always 0 0
+set :playerButton*retval 0
+jump 589 always 0 0
+jump 592 equal :playerButton*retval 0
+print "[blue]"
+jump 593 always 0 0
+print "[white]"
+print "[ Close All ]"
+jump 597 equal :playerButton*retval 0
+print "[blue]"
+jump 598 always 0 0
+print "[white]"
+op equal *tmp395 :popup:closeButton 2
+op equal *tmp396 :playerButton*retval 2
+op or *tmp398 *tmp395 *tmp396
+jump 618 equal *tmp398 false
+sensor *tmp400 @clientUnit @team
+fetch buildCount *tmp402 *tmp400 0 @world-processor
+set :popup:i 0
+jump 618 greaterThan 0 *tmp402
+sensor *tmp403 @clientUnit @team
+fetch build :popup:processor *tmp403 :popup:i @world-processor
+read *tmp405 :popup:processor ".processorId"
+op equal *tmp406 *tmp405 :popup:processorId
+op land *tmp408 *tmp406 *tmp395
+jump 614 equal *tmp408 false
+write 1 :popup:processor ".popupDismissed"
+jump 616 always 0 0
+jump 616 notEqual :playerButton*retval 2
+write 1 :popup:processor ".popupDismissed"
+op add :popup:i :popup:i 1
+jump 606 lessThanEq :popup:i *tmp402
+makemarker text .idPopup 0 0 false
+setmarker flushText .idPopup 0 0 0
+setmarker autoscale .idPopup 0 0 0
+setmarker fontSize .idPopup 1.5 0 0
+op add *tmp413 totemY 7
+setmarker pos .idPopup totemX *tmp413 0
+jump 626 always 0 0
+setmarker remove .idPopup 0 0 0
+op mul .aetherSize .aetherAmount 4
+jump 646 equal .active null
+jump 646 lessThanEq @second .nextAether
+op add .nextAether @second .aetherCooldown
+set :client:i 0
+read *tmp421 cell1 :client:i
+jump 644 notEqual *tmp421 null
+write totemX cell1 :client:i
+write totemY cell2 :client:i
+write 0 cell3 :client:i
+op add *tmp430 .id :client:i
+makemarker shape *tmp430 0 0 false
+setmarker shape *tmp430 8 0 1
+setmarker stroke *tmp430 2 0 0
+setmarker drawLayer *tmp430 100 0 0
+setmarker color *tmp430 :client:color 0 0
+effect smokePuff totemX totemY 0 :client:color 0
+jump 646 always 0 0
+op add :client:i :client:i 1
+jump 631 lessThanEq :client:i 49
+set :client:i.1 0
+read *tmp436 cell1 :client:i.1
+jump 706 equal *tmp436 null
+read *tmp440 cell1 :client:i.1
+op sub *tmp441 *tmp440 .forgeX
+read *tmp443 cell2 :client:i.1
+op sub *tmp444 *tmp443 .forgeY
+op len *tmp445 *tmp441 *tmp444
+jump 674 greaterThanEq *tmp445 0.5
+write .forgeX cell1 :client:i.1
+write .forgeY cell2 :client:i.1
+op sub *tmp454 0 .deltaTime
+op mul *tmp455 20 *tmp454
+read *tmp453 cell3 :client:i.1
+op add *tmp456 *tmp453 *tmp455
+op max :client:newSize *tmp456 0
+jump 668 notEqual :client:newSize 0
+write null cell1 :client:i.1
+write null cell2 :client:i.1
+op add *tmp464 .id :client:i.1
+setmarker remove *tmp464 0 0 0
+jump 706 always 0 0
+write :client:newSize cell3 :client:i.1
+op add *tmp467 .id :client:i.1
+setmarker pos *tmp467 .forgeX .forgeY 0
+setmarker radius *tmp467 :client:newSize 0 0
+setmarker rotation *tmp467 @tick 0 0
+jump 706 always 0 0
+op mul *tmp472 20 .deltaTime
+read *tmp471 cell3 :client:i.1
+op add *tmp473 *tmp471 *tmp472
+op min :client:newSize *tmp473 .aetherSize
+op cos *tmp477 :client:angle 0
+op mul *tmp478 20 *tmp477
+op mul *tmp479 *tmp478 .deltaTime
+read *tmp476 cell1 :client:i.1
+op add :client:newX *tmp476 *tmp479
+op sin *tmp483 :client:angle 0
+op mul *tmp484 20 *tmp483
+op mul *tmp485 *tmp484 .deltaTime
+read *tmp482 cell2 :client:i.1
+op add :client:newY *tmp482 *tmp485
+op notEqual *tmp487 :client:newSize .aetherSize
+read *tmp489 cell1 :client:i.1
+op sub *tmp490 *tmp489 totemX
+read *tmp492 cell2 :client:i.1
+op sub *tmp493 *tmp492 totemY
+op len *tmp494 *tmp490 *tmp493
+op lessThan *tmp495 *tmp494 0.5
+op land *tmp496 *tmp487 *tmp495
+jump 699 equal *tmp496 false
+set :client:newX totemX
+set :client:newY totemY
+write :client:newX cell1 :client:i.1
+write :client:newY cell2 :client:i.1
+write :client:newSize cell3 :client:i.1
+op add *tmp504 .id :client:i.1
+setmarker pos *tmp504 :client:newX :client:newY 0
+setmarker radius *tmp504 :client:newSize 0 0
+setmarker rotation *tmp504 @tick 0 0
+op add :client:i.1 :client:i.1 1
+jump 647 lessThanEq :client:i.1 49
+set @counter :client*retaddr
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

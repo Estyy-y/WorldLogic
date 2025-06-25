@@ -1,0 +1,40 @@
+#set syntax = strict;
+require "../../core/libs/interfaceLibrary.mnd";
+
+noinit effectX, effectY, coreSize;
+var time = @tick;
+
+begin
+
+    if effectX == null then end(); end;
+
+    setrate(1000);
+
+    var cameraY = @clientUnit.sensor(@cameraY);
+    var cameraHeight = @clientUnit.sensor(@cameraHeight);
+    var startY = cameraY + cameraHeight / 2;
+    var sizeStart = 20;
+    var sizeEnd = cameraHeight;
+    var steps = startY - effectY;
+    var sizeStep = (sizeEnd - sizeStart) / steps;
+    var size = sizeStart;
+    var y = effectY;
+
+    playsound(:false, @sfx-pulseBlast, 5, 1.2, 0, 1);
+    wait(0.05);
+    do
+        effect(:wave, effectX, y, size, %ffd37f);
+        effect(:trail, effectX, y, size / 4, %ffd37f);
+        y++;
+        size += sizeStep;
+    while (y < startY);
+
+    for var i in 0 .. 10 do
+        effect(:placeBlockSpark, effectX, effectY, coreSize);
+        if i % 2 == 0 then effect(:wave, effectX, effectY, 20, %ffd37f); end;
+        wait(0.02);
+    end;
+
+    effectX = null;
+
+end;

@@ -1,0 +1,223 @@
+def getId(out id)
+    return ((@thisx + @thisy) * (@thisx + @thisy + 1) / 2 + @thisy) * 1000;
+end;
+
+
+def mapButton(in centerX, in centerY, in width, in height, in playerTeam)
+
+    var playerCount = fetch(:playerCount, playerTeam);
+    for var i in 0 .. playerCount do
+        var player = fetch(:player, playerTeam, i);
+        var cursorX = player.sensor(@shootX);
+        var cursorY = player.sensor(@shootY);
+        var isHovering = cursorX >= centerX - width / 2 and
+                         cursorX <= centerX + width / 2 and
+                         cursorY >= centerY - height / 2 and
+                         cursorY <= centerY + height / 2;
+        var isClicking = player.sensor(@shooting);
+
+        if isHovering && isClicking then
+            return 2;
+        end;
+        if isHovering then return 1; end;
+    end;
+    return 0;
+end;
+
+def mapButton(in centerX, in centerY, in width, in height, in playerTeam, in out playerOut)
+
+    var playerCount = fetch(:playerCount, playerTeam);
+    for var i in 0 .. playerCount do
+        var player = fetch(:player, playerTeam, i);
+        var cursorX = player.sensor(@shootX);
+        var cursorY = player.sensor(@shootY);
+        var isHovering = cursorX >= centerX - width / 2 and
+                         cursorX <= centerX + width / 2 and
+                         cursorY >= centerY - height / 2 and
+                         cursorY <= centerY + height / 2;
+        var isClicking = player.sensor(@shooting);
+
+        if isHovering && isClicking then
+            playerOut = player;
+            return 2;
+        end;
+        if isHovering then return 1; end;
+    end;
+    playerOut = null;
+    return 0;
+end;
+
+def mapButtonD(in centerX, in centerY, in width, in height, in playerTeam)
+
+    var x1 = centerX - width / 2;
+    var x2 = centerX + width / 2;
+    var y1 = centerY - height / 2;
+    var y2 = centerY + height / 2;
+
+    var r = 0.5 + 0.5 * ((x1 + y1) % 1);
+    var g = 0.5 + 0.5 * ((x2 + y1) % 1);
+    var b = 0.5 + 0.5 * ((x1 + y2) % 1);
+    var a = 1;
+    var colorData = packcolor(r, g, b, a);
+    var size = 2;
+
+    effect(:trail, centerX, centerY, size, colorData);
+    effect(:trail, x1, y1, size, colorData);
+    effect(:trail, x2, y1, size, colorData);
+    effect(:trail, x1, y2, size, colorData);
+    effect(:trail, x2, y2, size, colorData);
+
+    var playerCount = fetch(:playerCount, playerTeam);
+    for var i in 0 .. playerCount do
+        var player = fetch(:player, playerTeam, i);
+        var cursorX = player.sensor(@shootX);
+        var cursorY = player.sensor(@shootY);
+        var isHovering = cursorX >= centerX - width / 2 and
+                         cursorX <= centerX + width / 2 and
+                         cursorY >= centerY - height / 2 and
+                         cursorY <= centerY + height / 2;
+        var isClicking = player.sensor(@shooting);
+
+        if isHovering && isClicking then
+            return 2;
+        end;
+        if isHovering then return 1; end;
+    end;
+    return 0;
+end;
+
+def playerButton(in centerX, in centerY, in width, in height, in player)
+
+    var cursorX = player.sensor(@shootX);
+    var cursorY = player.sensor(@shootY);
+
+    var isHovering = cursorX >= centerX - width / 2 and
+        cursorX <= centerX + width / 2 and
+        cursorY >= centerY - height / 2 and
+        cursorY <= centerY + height / 2;
+    var isClicking = player.sensor(@shooting);
+
+    if isHovering && isClicking then
+        return 2;
+    end;
+    if isHovering then return 1; end;
+    return 0;
+end;
+
+def playerButtonD(in centerX, in centerY, in width, in height, in player)
+
+    var x1 = centerX - width / 2;
+    var x2 = centerX + width / 2;
+    var y1 = centerY - height / 2;
+    var y2 = centerY + height / 2;
+
+    var r = 0.5 + 0.5 * ((x1 + y1) % 1);
+    var g = 0.5 + 0.5 * ((x2 + y1) % 1);
+    var b = 0.5 + 0.5 * ((x1 + y2) % 1);
+    var a = 1;
+    var colorData = packcolor(r, g, b, a);
+    var size = 2;
+
+    effect(:trail, centerX, centerY, size, colorData);
+    effect(:trail, x1, y1, size, colorData);
+    effect(:trail, x2, y1, size, colorData);
+    effect(:trail, x1, y2, size, colorData);
+    effect(:trail, x2, y2, size, colorData);
+
+    var cursorX = player.sensor(@shootX);
+    var cursorY = player.sensor(@shootY);
+
+    var isHovering = cursorX >= centerX - width / 2 and
+        cursorX <= centerX + width / 2 and
+        cursorY >= centerY - height / 2 and
+        cursorY <= centerY + height / 2;
+    var isClicking = player.sensor(@shooting);
+
+    if isHovering && isClicking then
+        return 2;
+    end;
+    if isHovering then return 1; end;
+    return 0;
+end;
+
+def buttonDisplay(in id, in x, in y, in fontSize)
+
+    makemarker(:text, id, 0, 0, false);
+    setmarker(:pos, id, x, y + 1);
+    setmarker(:fontSize, id, fontSize);
+    setmarker(:flushText, id, 0);
+
+
+end;
+
+inline void resourceTooltip(in core, in item, in targetResources)
+
+    var ownedResources = core.sensor(item);
+    var color = targetResources > ownedResources ? "[red]" : "[green]";
+    print(color, min(ownedResources, targetResources), " / ", targetResources, " [white]");
+    printchar(item);
+    print("\n");
+
+end;
+
+inline void formatTime(in time, in printHours, in printMinutes, in printSeconds)
+    var hours = floor(time / 3600);
+    var minutes = floor((time / 60) % 60);
+    var seconds = floor(time % 60);
+
+    var printed = false;
+
+    if printHours then
+        if (hours < 10) then print("0"); end;
+        print(hours);
+        printed = true;
+    end;
+
+    if printMinutes then
+        if printed then print(":"); end;
+        if (minutes < 10) then print("0"); end;
+        print(minutes);
+        printed = true;
+    end;
+
+    if printSeconds then
+        if printed then print(":"); end;
+        if (seconds < 10) then print("0"); end;
+        print(seconds);
+    end;
+end;
+
+inline void popup(in idPopup, in processorId, in popupDismissed, in x, in y, in size)
+    if !popupDismissed then
+        print(titleColor, " New Feature ",
+              textColor, "\n\nOpen the minimap to read\n about it.\n\n");
+
+        var closeButton = playerButton(x - 3, y + size - 0.5, 3.5, 1.5, @clientUnit);
+        print(closeButton != 0 ? highlightColor : textColor);
+        print("[ Close ]");
+        print(textColor, " / ");
+        var closeAllButton = playerButton(x + 2.3, y + size - 0.5, 4.5, 1.5, @clientUnit);
+        print(closeAllButton != 0 ? highlightColor : textColor);
+        print("[ Close All ]");
+        print(closeAllButton != 0 ? highlightColor : textColor);
+
+        if closeButton == 2 || closeAllButton == 2 then
+            for var i in 0 .. fetch(:buildCount, @clientUnit.sensor(@team), @world-processor) do
+                var processor = fetch(:build, @clientUnit.sensor(@team), i, @world-processor);
+                if processor.read(".processorId") == processorId && closeButton == 2 then
+                    processor.write(1, ".popupDismissed");
+                else if closeAllButton == 2 then
+                    processor.write(1, ".popupDismissed");
+                end; end;
+            end;
+        end;
+
+        makemarker(:text, idPopup, 0, 0, false);
+        setmarker(:flushText, idPopup, 0);
+        setmarker(:autoscale, idPopup, 0);
+        setmarker(:fontSize, idPopup, 1.5);
+        setmarker(:pos, idPopup, x, y + size + 4);
+    else
+        setmarker(:remove, idPopup);
+    end;
+end;

@@ -1,0 +1,42 @@
+#set syntax = strict;
+#set goal = speed;
+require "../../core/libs/interfaceLibrary.mnd";
+
+var buildingData[100];
+
+begin
+
+    setrate(100);
+
+    if @server then do
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        client();
+    while true; end;
+
+end;
+
+void server()
+
+    var index = 0;
+    for var team in @sharded, @crux, @malis, @green do
+
+        var core = fetch(:core, team, 0);
+
+        for var i in 0 .. fetch(:buildCount, team, @vent-condenser) do
+            var condenser = fetch(:build, team, i, @vent-condenser);
+
+
+
+            buildings[index] = condenser;
+            index++;
+        end;
+    end;
+end;
+
+void client()
+
+end;

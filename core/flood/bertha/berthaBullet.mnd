@@ -1,0 +1,48 @@
+#set syntax = strict;
+require "../../../core/libs/interfaceLibrary.mnd";
+
+noinit bulletX, bulletY, targetX, targetY, shotSpeed, angleTarget, nextEffectTick;
+var time = @tick;
+
+begin
+
+    setrate(1000);
+    if bulletX != null then
+
+        wait(1/60/60);
+        var dt = @tick - time;
+        time = @tick;
+        bulletX -= shotSpeed * cos(angleTarget) * dt / 60;
+        bulletY -= shotSpeed * sin(angleTarget) * dt / 60;
+        effect(:shootBig, bulletX, bulletY, angleTarget, %ff6363);
+
+        if len(bulletX - targetX, bulletY - targetY) < 2.5 then
+
+            var blocked = 0;
+            for var i in 0 .. fetch(:buildCount, @sharded, @world-processor) do
+                var processor = fetch(:build, @sharded, i, @world-processor);
+                if processor.read("structureId") == "floodBarrier" then
+
+                    var barrierX = processor.read("blockX");
+                    var barrierY = processor.read("blockY");
+                    var barrierRadius = processor.read("radius");
+
+                    if len(targetX - barrierX, targetY - barrierY) < barrierRadius then
+                        blocked = 1;
+                        break;
+                    end;
+
+                end;
+            end;
+
+            if !blocked then
+                effect(:explosion, targetX, targetY, 5);
+            else
+                effect(:crossExplosion, targetX, targetY, 120, %6c87fd);
+                effect(:sparkExplosion, targetX, targetY, %6c87fd);
+            end;
+            bulletX = null;
+            bulletY = null;
+        end;
+    end;
+end;

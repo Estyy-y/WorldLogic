@@ -1,0 +1,104 @@
+#set syntax = strict;
+require "../../../core/libs/interfaceLibrary.mnd";
+
+noinit emitter, serverTime, floorPrev;
+param startingDelay = 600;
+
+var id = getId(out id);
+var idText = id;
+
+begin
+
+    setrate(100);
+
+    var link = getlink(0);
+    do
+        emitter = getblock(:building, link.sensor(@x), link.sensor(@y));
+    while !isEmitter(emitter.sensor(@type));
+
+    floorPrev = getblock(:floor, emitter.sensor(@x), emitter.sensor(@y));
+    if floorPrev == @empty then floorPrev = @stone; end;
+
+    if @server then do
+        server();
+        client();
+    while true; end;
+
+    if @client then do
+        client();
+    while true; end;
+
+end;
+
+void server();
+
+
+    if @client then end(); end;
+
+    noinit activate;
+
+    if @second < startingDelay then
+        activate = 0;
+        for var team in @sharded, @crux do
+            for var i in 0 .. fetch(:unitCount, team, null) do
+                var unit = fetch(:unit, team, i, null);
+                if len(unit.sensor(@x) - emitter.sensor(@x), unit.sensor(@y) - emitter.sensor(@y)) <= unit.sensor(@range) && !isCoreUnit(unit.sensor(@type)) then
+                    activate = 1;
+                end;
+            end;
+        end;
+
+        if !activate then setblock(:floor, @empty, emitter.sensor(@x), emitter.sensor(@y)); else
+        setblock(:floor, floorPrev, emitter.sensor(@x), emitter.sensor(@y)); end;
+    else
+        setblock(:floor, floorPrev, emitter.sensor(@x), emitter.sensor(@y));
+        setrate(10);
+    end;
+
+    serverTime = @second;
+    sync(serverTime);
+
+end;
+
+void client();
+
+    if emitter.sensor(@dead) then
+        setmarker(:remove, idText);
+        setrate(10);
+        end();
+    end;
+
+    var clientTime = serverTime;
+    if clientTime <= startingDelay then
+
+
+        var emitterX = emitter.sensor(@x);
+        var emitterY = emitter.sensor(@y);
+
+        makemarker(:text, idText, 0, 0, false);
+        setmarker(:autoscale, idText, true);
+        setmarker(:pos, idText, emitterX, emitterY - emitter.sensor(@size));
+
+        formatTime(startingDelay - clientTime, 0, 1, 1);
+        setmarker(:flushText, idText, 0);
+
+    else
+
+        setmarker(:remove, idText);
+
+    end;
+end;
+
+def isCoreUnit(in type)
+    case type
+        when @alpha, @beta, @gamma, @evoke, @incite,@emanate then return 1;
+        else return 0;
+    end;
+end;
+
+def isEmitter(in type)
+    case type
+        when @core-shard, @core-foundation, @core-nucleus, @core-bastion, @core-citadel, @core-acropolis, @launch-pad, @interplanetary-accelerator then return 1;
+        else return 0;
+    end;
+end;
