@@ -9,7 +9,7 @@ var offsetX = 6;
 
 noinit team;
 noinit forgeBlock, lastForgeBlock, forgeX, forgeY;
-volatile noinit aetherProduction, totalAether, nextUpdate, aetherMultiplier;
+volatile noinit aetherProduction, totalAether, nextUpdate, aetherMultiplier, nextSync;
 noinit buttonCooldown;
 
 var id = getId(out id);
@@ -48,15 +48,18 @@ begin
 
     setrate(1000);
     team = @this.sensor(@team);
+    totalAether = 500;
 
     interfaceX = 76.5;
-    //totalAether = 1000000;
     setmarker(:remove, idForge);
     setmarker(:remove, idForgeDisplay);
     setmarker(:remove, idForgeUpgrades);
     setmarker(:remove, idForgeAetherDisplay);
+    setmarker(:remove, idPopup);
+    end();
 
     if @server then do
+    if @client then end(); end;
         common();
         server();
         client();
@@ -77,6 +80,16 @@ noinline void common()
 
     forgeX = forgeBlock.sensor(@x);
     forgeY = forgeBlock.sensor(@y);
+
+    setrule(:unitCap, baseUnitCap + upgradeList[dataSize * 0 + 7] * upgradeList[dataSize * 0 + 5]);
+    setrule(:unitHealth, 1 + upgradeList[dataSize * 1 + 7] * upgradeList[dataSize * 1 + 5], team);
+    setrule(:unitDamage, 1 + upgradeList[dataSize * 2 + 7] * upgradeList[dataSize * 2 + 5], team);
+    setrule(:unitCost, 1 + upgradeList[dataSize * 3 + 7] * upgradeList[dataSize * 3 + 5], team);
+    setrule(:unitBuildSpeed, 1 + upgradeList[dataSize * 4 + 7] * upgradeList[dataSize * 4 + 5], team);
+    setMiningSpeed(1 + upgradeList[dataSize * 5 + 7] * upgradeList[dataSize * 5 + 5], team);
+    setrule(:blockHealth, 1 + upgradeList[dataSize * 6 + 7] * upgradeList[dataSize * 6 + 5], team);
+    setrule(:blockDamage, 1 + upgradeList[dataSize * 7 + 7] * upgradeList[dataSize * 7 + 5], team);
+    setrule(:buildSpeed, 1 + upgradeList[dataSize * 8 + 7] * upgradeList[dataSize * 8 + 5], team);
 
 end;
 
@@ -134,13 +147,22 @@ noinline void server()
     var buyButton = mapButton(interfaceX + offsetX, -16.75, 3.5, 2, team);
 
     if buyButton == 2 && @second > buttonCooldown then
-        if totalAether >= upgradeList[upgrade + 2] then
-            var level = upgradeList[upgrade + 5];
-            if level < upgradeList[upgrade + 6] || upgradeList[upgrade + 6] == null then
+        var level = upgradeList[upgrade + 5];
+        var maxLevel = upgradeList[upgrade + 6];
+        var baseCost = upgradeList[upgrade + 2];
+        var costIncrease = upgradeList[upgrade + 3];
+        var increaseType = upgradeList[upgrade + 4];
+        var cost;
+        if increaseType == "additive" then
+            cost = baseCost + costIncrease * level;
+        else
+            cost = baseCost * (costIncrease**level);
+        end;
+        if totalAether >= cost then
+            if level < maxLevel || maxLevel == null then
                 upgradeList[upgrade + 5] += 1;
-                totalAether -= upgradeList[upgrade + 2];
+                totalAether -= cost;
                 sync(totalAether);
-
                 sync(upgradeList[dataSize * 0 + 5]);
                 sync(upgradeList[dataSize * 1 + 5]);
                 sync(upgradeList[dataSize * 2 + 5]);
@@ -150,28 +172,23 @@ noinline void server()
                 sync(upgradeList[dataSize * 6 + 5]);
                 sync(upgradeList[dataSize * 7 + 5]);
                 sync(upgradeList[dataSize * 8 + 5]);
-
-                if upgradeList[upgrade + 4] == "additive" then
-                    upgradeList[upgrade + 2] += upgradeList[upgrade + 3];
-                else
-                    upgradeList[upgrade + 2] *= upgradeList[upgrade + 3];
-                end;
             end;
         end;
         buttonCooldown = @second + 0.5;
     end;
 
-    setrule(:unitCap, baseUnitCap + upgradeList[dataSize * 0 + 7] * upgradeList[dataSize * 0 + 5]);
-    setrule(:unitHealth, 1 + upgradeList[dataSize * 1 + 7] * upgradeList[dataSize * 1 + 5], team);
-    setrule(:unitDamage, 1 + upgradeList[dataSize * 2 + 7] * upgradeList[dataSize * 2 + 5], team);
-    setrule(:unitCost, 1 + upgradeList[dataSize * 3 + 7] * upgradeList[dataSize * 3 + 5], team);
-    setrule(:unitBuildSpeed, 1 + upgradeList[dataSize * 4 + 7] * upgradeList[dataSize * 4 + 5], team);
-    setMiningSpeed(1 + upgradeList[dataSize * 5 + 7] * upgradeList[dataSize * 5 + 5], team);
-    setrule(:blockHealth, 1 + upgradeList[dataSize * 6 + 7] * upgradeList[dataSize * 6 + 5], team);
-    setrule(:blockDamage, 1 + upgradeList[dataSize * 7 + 7] * upgradeList[dataSize * 7 + 5], team);
-    setrule(:buildSpeed, 1 + upgradeList[dataSize * 8 + 7] * upgradeList[dataSize * 8 + 5], team);
-
-
+    if @second > nextSync then
+        nextSync = @second + 5;
+        sync(upgradeList[dataSize * 0 + 5]);
+        sync(upgradeList[dataSize * 1 + 5]);
+        sync(upgradeList[dataSize * 2 + 5]);
+        sync(upgradeList[dataSize * 3 + 5]);
+        sync(upgradeList[dataSize * 4 + 5]);
+        sync(upgradeList[dataSize * 5 + 5]);
+        sync(upgradeList[dataSize * 6 + 5]);
+        sync(upgradeList[dataSize * 7 + 5]);
+        sync(upgradeList[dataSize * 8 + 5]);
+    end;
 end;
 
 noinline void client()
@@ -246,34 +263,46 @@ noinline void client()
 
         // Upgrade "wheel
 
+        var name = upgradeList[upgrade];
+        var symbol = upgradeList[upgrade + 1];
+        var cost = upgradeList[upgrade + 2];
+        var costIncrease = upgradeList[upgrade + 3];
+        var increaseType = upgradeList[upgrade + 4];
+        var level = upgradeList[upgrade + 5];
+        var maxLevel = upgradeList[upgrade + 6];
+        var buff = upgradeList[upgrade + 7];
+
         var previousUpgrade = mapButton(interfaceX + offsetX - 5.75, -3.6, 3.5, 2, team);
         var color1 = (previousUpgrade != 0 ? highlightColor : textColor);
 
         var nextUpgrade = mapButton(interfaceX + offsetX + 5.75, -3.6, 3.5, 2, team);
         var color2 = (nextUpgrade != 0 ? highlightColor : textColor);
 
-        print(color1, "[  ]    ", subtitleColor, upgradeList[upgrade + 1], color2,  "    [  ]");
-        print(textColor, "\n\n", upgradeList[upgrade]);
-        if upgradeList[upgrade + 7] >= 1 then
-            print(textColor, "\n(+", floor(upgradeList[upgrade + 7] * upgradeList[upgrade + 5] * 100) / 100, ")");
+        print(color1, "[  ]    ", subtitleColor, symbol, color2,  "    [  ]");
+        print(textColor, "\n\n", name);
+        if buff >= 1 then
+            print(textColor, "\n(+", floor(buff * level * 100) / 100, ")");
         else
-            // print(textColor, "\n(x", 1 + floor(upgradeList[upgrade + 7] * upgradeList[upgrade + 5] * 100) / 100, ")");
-            // Stupid rounding fix
-            var value = 1 + floor(upgradeList[upgrade + 7] * upgradeList[upgrade + 5] * 100 + 0.5) / 100;
+            var value = 1 + floor(buff * level * 100 + 0.5) / 100;
             var intPart = floor(value);
             var fracPart = floor((value - intPart) * 100 + 0.5);
             print(textColor, "\n(x", intPart, ".", (fracPart < 10 ? "0" : ""), fracPart, ")");
         end;
 
+        print(textColor, "\n\nLevel: ", subtitleColor, level);
+        if maxLevel != null then print(" / ", maxLevel); end;
 
-        print(textColor, "\n\nLevel: ", subtitleColor, upgradeList[upgrade + 5]);
-        if upgradeList[upgrade + 6] != null then print(" / ", upgradeList[upgrade + 6]); end;
+        var costDisplay;
+        if increaseType == "additive" then
+            costDisplay = cost + costIncrease * level;
+        else
+            costDisplay = cost * (costIncrease**level);
+        end;
 
-
-        if upgradeList[upgrade + 5] == upgradeList[upgrade + 6] && upgradeList[upgrade + 6] != 0 then
+        if level == maxLevel && maxLevel != 0 then
             print("\n", textColor, "Cost: ", subtitleColor, "Maxed!");
         else
-            print(textColor, "\nCost: ", subtitleColor, ceil(upgradeList[upgrade + 2]), " Aether");
+            print(textColor, "\nCost: ", subtitleColor, ceil(costDisplay), " Aether");
         end;
 
         var buyButton = mapButton(interfaceX + offsetX, -16.75, 3.5, 2, team);
@@ -305,9 +334,11 @@ noinline void client()
         setmarker(:flushText, idForgeAetherDisplay, 0);
         setmarker(:pos, idForgeAetherDisplay, interfaceX - 9, -8);
 
-        popup(idPopup, processorId, popupDismissed, forgeBlock.sensor(@x), forgeBlock.sensor(@y), forgeBlock.sensor(@size));
+        popup(idPopup, processorId, popupDismissed, forgeBlock.sensor(@x), forgeBlock.sensor(@y), forgeBlock.sensor(@size), 1);
 
     end;
+
+
 
 
 end;

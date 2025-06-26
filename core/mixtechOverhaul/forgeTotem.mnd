@@ -78,6 +78,7 @@ begin
     initialize();
 
     if @server then do
+        if @client then end(); end;
         common();
         server();
         client();
@@ -189,7 +190,6 @@ noinline void common()
 end;
 
 noinline void server()
-
 
 end;
 

@@ -2,41 +2,299 @@
 #set goal = speed;
 require "../../core/libs/interfaceLibrary.mnd";
 
-var buildingData[100];
+noinit totalVents;
+guarded ventX = cell1;
+guarded ventY = cell2;
+guarded ventProgress = cell3;
+guarded ventData = cell4;
+
+const linkRange = 7;
+const cryoConsumption = 24/30;
+const nitrogenConsumption = 8/30;
+
+volatile noinit resourceRNG;
+noinit team, teamColor, condenser, boost;
+
+var id = getId(out id);
+var idInfo = id;
+var idRange = id + 1;
+var idCryo  = id + 2;
+var idNitro = id + 3;
+
+var titleColor = "[orange]";
+var subtitleColor = "[gold]";
+var highlightColor = "[blue]";
+var textColor = "[white]";
+
 
 begin
 
-    setrate(100);
+    setrate(1000);
+
+    // Traversing the whole map in a 3x3 grid would be faster
+    if ventX[0] == null then
+        for var y in 0 .. @maph do
+            for var x in 0 .. @mapw do
+                if isVent(getblock(:floor, x, y)) && isVent(getblock(:floor, x + 1, y)) && isVent(getblock(:floor, x - 1, y)) &&
+                   isVent(getblock(:floor, x, y + 1)) && isVent(getblock(:floor, x, y - 1)) then
+                   ventX[totalVents] = x;
+                   ventY[totalVents] = y;
+                   totalVents++;
+                end;
+            end;
+        end;
+    else
+        for var i in 0 .. 511 do
+            if ventX[i] == null then
+                totalVents = i;
+                break;
+            end;
+        end;
+    end;
+
+    var timePassed = @second;
+    if @server then resourceRNG = rand(1); end;
+    do
+        sync(resourceRNG);
+    while (timePassed + 3 > @second);
+
+    for var i in 0 .. totalVents - 1 do
+        var resourceType = floor(((noise(i, resourceRNG) + 1) / 2) * 4) + 1;      // 1..4
+        var amountNoise = ((noise(i + 2, resourceRNG) + 1) / 2);               // 0..1
+        var amount = floor(amountNoise * 13) + 3;                              // 3..15
+
+        // Now generate depth biased by amount
+        var depthBase = (amount - 3) / 12.0;                                   // 0.0..1.0
+        var depthVariation = ((noise(i + 1, resourceRNG) + 1) / 2 - 0.5) * 0.3; // -0.15..0.15
+        var depthFraction = max(0, min(1, depthBase + depthVariation));       // Clamp to 0..1
+
+        var depth = floor(depthFraction * 146) + 5;
+
+        // Offset values down for packing
+        var type = resourceType - 1;  // 0..3
+        var dep = depth - 5;          // 0..145
+        var amt = amount - 3;         // 0..12
+
+        ventData[i] = (type << 12) | (dep << 4) | amt;
+    end;
+
+
+    setrate(1000);
+    team = @this.sensor(@team);
+    teamColor = teamColor(team);
 
     if @server then do
+        if @client then end(); end;
+        common();
         server();
         client();
     while true; end;
 
     if @client then do
+        common();
         client();
     while true; end;
 
 end;
 
-void server()
+noinline void common()
 
-    var index = 0;
-    for var team in @sharded, @crux, @malis, @green do
+    for var i in 0 .. totalVents - 1 do
+        if ventProgress[i] == -1 then continue; end;
 
-        var core = fetch(:core, team, 0);
+        var condenser = getblock(:building, ventX[i], ventY[i]);
+        if condenser.sensor(@type) == @vent-condenser then
 
-        for var i in 0 .. fetch(:buildCount, team, @vent-condenser) do
-            var condenser = fetch(:build, team, i, @vent-condenser);
+            var progress = condenser.sensor(@water);
+            condenser.setprop(@water, 0);
 
+            var cryoBoosted = 0;
+            var nitrogenBoosted = 0;
 
+            for var j in 0 .. fetch(:buildCount, team, @reinforced-liquid-container) do
+                var container = fetch(:build, team, j, @reinforced-liquid-container);
+                if !cryoBoosted then
+                    var cryofluid = container.sensor(@cryofluid);
+                    if  cryofluid > (progress * cryoConsumption) then
+                        var containerX = container.sensor(@x);
+                        var containerY = container.sensor(@y);
+                        if len(containerX - ventX[i], containerY - ventY[i]) > linkRange then continue; end;
+                        container.setprop(@cryofluid, cryofluid - (progress * cryoConsumption));
+                        progress *= 3;
+                        continue;
+                    end;
+                end;
+                if !nitrogenBoosted then
+                    var nitrogen = container.sensor(@nitrogen);
+                    if  nitrogen > (progress * nitrogenConsumption) then
+                        var containerX = container.sensor(@x);
+                        var containerY = container.sensor(@y);
+                        if len(containerX - ventX[i], containerY - ventY[i]) > linkRange then continue; end;
+                        container.setprop(@nitrogen, nitrogen - (progress * nitrogenConsumption));
+                        progress *= 3;
+                        continue;
+                    end;
+                end;
+            end;
 
-            buildings[index] = condenser;
-            index++;
+            ventProgress[i] += progress;
+
+            var depth = (((ventData[i] >> 4) & 0xFF) + 5) * 1000;
+            if ventProgress[i] >= depth then
+                var type = ((ventData[i] >> 12) & 0b11) + 1;
+                var amount = (ventData[i] & 0b1111) + 3;
+                placeResources(type, amount, ventX[i], ventY[i]);
+                effect(:smokeCloud, ventX[i], ventY[i], getResourceColor(type));
+                setblock(:block, @air, ventX[i], ventY[i], 0, 0);
+                ventProgress[i] = -1;
+            end;
+
         end;
     end;
 end;
 
-void client()
+noinline void server()
 
+
+
+
+end;
+
+noinline void client()
+
+    var cursorX = floor(@clientUnit.sensor(@shootX));
+    var cursorY = floor(@clientUnit.sensor(@shootY));
+    var found = 0;
+
+    for var i in 0 .. totalVents - 1 do
+        if ventProgress[i] == -1 then continue; end;
+        if len(ventX[i] - cursorX, ventY[i] - cursorY) < 3 then
+
+            found = 1;
+
+            var type = ((ventData[i] >> 12) & 0b11) + 1;    // 1..4
+            var depth = (((ventData[i] >> 4) & 0xFF) + 5) * 1000;    // 5..150
+            var amount = (ventData[i] & 0b1111) + 3;        // 3..15
+
+            type = getResource(type);
+
+            print(titleColor, " Vent \n");
+            print(subtitleColor, "Resource: ", textColor, amount, " ");
+            printchar(type);
+            print("\n");
+            print(subtitleColor, "Depth: ", textColor, depth / 1000, "k");
+
+            if getblock(:block, ventX[i], ventY[i]) == @vent-condenser then
+
+                print(subtitleColor, "\n\n ", textColor);
+                printDecimals((ventProgress[i] / depth) * 100, 2);
+                print("% ", subtitleColor, "");
+
+                var cryoContainer = null;
+                var nitroContainer = null;
+
+                for var j in 0 .. fetch(:buildCount, team, @reinforced-liquid-container) do
+                    var container = fetch(:build, team, j, @reinforced-liquid-container);
+                    var containerX = container.sensor(@x);
+                    var containerY = container.sensor(@y);
+                    if len(containerX - ventX[i], containerY - ventY[i]) > linkRange then continue; end;
+                    var cryofluid = container.sensor(@cryofluid);
+                    if  cryofluid > 0 then
+                        cryoContainer = container;
+                        continue;
+                    end;
+                    var nitrogen = container.sensor(@nitrogen);
+                    if nitrogen > 0 then
+                        nitroContainer = container;
+                        continue;
+                    end;
+                end;
+
+                rangeMarker(idRange, ventX[i], ventY[i], linkRange);
+
+                if cryoContainer != null then
+                    linkMarker(idCryo, cryoContainer.sensor(@x), cryoContainer.sensor(@y), ventX[i], ventY[i], %6ecdec);
+                else setmarker(:remove, idCryo); end;
+                if nitroContainer != null then
+                    linkMarker(idNitro, nitroContainer.sensor(@x), nitroContainer.sensor(@y), ventX[i], ventY[i], %efe3ff);
+                else setmarker(:remove, idNitro); end;
+
+            end;
+
+            makemarker(:text, idInfo, 0, 0, false);
+            setmarker(:flushText, idInfo, 0);
+            setmarker(:autoscale, idInfo, 0);
+            setmarker(:fontSize, idInfo, 1.5);
+            setmarker(:pos, idInfo, ventX[i], ventY[i] - 2);
+        end;
+    end;
+    if !found then
+        setmarker(:remove, idInfo);
+        setmarker(:remove, idRange);
+        setmarker(:remove, idCryo);
+        setmarker(:remove, idNitro);
+    end;
+end;
+
+def isVent(floor)
+    case floor
+        when @arkyic-vent, @basalt-vent, @carbon-vent, @crystalline-vent, @red-stone-vent, @rhyolite-vent, @stone-vent, @yellow-stone-vent then return true;
+        else return false;
+    end;
+end;
+
+def getResource(n)
+    case n
+        when 1 then return @oil;
+        when 2 then return @slag;
+        when 3 then return @arkycite;
+        when 4 then return @cryofluid;
+    end;
+end;
+
+
+def getResourceColor(n)
+    case n
+        when 1 then return %313131;
+        when 2 then return %ffa166;
+        when 3 then return %84a94b;
+        when 4 then return %6ecdec;
+    end;
+end;
+
+
+// no randomization yet :c
+
+const spiralSize = 25;
+const spiralX[] = (0, 1, 1, 0, -1, -1, -1, 0, 1, 2, 2, 2, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, -2, -1, 1);
+const spiralY[] = (0, 0, 1, 1, 1, 0, -1, -1, -1, -1, 0, 1, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -1, 1);
+
+def placeResources(n, count, x, y)
+
+    noinit floor;
+    case n
+        when 1 then floor = @tar;
+        when 2 then floor = @molten-slag;
+        when 3 then floor = @arkycite-floor;
+        when 4 then floor = @pooled-cryofluid;
+    end;
+
+    var placed = 0;
+    var maxTiles = spiralSize;
+
+    for var i in 0 .. maxTiles - 1 do
+        var dx = spiralX[i];
+        var dy = spiralY[i];
+
+        if (abs(dx) == 2 && abs(dy) == 2) then
+            continue;
+        end;
+
+        setblock(:floor, floor, x + dx, y + dy);
+        placed = placed + 1;
+
+        if placed >= count then
+            break;
+        end;
+    end;
 end;

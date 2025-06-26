@@ -1,6 +1,7 @@
 #set syntax = strict;
 require "../../../core/libs/interfaceLibrary.mnd";
 
+volatile processorId = null;
 linked berthaBullet = processor1;
 
 noinit shotEta;
@@ -139,7 +140,7 @@ void server()
         lockedTargetX = targetX;
         lockedTargetY = targetY;
         shotEta = @second + len(berthaX - targetX, berthaY - targetY) / shotSpeed;
-        berthaCooldown = @second + 5;
+        berthaCooldown = @second + 4;
     end;
 
     if @second > shotEta && shotEta != null then
@@ -153,8 +154,9 @@ void server()
                 var barrierX = processor.read("blockX");
                 var barrierY = processor.read("blockY");
                 var barrierRadius = processor.read("radius");
+                var deadBlock = processor.read(".baseBlock").sensor(@dead);
 
-                if len(lockedTargetX - barrierX, lockedTargetY - barrierY) < barrierRadius then
+                if len(lockedTargetX - barrierX, lockedTargetY - barrierY) < barrierRadius && !deadBlock then
                     blocked = 1;
                     break;
                 end;
@@ -163,7 +165,7 @@ void server()
         end;
 
         if !blocked then
-            explosion(playerTeam, lockedTargetX, lockedTargetY, 12, 500, 1, 1, 1, true);
+            explosion(playerTeam, lockedTargetX, lockedTargetY, 12, 3000, 1, 1, 1, true);
             shotEta = null;
             autoReady = 0;
         end;
@@ -264,7 +266,7 @@ void client()
 
     if shotTrigger then
         shotTrigger = 0;
-        berthaCooldown = @second + 5;
+        berthaCooldown = @second + 4;
 
         berthaDisplayX = berthaX + cos(angleTarget) * 1.5;
         berthaDisplayY = berthaY + sin(angleTarget) * 1.5;

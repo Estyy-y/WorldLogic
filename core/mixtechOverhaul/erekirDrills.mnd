@@ -3,20 +3,21 @@ require "../../core/libs/interfaceLibrary.mnd";
 
 
 // param makes the compiled variable name the same
-param popupDismissed = false;
+volatile processorId = null;
+volatile popupDismissed = false;
 
-const copperByproducts[] = (@lead, 0.75, @beryllium, 0.4, @oxide, 0.1);
-const leadByproducts[] = (@sand, 0.8, @pyratite, 0.3, @thorium, 0.05);
-const coalByproducts[] = (@graphite, 0.35, @carbide, 0.02, null, null);
-const sandByproducts[] = (@metaglass, 0.5, @silicon, 0.2, @phase-fabric, 0.02);
-const scrapByproducts[] = (@titanium, 0.25, @plastanium, 0.1, @surge-alloy, 0.04);
-const titaniumByproducts[] = (@lead, 0.9, @graphite, 0.4, @tungsten, 0.08);
+const copperByproducts[] = (@lead, 0.75, @beryllium, 0.4, @oxide, 0.2);
+const leadByproducts[] = (@sand, 0.8, @pyratite, 0.3, @thorium, 0.1);
+const coalByproducts[] = (@graphite, 0.35, @carbide, 0.04, null, null);
+const sandByproducts[] = (@metaglass, 0.5, @silicon, 0.2, @phase-fabric, 0.04);
+const scrapByproducts[] = (@titanium, 0.25, @plastanium, 0.2, @surge-alloy, 0.08);
+const titaniumByproducts[] = (@lead, 0.9, @graphite, 0.4, @tungsten, 0.12);
 const thoriumByproducts[] = (@fissile-matter, 0.75, @phase-fabric, 0.2, null, null);
-const berylliumByproducts[] = (@copper, 0.5, @graphite, 0.4, @thorium, 0.03);
+const berylliumByproducts[] = (@copper, 0.5, @graphite, 0.4, @thorium, 0.06);
 const tungstenByproducts[] = (@coal, 0.8, @titanium, 0.6, @carbide, 0.08);
 
-const impactMultiplier = 0.75;
-const eruptionMultiplier = 2.0;
+const impactMultiplier = 1.5;
+const eruptionMultiplier = 3.0;
 
 noinit byproduct1, byproductChance1, byproduct2, byproductChance2, byproduct3, byproductChance3;
 
@@ -31,10 +32,11 @@ var textColor = "[white]";
 
 begin
 
-    setrate(100);
+    setrate(1000);
 
     if @server then do
-        server();
+        if @client then end(); end;
+        common();
         client();
     while true; end;
 
@@ -44,9 +46,7 @@ begin
 
 end;
 
-void server()
-
-    if @client then end(); end;
+void common()
 
     for var team in @sharded, @crux do
 
@@ -168,7 +168,8 @@ void client()
             print("[ Close All ]");
             print(closeAllButton != 0 ? highlightColor : textColor);
 
-            if closeButton == 2 then
+            // todo
+            if closeButton == 2 || closeAllButton == 2 then
                 popupDismissed = true;
             end;
 
@@ -178,9 +179,28 @@ void client()
             setmarker(:fontSize, idPopup, 1.5);
             setmarker(:pos, idPopup, drillX, drillY + closestDrill.sensor(@size) + 4);
 
-        end;
+        else setmarker(:remove, idPopup); end;
+
     else
         setmarker(:remove, idPopup);
+    end;
+
+    for var team in @sharded, @crux do
+       for var i in 0 .. fetch(:buildCount, team, @impact-drill) do
+           drill = fetch(:build, team, i, @impact-drill);
+
+           var resource = drill.sensor(@firstItem);
+           drill.setprop(resource, 0);
+       end;
+    end;
+
+    for var team in @sharded, @crux do
+       for var i in 0 .. fetch(:buildCount, team, @eruption-drill) do
+           drill = fetch(:build, team, i, @eruption-drill);
+
+           var resource = drill.sensor(@firstItem);
+           drill.setprop(resource, 0);
+       end;
     end;
 end;
 

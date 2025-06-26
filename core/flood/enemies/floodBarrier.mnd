@@ -2,9 +2,10 @@
 require "../../../core/libs/interfaceLibrary.mnd";
 
 param structureId = "floodBarrier";
-param blockX = null;
-param blockY = null;
-param radius = null;
+param blockX = 328.5;
+param blockY = 294.5;
+param radius = 40;
+param fitSprite = 1;
 
 noinit baseBlock, tickEffect;
 
@@ -24,10 +25,17 @@ var idText3 = id + 8;
 var idText4 = id + 9;
 var idWave = id + 10;
 var idText5 = id + 11;
+var idFit = id + 12;
+
+var titleColor = "[orange]";
+var subtitleColor = "[gold]";
+var highlightColor = "[blue]";
+var textColor = "[white]";
 
 begin
 
     print(structureId);
+
 
     setrate(1000);
     setmarker(:remove, idShield);
@@ -41,8 +49,10 @@ begin
     setmarker(:remove, idText4);
     setmarker(:remove, idWave);
     setmarker(:remove, idText5);
+    setmarker(:remove, idFit);
 
     baseBlock = getblock(:building, blockX, blockY);
+    baseBlock.enabled(0);
 
     if @server then do
         server();
@@ -134,8 +144,17 @@ void client()
         setmarker(:color, idText5, %6c87fd);
         setmarker(:drawLayer, idText5, 100);
         setmarker(:minimap, idText5, 1);
-        setmarker(:pos, idText5, blockX, blockY);
+        //if fitSprite then
+            //setmarker(:pos, idText5, blockX - 1, blockY + 1);
+        /*else*/ setmarker(:pos, idText5, blockX, blockY);
 
+        if fitSprite then
+            makemarker(:texture , idFit, 0, 0, false);
+            setmarker(:texture, idFit , 0, "block-regen-projector-full");
+            setmarker(:textureSize, idFit, 4, 4);
+            setmarker(:drawLayer, idFit, 35);
+            setmarker(:pos, idFit, blockX, blockY);
+        end;
         /*
         makemarker(:shape, idWave, 0, 0, false);
         setmarker(:shape, idWave, 100, 1, 0);

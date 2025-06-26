@@ -187,7 +187,7 @@ inline void formatTime(in time, in printHours, in printMinutes, in printSeconds)
     end;
 end;
 
-inline void popup(in idPopup, in processorId, in popupDismissed, in x, in y, in size)
+inline void popup(in idPopup, in processorId, in popupDismissed, in x, in y, in size, in type)
     if !popupDismissed then
         print(titleColor, " New Feature ",
               textColor, "\n\nOpen the minimap to read\n about it.\n\n");
@@ -221,3 +221,48 @@ inline void popup(in idPopup, in processorId, in popupDismissed, in x, in y, in 
         setmarker(:remove, idPopup);
     end;
 end;
+
+inline void linkMarker(in id, in x1, in y1, in x2, in y2, in color)
+    makemarker(:line, id, 0, 0, false);
+    setmarker(:pos, id, x1, y1);
+    setmarker(:endPos, id, x2, y2);
+    setmarker(:color, id, color);
+    setmarker(:drawLayer, id, 100);
+end;
+
+inline void rangeMarker(in id, in x, in y, in range);
+    makemarker(:shape, id, 0, 0, false);
+    setmarker(:shape, id, range * 4, 0, 1);
+    setmarker(:pos, id, x, y);
+    setmarker(:radius, id, range * 8);
+end;
+
+inline def teamColor(team)
+    case team
+        when 1 then return %ffd37f;
+        when 2 then return %f25555;
+    end;
+end;
+
+inline void printDecimals(number, decimals)
+    var scale = 1;
+    for var i in 0 .. decimals do
+        scale *= 10;
+    end;
+
+    var raw = floor(number * scale);         // Shift decimal and floor
+    var intPart = floor(raw / scale);        // Whole number
+    var fracPart = raw % scale;              // Decimal part
+
+    print(intPart, ".");
+
+    // Leading zeros for decimal part
+    var pad = scale / 10;
+    while pad > 1 and fracPart < pad do
+        print("0");
+        pad /= 10;
+    end;
+
+    print(fracPart);
+end;
+

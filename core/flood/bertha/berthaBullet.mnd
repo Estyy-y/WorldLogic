@@ -26,8 +26,9 @@ begin
                     var barrierX = processor.read("blockX");
                     var barrierY = processor.read("blockY");
                     var barrierRadius = processor.read("radius");
+                    var deadBlock = processor.read(".baseBlock").sensor(@dead);
 
-                    if len(targetX - barrierX, targetY - barrierY) < barrierRadius then
+                    if len(lockedTargetX - barrierX, lockedTargetY - barrierY) < barrierRadius && !deadBlock then
                         blocked = 1;
                         break;
                     end;
