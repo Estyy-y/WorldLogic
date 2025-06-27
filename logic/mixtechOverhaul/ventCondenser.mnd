@@ -1,6 +1,6 @@
 #set syntax = strict;
 #set goal = speed;
-require "../../core/libs/interfaceLibrary.mnd";
+require "../../logic/libs/interfaceLibrary.mnd";
 
 noinit totalVents;
 guarded ventX = cell1;
@@ -31,15 +31,30 @@ begin
 
     setrate(1000);
 
-    // Traversing the whole map in a 3x3 grid would be faster
     if ventX[0] == null then
-        for var y in 0 .. @maph do
-            for var x in 0 .. @mapw do
-                if isVent(getblock(:floor, x, y)) && isVent(getblock(:floor, x + 1, y)) && isVent(getblock(:floor, x - 1, y)) &&
-                   isVent(getblock(:floor, x, y + 1)) && isVent(getblock(:floor, x, y - 1)) then
-                   ventX[totalVents] = x;
-                   ventY[totalVents] = y;
-                   totalVents++;
+        if fetch(:build, @green, 0, @vent-condenser) != null then
+            // Much faster way to read all the vent positions, but requires pre-placing
+            for var i in 0 .. fetch(:buildCount, @green, @vent-condenser) do
+                var build = fetch(:build, @green, i, @vent-condenser);
+                ventX[totalVents] = build.sensor(@x);
+                ventY[totalVents] = build.sensor(@y);
+                totalVents++;
+            end;
+            // When you kill a building the indexes shift down so it ends up only doing half of them, so kill them after
+            do
+                var build = fetch(:build, @green, 0, @vent-condenser);
+                build.setprop(@health, 0);
+            while (fetch(:buildCount, @green, @vent-condenser) != 0);
+        else
+            // This method takes a while on big maps (5 minutes or so)
+            for var y in 0 .. @maph do
+                for var x in 0 .. @mapw do
+                    if isVent(getblock(:floor, x, y)) && isVent(getblock(:floor, x + 1, y)) && isVent(getblock(:floor, x - 1, y)) &&
+                       isVent(getblock(:floor, x, y + 1)) && isVent(getblock(:floor, x, y - 1)) then
+                       ventX[totalVents] = x;
+                       ventY[totalVents] = y;
+                       totalVents++;
+                    end;
                 end;
             end;
         end;
@@ -55,7 +70,7 @@ begin
     var timePassed = @second;
     if @server then resourceRNG = rand(1); end;
     do
-        sync(resourceRNG);
+        sync(resourceRNG); // This doesn't seem to desync but I'm always paranoid
     while (timePassed + 3 > @second);
 
     for var i in 0 .. totalVents - 1 do
@@ -63,14 +78,13 @@ begin
         var amountNoise = ((noise(i + 2, resourceRNG) + 1) / 2);               // 0..1
         var amount = floor(amountNoise * 13) + 3;                              // 3..15
 
-        // Now generate depth biased by amount
+        // Depth is biased by amount
         var depthBase = (amount - 3) / 12.0;                                   // 0.0..1.0
         var depthVariation = ((noise(i + 1, resourceRNG) + 1) / 2 - 0.5) * 0.3; // -0.15..0.15
         var depthFraction = max(0, min(1, depthBase + depthVariation));       // Clamp to 0..1
 
         var depth = floor(depthFraction * 146) + 5;
 
-        // Offset values down for packing
         var type = resourceType - 1;  // 0..3
         var dep = depth - 5;          // 0..145
         var amt = amount - 3;         // 0..12
