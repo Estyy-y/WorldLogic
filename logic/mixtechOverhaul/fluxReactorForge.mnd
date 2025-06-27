@@ -98,7 +98,7 @@ noinline void server()
 
     aetherProduction = 0;
     noinit processorId;
-    for var i in 0 .. fetch(:buildCount, @sharded, @world-processor) do
+    for var i in 0 .. fetch(:buildCount, @sharded, @world-processor) - 1 do
         var processor = fetch(:build, @sharded, i, @world-processor);
         // If the processor doesn't have the variable it keeps the last value (anuke issue)
         // make sure all processors have the variable

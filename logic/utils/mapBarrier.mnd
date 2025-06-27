@@ -1,0 +1,30 @@
+/*
+
+#set syntax = strict;
+#set goal = speed;
+
+begin
+
+    setrate(1000);
+    var xBorder, yBorder, found = 0;
+    do
+        if getblock(:floor, x, y) == @space && getblock(:block, x, y) == @air then
+            found = 1;
+        else xBorder++; yBorder++; end;
+    while !found;
+    mapWidth = @mapw - xBorder;
+    mapHeight = @mapHeight - yBorder;
+    do
+        for var team in @sharded, @crux do
+            for var i in 0 .. fetch(:unitCount, team, null) do
+                unit = fetch(:unit, team, i, null);
+                if unit.sensor(@x) < xBorder then unit.setprop(@x, xBorder + 0.5); end;
+                if unit.sensor(@x) > mapWidth then unit.setprop(@x, mapWidth - 0.5); end;
+                if unit.sensor(@y) < yBorder then unit.setprop(@y, yBorder + 0.5); end;
+                if unit.sensor(@y) > mapHeight then unit.setprop(@y, mapHeight - 0.5); end;
+            end;
+        end;
+    while true;
+end;
+
+*/

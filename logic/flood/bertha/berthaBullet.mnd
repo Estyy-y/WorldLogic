@@ -1,8 +1,15 @@
 #set syntax = strict;
-require "../../../core/libs/interfaceLibrary.mnd";
+require "../../../logic/libs/interfaceLibrary.mnd";
+
+volatile processorId = null;
 
 noinit bulletX, bulletY, targetX, targetY, shotSpeed, angleTarget, nextEffectTick;
 var time = @tick;
+
+var titleColor = "[orange]";
+var subtitleColor = "[gold]";
+var highlightColor = "[blue]";
+var textColor = "[white]";
 
 begin
 
@@ -28,7 +35,7 @@ begin
                     var barrierRadius = processor.read("radius");
                     var deadBlock = processor.read(".baseBlock").sensor(@dead);
 
-                    if len(lockedTargetX - barrierX, lockedTargetY - barrierY) < barrierRadius && !deadBlock then
+                    if len(targetX - barrierX, targetY - barrierY) < barrierRadius && !deadBlock then
                         blocked = 1;
                         break;
                     end;

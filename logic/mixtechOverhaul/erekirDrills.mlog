@@ -43,9 +43,9 @@ set .byproductChance3 0.1
 jump 105 always 0 0
 jump 51 notEqual :common:resource @coal
 set .byproduct1 @graphite
-set .byproductChance1 0.35
+set .byproductChance1 0.6
 set .byproduct2 @carbide
-set .byproductChance2 0.04
+set .byproductChance2 0.05
 set .byproduct3 null
 set .byproductChance3 null
 jump 105 always 0 0
@@ -55,11 +55,11 @@ set .byproductChance1 0.5
 set .byproduct2 @silicon
 set .byproductChance2 0.2
 set .byproduct3 @phase-fabric
-set .byproductChance3 0.04
+set .byproductChance3 0.03
 jump 105 always 0 0
 jump 67 notEqual :common:resource @scrap
 set .byproduct1 @titanium
-set .byproductChance1 0.25
+set .byproductChance1 0.4
 set .byproduct2 @plastanium
 set .byproductChance2 0.2
 set .byproduct3 @surge-alloy
@@ -71,7 +71,7 @@ set .byproductChance1 0.9
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @tungsten
-set .byproductChance3 0.12
+set .byproductChance3 0.15
 jump 105 always 0 0
 jump 83 notEqual :common:resource @thorium
 set .byproduct1 @fissile-matter
@@ -87,7 +87,7 @@ set .byproductChance1 0.5
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @thorium
-set .byproductChance3 0.06
+set .byproductChance3 0.15
 jump 105 always 0 0
 jump 99 notEqual :common:resource @tungsten
 set .byproduct1 @coal
@@ -95,7 +95,7 @@ set .byproductChance1 0.8
 set .byproduct2 @titanium
 set .byproductChance2 0.6
 set .byproduct3 @carbide
-set .byproductChance3 0.08
+set .byproductChance3 0.15
 jump 105 always 0 0
 set .byproduct1 null
 set .byproductChance1 0
@@ -151,9 +151,9 @@ set .byproductChance3 0.1
 jump 213 always 0 0
 jump 159 notEqual :common:resource @coal
 set .byproduct1 @graphite
-set .byproductChance1 0.35
+set .byproductChance1 0.6
 set .byproduct2 @carbide
-set .byproductChance2 0.04
+set .byproductChance2 0.05
 set .byproduct3 null
 set .byproductChance3 null
 jump 213 always 0 0
@@ -163,11 +163,11 @@ set .byproductChance1 0.5
 set .byproduct2 @silicon
 set .byproductChance2 0.2
 set .byproduct3 @phase-fabric
-set .byproductChance3 0.04
+set .byproductChance3 0.03
 jump 213 always 0 0
 jump 175 notEqual :common:resource @scrap
 set .byproduct1 @titanium
-set .byproductChance1 0.25
+set .byproductChance1 0.4
 set .byproduct2 @plastanium
 set .byproductChance2 0.2
 set .byproduct3 @surge-alloy
@@ -179,7 +179,7 @@ set .byproductChance1 0.9
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @tungsten
-set .byproductChance3 0.12
+set .byproductChance3 0.15
 jump 213 always 0 0
 jump 191 notEqual :common:resource @thorium
 set .byproduct1 @fissile-matter
@@ -195,7 +195,7 @@ set .byproductChance1 0.5
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @thorium
-set .byproductChance3 0.06
+set .byproductChance3 0.15
 jump 213 always 0 0
 jump 207 notEqual :common:resource @tungsten
 set .byproduct1 @coal
@@ -203,7 +203,7 @@ set .byproductChance1 0.8
 set .byproduct2 @titanium
 set .byproductChance2 0.6
 set .byproduct3 @carbide
-set .byproductChance3 0.08
+set .byproductChance3 0.15
 jump 213 always 0 0
 set .byproduct1 null
 set .byproductChance1 0
@@ -259,9 +259,9 @@ set .byproductChance3 0.1
 jump 321 always 0 0
 jump 267 notEqual :common:resource.1 @coal
 set .byproduct1 @graphite
-set .byproductChance1 0.35
+set .byproductChance1 0.6
 set .byproduct2 @carbide
-set .byproductChance2 0.04
+set .byproductChance2 0.05
 set .byproduct3 null
 set .byproductChance3 null
 jump 321 always 0 0
@@ -271,11 +271,11 @@ set .byproductChance1 0.5
 set .byproduct2 @silicon
 set .byproductChance2 0.2
 set .byproduct3 @phase-fabric
-set .byproductChance3 0.04
+set .byproductChance3 0.03
 jump 321 always 0 0
 jump 283 notEqual :common:resource.1 @scrap
 set .byproduct1 @titanium
-set .byproductChance1 0.25
+set .byproductChance1 0.4
 set .byproduct2 @plastanium
 set .byproductChance2 0.2
 set .byproduct3 @surge-alloy
@@ -287,7 +287,7 @@ set .byproductChance1 0.9
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @tungsten
-set .byproductChance3 0.12
+set .byproductChance3 0.15
 jump 321 always 0 0
 jump 299 notEqual :common:resource.1 @thorium
 set .byproduct1 @fissile-matter
@@ -303,7 +303,7 @@ set .byproductChance1 0.5
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @thorium
-set .byproductChance3 0.06
+set .byproductChance3 0.15
 jump 321 always 0 0
 jump 315 notEqual :common:resource.1 @tungsten
 set .byproduct1 @coal
@@ -311,7 +311,7 @@ set .byproductChance1 0.8
 set .byproduct2 @titanium
 set .byproductChance2 0.6
 set .byproduct3 @carbide
-set .byproductChance3 0.08
+set .byproductChance3 0.15
 jump 321 always 0 0
 set .byproduct1 null
 set .byproductChance1 0
@@ -367,9 +367,9 @@ set .byproductChance3 0.1
 jump 429 always 0 0
 jump 375 notEqual :common:resource.1 @coal
 set .byproduct1 @graphite
-set .byproductChance1 0.35
+set .byproductChance1 0.6
 set .byproduct2 @carbide
-set .byproductChance2 0.04
+set .byproductChance2 0.05
 set .byproduct3 null
 set .byproductChance3 null
 jump 429 always 0 0
@@ -379,11 +379,11 @@ set .byproductChance1 0.5
 set .byproduct2 @silicon
 set .byproductChance2 0.2
 set .byproduct3 @phase-fabric
-set .byproductChance3 0.04
+set .byproductChance3 0.03
 jump 429 always 0 0
 jump 391 notEqual :common:resource.1 @scrap
 set .byproduct1 @titanium
-set .byproductChance1 0.25
+set .byproductChance1 0.4
 set .byproduct2 @plastanium
 set .byproductChance2 0.2
 set .byproduct3 @surge-alloy
@@ -395,7 +395,7 @@ set .byproductChance1 0.9
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @tungsten
-set .byproductChance3 0.12
+set .byproductChance3 0.15
 jump 429 always 0 0
 jump 407 notEqual :common:resource.1 @thorium
 set .byproduct1 @fissile-matter
@@ -411,7 +411,7 @@ set .byproductChance1 0.5
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @thorium
-set .byproductChance3 0.06
+set .byproductChance3 0.15
 jump 429 always 0 0
 jump 423 notEqual :common:resource.1 @tungsten
 set .byproduct1 @coal
@@ -419,7 +419,7 @@ set .byproductChance1 0.8
 set .byproduct2 @titanium
 set .byproductChance2 0.6
 set .byproduct3 @carbide
-set .byproductChance3 0.08
+set .byproductChance3 0.15
 jump 429 always 0 0
 set .byproduct1 null
 set .byproductChance1 0
@@ -481,9 +481,9 @@ set .byproductChance3 0.1
 jump 543 always 0 0
 jump 489 notEqual :client:resource @coal
 set .byproduct1 @graphite
-set .byproductChance1 0.35
+set .byproductChance1 0.6
 set .byproduct2 @carbide
-set .byproductChance2 0.04
+set .byproductChance2 0.05
 set .byproduct3 null
 set .byproductChance3 null
 jump 543 always 0 0
@@ -493,11 +493,11 @@ set .byproductChance1 0.5
 set .byproduct2 @silicon
 set .byproductChance2 0.2
 set .byproduct3 @phase-fabric
-set .byproductChance3 0.04
+set .byproductChance3 0.03
 jump 543 always 0 0
 jump 505 notEqual :client:resource @scrap
 set .byproduct1 @titanium
-set .byproductChance1 0.25
+set .byproductChance1 0.4
 set .byproduct2 @plastanium
 set .byproductChance2 0.2
 set .byproduct3 @surge-alloy
@@ -509,7 +509,7 @@ set .byproductChance1 0.9
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @tungsten
-set .byproductChance3 0.12
+set .byproductChance3 0.15
 jump 543 always 0 0
 jump 521 notEqual :client:resource @thorium
 set .byproduct1 @fissile-matter
@@ -525,7 +525,7 @@ set .byproductChance1 0.5
 set .byproduct2 @graphite
 set .byproductChance2 0.4
 set .byproduct3 @thorium
-set .byproductChance3 0.06
+set .byproductChance3 0.15
 jump 543 always 0 0
 jump 537 notEqual :client:resource @tungsten
 set .byproduct1 @coal
@@ -533,7 +533,7 @@ set .byproductChance1 0.8
 set .byproduct2 @titanium
 set .byproductChance2 0.6
 set .byproduct3 @carbide
-set .byproductChance3 0.08
+set .byproductChance3 0.15
 jump 543 always 0 0
 set .byproduct1 null
 set .byproductChance1 0

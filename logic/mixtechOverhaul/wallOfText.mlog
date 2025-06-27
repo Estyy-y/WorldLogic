@@ -1,3 +1,4 @@
+set .processorId null
 op add *tmp1 @thisx @thisy
 op add *tmp3 *tmp1 1
 op mul *tmp4 *tmp1 *tmp3

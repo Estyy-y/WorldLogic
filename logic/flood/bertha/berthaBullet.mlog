@@ -1,3 +1,4 @@
+set .processorId null
 set .time @tick
 setrate 1000
 jump 0 equal .bulletX null
@@ -21,24 +22,29 @@ jump 0 greaterThanEq *tmp14 2.5
 set :blocked 0
 fetch buildCount *tmp18 @sharded 0 @world-processor
 set :i 0
-jump 38 greaterThan 0 *tmp18
+jump 44 greaterThan 0 *tmp18
 fetch build :processor @sharded :i @world-processor
 read *tmp20 :processor "structureId"
-jump 36 notEqual *tmp20 "floodBarrier"
+jump 42 notEqual *tmp20 "floodBarrier"
 read :barrierX :processor "blockX"
 read :barrierY :processor "blockY"
 read :barrierRadius :processor "radius"
-op sub *tmp26 .targetX :barrierX
-op sub *tmp27 .targetY :barrierY
-op len *tmp28 *tmp26 *tmp27
-jump 36 greaterThanEq *tmp28 :barrierRadius
+read *tmp26 :processor ".baseBlock"
+sensor :deadBlock *tmp26 @dead
+op sub *tmp28 .targetX :barrierX
+op sub *tmp29 .targetY :barrierY
+op len *tmp30 *tmp28 *tmp29
+op lessThan *tmp31 *tmp30 :barrierRadius
+op equal *tmp32 :deadBlock false
+op land *tmp33 *tmp31 *tmp32
+jump 42 equal *tmp33 false
 set :blocked 1
-jump 38 always 0 0
+jump 44 always 0 0
 op add :i :i 1
-jump 24 lessThanEq :i *tmp18
-jump 41 notEqual :blocked false
+jump 25 lessThanEq :i *tmp18
+jump 47 notEqual :blocked false
 effect explosion .targetX .targetY 5 0 0
-jump 43 always 0 0
+jump 49 always 0 0
 effect crossExplosion .targetX .targetY 120 %6c87fd 0
 effect sparkExplosion .targetX .targetY 0 %6c87fd 0
 set .bulletX null

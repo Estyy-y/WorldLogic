@@ -1,8 +1,7 @@
 set structureId "floodBarrier"
-set blockX 328.5
-set blockY 294.5
-set radius 40
-set fitSprite 1
+set blockX null
+set blockY null
+set radius null
 set .bootClient 1
 op add *tmp1 @thisx @thisy
 op add *tmp3 *tmp1 1
@@ -20,7 +19,6 @@ op add .idText3 *tmp0 8
 op add .idText4 *tmp0 9
 op add .idWave *tmp0 10
 op add .idText5 *tmp0 11
-op add .idFit *tmp0 12
 print structureId
 setrate 1000
 setmarker remove *tmp0 0 0 0
@@ -34,252 +32,237 @@ setmarker remove .idText3 0 0 0
 setmarker remove .idText4 0 0 0
 setmarker remove .idWave 0 0 0
 setmarker remove .idText5 0 0 0
-setmarker remove .idFit 0 0 0
 getblock building .baseBlock blockX blockY
+makemarker shape *tmp0 0 0 false
+setmarker shape *tmp0 100 1 1
+setmarker stroke *tmp0 12 0 0
+setmarker drawLayer *tmp0 125 0 0
+setmarker color *tmp0 %6c87fd 0 0
+op mul *tmp19 radius 8
+op add *tmp20 *tmp19 12
+setmarker radius *tmp0 *tmp20 0 0
+setmarker pos *tmp0 blockX blockY 0
+makemarker shape .idGlow1 0 0 false
+setmarker shape .idGlow1 100 0 1
+setmarker drawLayer .idGlow1 100 0 0
+setmarker pos .idGlow1 blockX blockY 0
+setmarker color .idGlow1 %6c87fd 0 0
+op div *tmp21 75 radius
+op sub *tmp23 90 *tmp21
+setmarker arc .idGlow1 *tmp21 *tmp23 0
+setmarker radius .idGlow1 *tmp19 0 0
+makemarker shape .idGlow2 0 0 false
+setmarker shape .idGlow2 100 0 1
+setmarker drawLayer .idGlow2 100 0 0
+setmarker pos .idGlow2 blockX blockY 0
+setmarker color .idGlow2 %6c87fd 0 0
+op add *tmp26 90 *tmp21
+op sub *tmp28 180 *tmp21
+setmarker arc .idGlow2 *tmp26 *tmp28 0
+setmarker radius .idGlow2 *tmp19 0 0
+makemarker shape .idGlow3 0 0 false
+setmarker shape .idGlow3 100 0 1
+setmarker drawLayer .idGlow3 100 0 0
+setmarker pos .idGlow3 blockX blockY 0
+setmarker color .idGlow3 %6c87fd 0 0
+op add *tmp31 180 *tmp21
+op sub *tmp33 270 *tmp21
+setmarker arc .idGlow3 *tmp31 *tmp33 0
+setmarker radius .idGlow3 *tmp19 0 0
+makemarker shape .idGlow4 0 0 false
+setmarker shape .idGlow4 100 0 1
+setmarker drawLayer .idGlow4 100 0 0
+setmarker pos .idGlow4 blockX blockY 0
+setmarker color .idGlow4 %6c87fd 0 0
+op add *tmp36 270 *tmp21
+op sub *tmp38 360 *tmp21
+setmarker arc .idGlow4 *tmp36 *tmp38 0
+setmarker radius .idGlow4 *tmp19 0 0
+makemarker texture .idText1 0 0 false
+setmarker textureSize .idText1 1.75 1.75 0
+setmarker texture .idText1 0 "status-shielded" 0
+setmarker color .idText1 %6c87fd 0 0
+setmarker drawLayer .idText1 100 0 0
+setmarker minimap .idText1 1 0 0
+makemarker texture .idText2 0 0 false
+setmarker textureSize .idText2 1.75 1.75 0
+setmarker texture .idText2 0 "status-shielded" 0
+setmarker color .idText2 %6c87fd 0 0
+setmarker drawLayer .idText2 100 0 0
+setmarker minimap .idText2 1 0 0
+makemarker texture .idText3 0 0 false
+setmarker textureSize .idText3 1.75 1.75 0
+setmarker texture .idText3 0 "status-shielded" 0
+setmarker color .idText3 %6c87fd 0 0
+setmarker drawLayer .idText3 100 0 0
+setmarker minimap .idText3 1 0 0
+makemarker texture .idText4 0 0 false
+setmarker textureSize .idText4 1.75 1.75 0
+setmarker texture .idText4 0 "status-shielded" 0
+setmarker color .idText4 %6c87fd 0 0
+setmarker drawLayer .idText4 100 0 0
+setmarker minimap .idText4 1 0 0
+makemarker texture .idText5 0 0 false
+setmarker textureSize .idText5 1.65 1.65 0
+setmarker texture .idText5 0 "status-shielded" 0
+setmarker color .idText5 %6c87fd 0 0
+setmarker drawLayer .idText5 100 0 0
+setmarker minimap .idText5 1 0 0
+setmarker pos .idText5 blockX blockY 0
+jump 279 equal @server false
+jump 114 equal @client false
+end
+wait 0.0002777777777777778
+op sub .deltaTime @second .time
+set .time @second
+sensor *tmp44 .baseBlock @type
+jump 126 notEqual *tmp44 @large-shield-projector
+sensor *tmp47 .baseBlock @health
+sensor *tmp48 .baseBlock @maxHealth
+op mul *tmp49 *tmp48 0.25
+op mul *tmp50 *tmp49 .deltaTime
+op add *tmp51 *tmp47 *tmp50
+setprop @health .baseBlock *tmp51
 control enabled .baseBlock 0 0 0 0
-jump 296 equal @server false
-sensor *tmp21 .baseBlock @dead
-jump 43 equal *tmp21 false
+sensor *tmp52 .baseBlock @dead
+jump 129 equal *tmp52 false
 stop
-fetch unitCount *tmp24 @sharded 0 null
+fetch unitCount *tmp55 @sharded 0 null
 set :server:i 0
-jump 108 greaterThan 0 *tmp24
+jump 173 greaterThan 0 *tmp55
 fetch unit :server:unit @sharded :server:i null
-sensor *tmp27 :server:unit @type
-sensor :isFlying:id *tmp27 @id
-jump 51 lessThan :isFlying:id 14
-jump 55 lessThanEq :isFlying:id 25
-jump 53 lessThan :isFlying:id 35
-jump 55 lessThanEq :isFlying:id 37
-jump 57 lessThan :isFlying:id 49
-jump 57 greaterThan :isFlying:id 55
-set *tmp26 1
-jump 66 always 0 0
-jump 65 lessThan :isFlying:id 5
-jump 65 greaterThan :isFlying:id 8
-sensor *tmp31 :server:unit @boosting
-jump 63 equal *tmp31 false
-set *tmp26 1
-jump 66 always 0 0
-set *tmp26 0
-jump 66 always 0 0
-set *tmp26 0
-jump 106 equal *tmp26 false
+sensor *tmp58 :server:unit @type
+sensor :isFlying:id *tmp58 @id
+jump 137 lessThan :isFlying:id 14
+jump 141 lessThanEq :isFlying:id 25
+jump 139 lessThan :isFlying:id 35
+jump 141 lessThanEq :isFlying:id 37
+jump 143 lessThan :isFlying:id 49
+jump 143 greaterThan :isFlying:id 55
+set *tmp57 1
+jump 152 always 0 0
+jump 151 lessThan :isFlying:id 5
+jump 151 greaterThan :isFlying:id 8
+sensor *tmp62 :server:unit @boosting
+jump 149 equal *tmp62 false
+set *tmp57 1
+jump 152 always 0 0
+set *tmp57 0
+jump 152 always 0 0
+set *tmp57 0
+jump 171 equal *tmp57 false
 sensor :server:unitX :server:unit @x
 sensor :server:unitY :server:unit @y
-op sub *tmp37 :server:unitX blockX
-op sub *tmp38 :server:unitY blockY
-op angle :server:angle *tmp37 *tmp38
-op len :server:distance *tmp37 *tmp38
+op sub *tmp68 :server:unitX blockX
+op sub *tmp69 :server:unitY blockY
+op angle :server:angle *tmp68 *tmp69
+op len :server:distance *tmp68 *tmp69
 sensor :server:unitSize :server:unit @size
-jump 78 greaterThanEq :server:distance radius
-op div *tmp46 :server:unitSize 2
-op sub :server:radiusFixed radius *tmp46
-jump 80 always 0 0
-op div *tmp48 :server:unitSize 2
-op add :server:radiusFixed radius *tmp48
-op sub *tmp50 :server:radiusFixed 1.5
-op greaterThanEq *tmp51 :server:distance *tmp50
-op add *tmp52 :server:radiusFixed 1.5
-op lessThanEq *tmp53 :server:distance *tmp52
-op land *tmp54 *tmp51 *tmp53
-jump 106 equal *tmp54 false
-op sub *tmp57 :server:distance *tmp50
-op sub *tmp59 *tmp52 :server:distance
-jump 98 greaterThanEq *tmp57 *tmp59
-op cos *tmp62 :server:angle 0
-op mul *tmp64 *tmp62 *tmp50
-op add *tmp65 blockX *tmp64
-setprop @x :server:unit *tmp65
-op sin *tmp66 :server:angle 0
-op mul *tmp68 *tmp66 *tmp50
-op add *tmp69 blockY *tmp68
-setprop @y :server:unit *tmp69
-jump 106 always 0 0
-op cos *tmp70 :server:angle 0
-op mul *tmp72 *tmp70 *tmp52
-op add *tmp73 blockX *tmp72
-setprop @x :server:unit *tmp73
-op sin *tmp74 :server:angle 0
-op mul *tmp76 *tmp74 *tmp52
-op add *tmp77 blockY *tmp76
-setprop @y :server:unit *tmp77
+op div *tmp75 :server:unitSize 2
+op add *tmp76 radius *tmp75
+jump 171 greaterThanEq :server:distance *tmp76
+op cos *tmp81 :server:angle 0
+op mul *tmp82 *tmp81 *tmp76
+op add *tmp83 blockX *tmp82
+setprop @x :server:unit *tmp83
+op sin *tmp84 :server:angle 0
+op mul *tmp85 *tmp84 *tmp76
+op add *tmp86 blockY *tmp85
+setprop @y :server:unit *tmp86
 op add :server:i :server:i 1
-jump 46 lessThanEq :server:i *tmp24
-jump 192 equal .bootClient false
+jump 132 lessThanEq :server:i *tmp55
+jump 175 equal .bootClient false
 set .bootClient 0
-makemarker shape *tmp0 0 0 false
-setmarker shape *tmp0 100 1 1
-setmarker stroke *tmp0 12 0 0
-setmarker drawLayer *tmp0 125 0 0
-setmarker color *tmp0 %6c87fd 0 0
-op mul *tmp308 radius 8
-op add *tmp309 *tmp308 12
-setmarker radius *tmp0 *tmp309 0 0
-setmarker pos *tmp0 blockX blockY 0
-makemarker shape .idGlow1 0 0 false
-setmarker shape .idGlow1 100 0 1
-setmarker drawLayer .idGlow1 100 0 0
-setmarker pos .idGlow1 blockX blockY 0
-setmarker color .idGlow1 %6c87fd 0 0
-op div *tmp310 75 radius
-op sub *tmp312 90 *tmp310
-setmarker arc .idGlow1 *tmp310 *tmp312 0
-setmarker radius .idGlow1 *tmp308 0 0
-makemarker shape .idGlow2 0 0 false
-setmarker shape .idGlow2 100 0 1
-setmarker drawLayer .idGlow2 100 0 0
-setmarker pos .idGlow2 blockX blockY 0
-setmarker color .idGlow2 %6c87fd 0 0
-op add *tmp315 90 *tmp310
-op sub *tmp317 180 *tmp310
-setmarker arc .idGlow2 *tmp315 *tmp317 0
-setmarker radius .idGlow2 *tmp308 0 0
-makemarker shape .idGlow3 0 0 false
-setmarker shape .idGlow3 100 0 1
-setmarker drawLayer .idGlow3 100 0 0
-setmarker pos .idGlow3 blockX blockY 0
-setmarker color .idGlow3 %6c87fd 0 0
-op add *tmp320 180 *tmp310
-op sub *tmp322 270 *tmp310
-setmarker arc .idGlow3 *tmp320 *tmp322 0
-setmarker radius .idGlow3 *tmp308 0 0
-makemarker shape .idGlow4 0 0 false
-setmarker shape .idGlow4 100 0 1
-setmarker drawLayer .idGlow4 100 0 0
-setmarker pos .idGlow4 blockX blockY 0
-setmarker color .idGlow4 %6c87fd 0 0
-op add *tmp325 270 *tmp310
-op sub *tmp327 360 *tmp310
-setmarker arc .idGlow4 *tmp325 *tmp327 0
-setmarker radius .idGlow4 *tmp308 0 0
-makemarker texture .idText1 0 0 false
-setmarker textureSize .idText1 1.75 1.75 0
-setmarker texture .idText1 0 "status-shielded" 0
-setmarker color .idText1 %6c87fd 0 0
-setmarker drawLayer .idText1 100 0 0
-setmarker minimap .idText1 1 0 0
-makemarker texture .idText2 0 0 false
-setmarker textureSize .idText2 1.75 1.75 0
-setmarker texture .idText2 0 "status-shielded" 0
-setmarker color .idText2 %6c87fd 0 0
-setmarker drawLayer .idText2 100 0 0
-setmarker minimap .idText2 1 0 0
-makemarker texture .idText3 0 0 false
-setmarker textureSize .idText3 1.75 1.75 0
-setmarker texture .idText3 0 "status-shielded" 0
-setmarker color .idText3 %6c87fd 0 0
-setmarker drawLayer .idText3 100 0 0
-setmarker minimap .idText3 1 0 0
-makemarker texture .idText4 0 0 false
-setmarker textureSize .idText4 1.75 1.75 0
-setmarker texture .idText4 0 "status-shielded" 0
-setmarker color .idText4 %6c87fd 0 0
-setmarker drawLayer .idText4 100 0 0
-setmarker minimap .idText4 1 0 0
-makemarker texture .idText5 0 0 false
-setmarker textureSize .idText5 1.65 1.65 0
-setmarker texture .idText5 0 "status-shielded" 0
-setmarker color .idText5 %6c87fd 0 0
-setmarker drawLayer .idText5 100 0 0
-setmarker minimap .idText5 1 0 0
-setmarker pos .idText5 blockX blockY 0
-jump 192 equal fitSprite false
-makemarker texture .idFit 0 0 false
-setmarker texture .idFit 0 "block-regen-projector-full" 0
-setmarker textureSize .idFit 4 4 0
-setmarker drawLayer .idFit 35 0 0
-setmarker pos .idFit blockX blockY 0
 op div :client:angle @tick 4
-op cos *tmp331 @tick 0
-op mul *tmp332 *tmp331 4
-op abs *tmp333 *tmp332 0
-op add *tmp334 *tmp333 2
-setmarker stroke .idGlow1 *tmp334 0 0
+op cos *tmp318 @tick 0
+op mul *tmp319 *tmp318 4
+op abs *tmp320 *tmp319 0
+op add *tmp321 *tmp320 2
+setmarker stroke .idGlow1 *tmp321 0 0
 setmarker rotation .idGlow1 :client:angle 0 0
-op cos *tmp335 @tick 0
-op mul *tmp336 *tmp335 4
-op abs *tmp337 *tmp336 0
-op add *tmp338 *tmp337 2
-setmarker stroke .idGlow2 *tmp338 0 0
+op cos *tmp322 @tick 0
+op mul *tmp323 *tmp322 4
+op abs *tmp324 *tmp323 0
+op add *tmp325 *tmp324 2
+setmarker stroke .idGlow2 *tmp325 0 0
 setmarker rotation .idGlow2 :client:angle 0 0
-op cos *tmp339 @tick 0
-op mul *tmp340 *tmp339 4
-op abs *tmp341 *tmp340 0
-op add *tmp342 *tmp341 2
-setmarker stroke .idGlow3 *tmp342 0 0
+op cos *tmp326 @tick 0
+op mul *tmp327 *tmp326 4
+op abs *tmp328 *tmp327 0
+op add *tmp329 *tmp328 2
+setmarker stroke .idGlow3 *tmp329 0 0
 setmarker rotation .idGlow3 :client:angle 0 0
-op cos *tmp343 @tick 0
-op mul *tmp344 *tmp343 4
-op abs *tmp345 *tmp344 0
-op add *tmp346 *tmp345 2
-setmarker stroke .idGlow4 *tmp346 0 0
+op cos *tmp330 @tick 0
+op mul *tmp331 *tmp330 4
+op abs *tmp332 *tmp331 0
+op add *tmp333 *tmp332 2
+setmarker stroke .idGlow4 *tmp333 0 0
 setmarker rotation .idGlow4 :client:angle 0 0
-op div *tmp347 @tick 4
-op cos *tmp348 *tmp347 0
-op add *tmp349 radius 0.15
-op mul *tmp350 *tmp348 *tmp349
-op add :client:iconX blockX *tmp350
-op div *tmp352 @tick 4
-op sin *tmp353 *tmp352 0
-op mul *tmp355 *tmp353 *tmp349
-op add :client:iconY blockY *tmp355
+op div *tmp334 @tick 4
+op cos *tmp335 *tmp334 0
+op add *tmp336 radius 0.15
+op mul *tmp337 *tmp335 *tmp336
+op add :client:iconX blockX *tmp337
+op div *tmp339 @tick 4
+op sin *tmp340 *tmp339 0
+op mul *tmp342 *tmp340 *tmp336
+op add :client:iconY blockY *tmp342
 setmarker pos .idText1 :client:iconX :client:iconY 0
-op sub *tmp357 :client:iconX blockX
-op sub *tmp358 :client:iconY blockY
-op angle *tmp359 *tmp357 *tmp358
-op sub *tmp360 *tmp359 90
-setmarker rotation .idText1 *tmp360 0 0
-op div *tmp361 @tick 4
-op add *tmp362 *tmp361 90
-op cos *tmp363 *tmp362 0
-op mul *tmp365 *tmp363 *tmp349
-op add :client:iconX blockX *tmp365
-op div *tmp367 @tick 4
-op add *tmp368 *tmp367 90
-op sin *tmp369 *tmp368 0
-op mul *tmp371 *tmp369 *tmp349
-op add :client:iconY blockY *tmp371
+op sub *tmp344 :client:iconX blockX
+op sub *tmp345 :client:iconY blockY
+op angle *tmp346 *tmp344 *tmp345
+op sub *tmp347 *tmp346 90
+setmarker rotation .idText1 *tmp347 0 0
+op div *tmp348 @tick 4
+op add *tmp349 *tmp348 90
+op cos *tmp350 *tmp349 0
+op mul *tmp352 *tmp350 *tmp336
+op add :client:iconX blockX *tmp352
+op div *tmp354 @tick 4
+op add *tmp355 *tmp354 90
+op sin *tmp356 *tmp355 0
+op mul *tmp358 *tmp356 *tmp336
+op add :client:iconY blockY *tmp358
 setmarker pos .idText2 :client:iconX :client:iconY 0
-op sub *tmp373 :client:iconX blockX
-op sub *tmp374 :client:iconY blockY
-op angle *tmp375 *tmp373 *tmp374
-op sub *tmp376 *tmp375 90
-setmarker rotation .idText2 *tmp376 0 0
-op div *tmp377 @tick 4
-op add *tmp378 *tmp377 180
-op cos *tmp379 *tmp378 0
-op mul *tmp381 *tmp379 *tmp349
-op add :client:iconX blockX *tmp381
-op div *tmp383 @tick 4
-op add *tmp384 *tmp383 180
-op sin *tmp385 *tmp384 0
-op mul *tmp387 *tmp385 *tmp349
-op add :client:iconY blockY *tmp387
+op sub *tmp360 :client:iconX blockX
+op sub *tmp361 :client:iconY blockY
+op angle *tmp362 *tmp360 *tmp361
+op sub *tmp363 *tmp362 90
+setmarker rotation .idText2 *tmp363 0 0
+op div *tmp364 @tick 4
+op add *tmp365 *tmp364 180
+op cos *tmp366 *tmp365 0
+op mul *tmp368 *tmp366 *tmp336
+op add :client:iconX blockX *tmp368
+op div *tmp370 @tick 4
+op add *tmp371 *tmp370 180
+op sin *tmp372 *tmp371 0
+op mul *tmp374 *tmp372 *tmp336
+op add :client:iconY blockY *tmp374
 setmarker pos .idText3 :client:iconX :client:iconY 0
-op sub *tmp389 :client:iconX blockX
-op sub *tmp390 :client:iconY blockY
-op angle *tmp391 *tmp389 *tmp390
-op sub *tmp392 *tmp391 90
-setmarker rotation .idText3 *tmp392 0 0
-op div *tmp393 @tick 4
-op add *tmp394 *tmp393 270
-op cos *tmp395 *tmp394 0
-op mul *tmp397 *tmp395 *tmp349
-op add :client:iconX blockX *tmp397
-op div *tmp399 @tick 4
-op add *tmp400 *tmp399 270
-op sin *tmp401 *tmp400 0
-op mul *tmp403 *tmp401 *tmp349
-op add :client:iconY blockY *tmp403
+op sub *tmp376 :client:iconX blockX
+op sub *tmp377 :client:iconY blockY
+op angle *tmp378 *tmp376 *tmp377
+op sub *tmp379 *tmp378 90
+setmarker rotation .idText3 *tmp379 0 0
+op div *tmp380 @tick 4
+op add *tmp381 *tmp380 270
+op cos *tmp382 *tmp381 0
+op mul *tmp384 *tmp382 *tmp336
+op add :client:iconX blockX *tmp384
+op div *tmp386 @tick 4
+op add *tmp387 *tmp386 270
+op sin *tmp388 *tmp387 0
+op mul *tmp390 *tmp388 *tmp336
+op add :client:iconY blockY *tmp390
 setmarker pos .idText4 :client:iconX :client:iconY 0
-op sub *tmp405 :client:iconX blockX
-op sub *tmp406 :client:iconY blockY
-op angle *tmp407 *tmp405 *tmp406
-op sub *tmp408 *tmp407 90
-setmarker rotation .idText4 *tmp408 0 0
-sensor *tmp409 .baseBlock @dead
-jump 40 equal *tmp409 false
+op sub *tmp392 :client:iconX blockX
+op sub *tmp393 :client:iconY blockY
+op angle *tmp394 *tmp392 *tmp393
+op sub *tmp395 *tmp394 90
+setmarker rotation .idText4 *tmp395 0 0
+sensor *tmp396 .baseBlock @dead
+jump 112 equal *tmp396 false
 effect sparkExplosion blockX blockY 0 %6c87fd 0
 setmarker remove *tmp0 0 0 0
 setmarker remove .idGlow1 0 0 0
@@ -293,182 +276,100 @@ setmarker remove .idText4 0 0 0
 setmarker remove .idWave 0 0 0
 setmarker remove .idText5 0 0 0
 stop
-jump 40 always 0 0
+jump 112 always 0 0
 jump 0 equal @client false
-jump 381 equal .bootClient false
+jump 282 equal .bootClient false
 set .bootClient 0
-makemarker shape *tmp0 0 0 false
-setmarker shape *tmp0 100 1 1
-setmarker stroke *tmp0 12 0 0
-setmarker drawLayer *tmp0 125 0 0
-setmarker color *tmp0 %6c87fd 0 0
-op mul *tmp308 radius 8
-op add *tmp309 *tmp308 12
-setmarker radius *tmp0 *tmp309 0 0
-setmarker pos *tmp0 blockX blockY 0
-makemarker shape .idGlow1 0 0 false
-setmarker shape .idGlow1 100 0 1
-setmarker drawLayer .idGlow1 100 0 0
-setmarker pos .idGlow1 blockX blockY 0
-setmarker color .idGlow1 %6c87fd 0 0
-op div *tmp310 75 radius
-op sub *tmp312 90 *tmp310
-setmarker arc .idGlow1 *tmp310 *tmp312 0
-setmarker radius .idGlow1 *tmp308 0 0
-makemarker shape .idGlow2 0 0 false
-setmarker shape .idGlow2 100 0 1
-setmarker drawLayer .idGlow2 100 0 0
-setmarker pos .idGlow2 blockX blockY 0
-setmarker color .idGlow2 %6c87fd 0 0
-op add *tmp315 90 *tmp310
-op sub *tmp317 180 *tmp310
-setmarker arc .idGlow2 *tmp315 *tmp317 0
-setmarker radius .idGlow2 *tmp308 0 0
-makemarker shape .idGlow3 0 0 false
-setmarker shape .idGlow3 100 0 1
-setmarker drawLayer .idGlow3 100 0 0
-setmarker pos .idGlow3 blockX blockY 0
-setmarker color .idGlow3 %6c87fd 0 0
-op add *tmp320 180 *tmp310
-op sub *tmp322 270 *tmp310
-setmarker arc .idGlow3 *tmp320 *tmp322 0
-setmarker radius .idGlow3 *tmp308 0 0
-makemarker shape .idGlow4 0 0 false
-setmarker shape .idGlow4 100 0 1
-setmarker drawLayer .idGlow4 100 0 0
-setmarker pos .idGlow4 blockX blockY 0
-setmarker color .idGlow4 %6c87fd 0 0
-op add *tmp325 270 *tmp310
-op sub *tmp327 360 *tmp310
-setmarker arc .idGlow4 *tmp325 *tmp327 0
-setmarker radius .idGlow4 *tmp308 0 0
-makemarker texture .idText1 0 0 false
-setmarker textureSize .idText1 1.75 1.75 0
-setmarker texture .idText1 0 "status-shielded" 0
-setmarker color .idText1 %6c87fd 0 0
-setmarker drawLayer .idText1 100 0 0
-setmarker minimap .idText1 1 0 0
-makemarker texture .idText2 0 0 false
-setmarker textureSize .idText2 1.75 1.75 0
-setmarker texture .idText2 0 "status-shielded" 0
-setmarker color .idText2 %6c87fd 0 0
-setmarker drawLayer .idText2 100 0 0
-setmarker minimap .idText2 1 0 0
-makemarker texture .idText3 0 0 false
-setmarker textureSize .idText3 1.75 1.75 0
-setmarker texture .idText3 0 "status-shielded" 0
-setmarker color .idText3 %6c87fd 0 0
-setmarker drawLayer .idText3 100 0 0
-setmarker minimap .idText3 1 0 0
-makemarker texture .idText4 0 0 false
-setmarker textureSize .idText4 1.75 1.75 0
-setmarker texture .idText4 0 "status-shielded" 0
-setmarker color .idText4 %6c87fd 0 0
-setmarker drawLayer .idText4 100 0 0
-setmarker minimap .idText4 1 0 0
-makemarker texture .idText5 0 0 false
-setmarker textureSize .idText5 1.65 1.65 0
-setmarker texture .idText5 0 "status-shielded" 0
-setmarker color .idText5 %6c87fd 0 0
-setmarker drawLayer .idText5 100 0 0
-setmarker minimap .idText5 1 0 0
-setmarker pos .idText5 blockX blockY 0
-jump 381 equal fitSprite false
-makemarker texture .idFit 0 0 false
-setmarker texture .idFit 0 "block-regen-projector-full" 0
-setmarker textureSize .idFit 4 4 0
-setmarker drawLayer .idFit 35 0 0
-setmarker pos .idFit blockX blockY 0
 op div :client:angle @tick 4
-op cos *tmp331 @tick 0
-op mul *tmp332 *tmp331 4
-op abs *tmp333 *tmp332 0
-op add *tmp334 *tmp333 2
-setmarker stroke .idGlow1 *tmp334 0 0
+op cos *tmp318 @tick 0
+op mul *tmp319 *tmp318 4
+op abs *tmp320 *tmp319 0
+op add *tmp321 *tmp320 2
+setmarker stroke .idGlow1 *tmp321 0 0
 setmarker rotation .idGlow1 :client:angle 0 0
-op cos *tmp335 @tick 0
-op mul *tmp336 *tmp335 4
-op abs *tmp337 *tmp336 0
-op add *tmp338 *tmp337 2
-setmarker stroke .idGlow2 *tmp338 0 0
+op cos *tmp322 @tick 0
+op mul *tmp323 *tmp322 4
+op abs *tmp324 *tmp323 0
+op add *tmp325 *tmp324 2
+setmarker stroke .idGlow2 *tmp325 0 0
 setmarker rotation .idGlow2 :client:angle 0 0
-op cos *tmp339 @tick 0
-op mul *tmp340 *tmp339 4
-op abs *tmp341 *tmp340 0
-op add *tmp342 *tmp341 2
-setmarker stroke .idGlow3 *tmp342 0 0
+op cos *tmp326 @tick 0
+op mul *tmp327 *tmp326 4
+op abs *tmp328 *tmp327 0
+op add *tmp329 *tmp328 2
+setmarker stroke .idGlow3 *tmp329 0 0
 setmarker rotation .idGlow3 :client:angle 0 0
-op cos *tmp343 @tick 0
-op mul *tmp344 *tmp343 4
-op abs *tmp345 *tmp344 0
-op add *tmp346 *tmp345 2
-setmarker stroke .idGlow4 *tmp346 0 0
+op cos *tmp330 @tick 0
+op mul *tmp331 *tmp330 4
+op abs *tmp332 *tmp331 0
+op add *tmp333 *tmp332 2
+setmarker stroke .idGlow4 *tmp333 0 0
 setmarker rotation .idGlow4 :client:angle 0 0
-op div *tmp347 @tick 4
-op cos *tmp348 *tmp347 0
-op add *tmp349 radius 0.15
-op mul *tmp350 *tmp348 *tmp349
-op add :client:iconX blockX *tmp350
-op div *tmp352 @tick 4
-op sin *tmp353 *tmp352 0
-op mul *tmp355 *tmp353 *tmp349
-op add :client:iconY blockY *tmp355
+op div *tmp334 @tick 4
+op cos *tmp335 *tmp334 0
+op add *tmp336 radius 0.15
+op mul *tmp337 *tmp335 *tmp336
+op add :client:iconX blockX *tmp337
+op div *tmp339 @tick 4
+op sin *tmp340 *tmp339 0
+op mul *tmp342 *tmp340 *tmp336
+op add :client:iconY blockY *tmp342
 setmarker pos .idText1 :client:iconX :client:iconY 0
-op sub *tmp357 :client:iconX blockX
-op sub *tmp358 :client:iconY blockY
-op angle *tmp359 *tmp357 *tmp358
-op sub *tmp360 *tmp359 90
-setmarker rotation .idText1 *tmp360 0 0
-op div *tmp361 @tick 4
-op add *tmp362 *tmp361 90
-op cos *tmp363 *tmp362 0
-op mul *tmp365 *tmp363 *tmp349
-op add :client:iconX blockX *tmp365
-op div *tmp367 @tick 4
-op add *tmp368 *tmp367 90
-op sin *tmp369 *tmp368 0
-op mul *tmp371 *tmp369 *tmp349
-op add :client:iconY blockY *tmp371
+op sub *tmp344 :client:iconX blockX
+op sub *tmp345 :client:iconY blockY
+op angle *tmp346 *tmp344 *tmp345
+op sub *tmp347 *tmp346 90
+setmarker rotation .idText1 *tmp347 0 0
+op div *tmp348 @tick 4
+op add *tmp349 *tmp348 90
+op cos *tmp350 *tmp349 0
+op mul *tmp352 *tmp350 *tmp336
+op add :client:iconX blockX *tmp352
+op div *tmp354 @tick 4
+op add *tmp355 *tmp354 90
+op sin *tmp356 *tmp355 0
+op mul *tmp358 *tmp356 *tmp336
+op add :client:iconY blockY *tmp358
 setmarker pos .idText2 :client:iconX :client:iconY 0
-op sub *tmp373 :client:iconX blockX
-op sub *tmp374 :client:iconY blockY
-op angle *tmp375 *tmp373 *tmp374
-op sub *tmp376 *tmp375 90
-setmarker rotation .idText2 *tmp376 0 0
-op div *tmp377 @tick 4
-op add *tmp378 *tmp377 180
-op cos *tmp379 *tmp378 0
-op mul *tmp381 *tmp379 *tmp349
-op add :client:iconX blockX *tmp381
-op div *tmp383 @tick 4
-op add *tmp384 *tmp383 180
-op sin *tmp385 *tmp384 0
-op mul *tmp387 *tmp385 *tmp349
-op add :client:iconY blockY *tmp387
+op sub *tmp360 :client:iconX blockX
+op sub *tmp361 :client:iconY blockY
+op angle *tmp362 *tmp360 *tmp361
+op sub *tmp363 *tmp362 90
+setmarker rotation .idText2 *tmp363 0 0
+op div *tmp364 @tick 4
+op add *tmp365 *tmp364 180
+op cos *tmp366 *tmp365 0
+op mul *tmp368 *tmp366 *tmp336
+op add :client:iconX blockX *tmp368
+op div *tmp370 @tick 4
+op add *tmp371 *tmp370 180
+op sin *tmp372 *tmp371 0
+op mul *tmp374 *tmp372 *tmp336
+op add :client:iconY blockY *tmp374
 setmarker pos .idText3 :client:iconX :client:iconY 0
-op sub *tmp389 :client:iconX blockX
-op sub *tmp390 :client:iconY blockY
-op angle *tmp391 *tmp389 *tmp390
-op sub *tmp392 *tmp391 90
-setmarker rotation .idText3 *tmp392 0 0
-op div *tmp393 @tick 4
-op add *tmp394 *tmp393 270
-op cos *tmp395 *tmp394 0
-op mul *tmp397 *tmp395 *tmp349
-op add :client:iconX blockX *tmp397
-op div *tmp399 @tick 4
-op add *tmp400 *tmp399 270
-op sin *tmp401 *tmp400 0
-op mul *tmp403 *tmp401 *tmp349
-op add :client:iconY blockY *tmp403
+op sub *tmp376 :client:iconX blockX
+op sub *tmp377 :client:iconY blockY
+op angle *tmp378 *tmp376 *tmp377
+op sub *tmp379 *tmp378 90
+setmarker rotation .idText3 *tmp379 0 0
+op div *tmp380 @tick 4
+op add *tmp381 *tmp380 270
+op cos *tmp382 *tmp381 0
+op mul *tmp384 *tmp382 *tmp336
+op add :client:iconX blockX *tmp384
+op div *tmp386 @tick 4
+op add *tmp387 *tmp386 270
+op sin *tmp388 *tmp387 0
+op mul *tmp390 *tmp388 *tmp336
+op add :client:iconY blockY *tmp390
 setmarker pos .idText4 :client:iconX :client:iconY 0
-op sub *tmp405 :client:iconX blockX
-op sub *tmp406 :client:iconY blockY
-op angle *tmp407 *tmp405 *tmp406
-op sub *tmp408 *tmp407 90
-setmarker rotation .idText4 *tmp408 0 0
-sensor *tmp409 .baseBlock @dead
-jump 297 equal *tmp409 false
+op sub *tmp392 :client:iconX blockX
+op sub *tmp393 :client:iconY blockY
+op angle *tmp394 *tmp392 *tmp393
+op sub *tmp395 *tmp394 90
+setmarker rotation .idText4 *tmp395 0 0
+sensor *tmp396 .baseBlock @dead
+jump 280 equal *tmp396 false
 effect sparkExplosion blockX blockY 0 %6c87fd 0
 setmarker remove *tmp0 0 0 0
 setmarker remove .idGlow1 0 0 0
@@ -482,6 +383,6 @@ setmarker remove .idText4 0 0 0
 setmarker remove .idWave 0 0 0
 setmarker remove .idText5 0 0 0
 stop
-jump 297 always 0 0
+jump 280 always 0 0
 print "Compiled by Mindcode - github.com/cardillan/mindcode"
 

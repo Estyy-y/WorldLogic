@@ -1,5 +1,5 @@
 #set syntax = strict;
-require "../../core/libs/interfaceLibrary.mnd";
+require "../../logic/libs/interfaceLibrary.mnd";
 
 
 // param makes the compiled variable name the same
@@ -8,13 +8,13 @@ volatile popupDismissed = false;
 
 const copperByproducts[] = (@lead, 0.75, @beryllium, 0.4, @oxide, 0.2);
 const leadByproducts[] = (@sand, 0.8, @pyratite, 0.3, @thorium, 0.1);
-const coalByproducts[] = (@graphite, 0.35, @carbide, 0.04, null, null);
-const sandByproducts[] = (@metaglass, 0.5, @silicon, 0.2, @phase-fabric, 0.04);
-const scrapByproducts[] = (@titanium, 0.25, @plastanium, 0.2, @surge-alloy, 0.08);
-const titaniumByproducts[] = (@lead, 0.9, @graphite, 0.4, @tungsten, 0.12);
+const coalByproducts[] = (@graphite, 0.6, @carbide, 0.05, null, null);
+const sandByproducts[] = (@metaglass, 0.5, @silicon, 0.2, @phase-fabric, 0.03);
+const scrapByproducts[] = (@titanium, 0.4, @plastanium, 0.2, @surge-alloy, 0.08);
+const titaniumByproducts[] = (@lead, 0.9, @graphite, 0.4, @tungsten, 0.15);
 const thoriumByproducts[] = (@fissile-matter, 0.75, @phase-fabric, 0.2, null, null);
-const berylliumByproducts[] = (@copper, 0.5, @graphite, 0.4, @thorium, 0.06);
-const tungstenByproducts[] = (@coal, 0.8, @titanium, 0.6, @carbide, 0.08);
+const berylliumByproducts[] = (@copper, 0.5, @graphite, 0.4, @thorium, 0.15);
+const tungstenByproducts[] = (@coal, 0.8, @titanium, 0.6, @carbide, 0.15);
 
 const impactMultiplier = 1.5;
 const eruptionMultiplier = 3.0;

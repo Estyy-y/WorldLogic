@@ -1,5 +1,5 @@
 #set syntax = strict;
-require "../../../core/libs/interfaceLibrary.mnd";
+require "../../../logic/libs/interfaceLibrary.mnd";
 
 volatile processorId = null;
 linked berthaBullet = processor1;

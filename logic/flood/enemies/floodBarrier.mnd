@@ -1,13 +1,12 @@
 #set syntax = strict;
-require "../../../core/libs/interfaceLibrary.mnd";
+require "../../../logic/libs/interfaceLibrary.mnd";
 
 param structureId = "floodBarrier";
-param blockX = 328.5;
-param blockY = 294.5;
-param radius = 40;
-param fitSprite = 1;
+param blockX = null;
+param blockY = null;
+param radius = null;
 
-noinit baseBlock, tickEffect;
+noinit baseBlock, tickEffect, time, deltaTime;
 
 var playerTeam = @sharded;
 var buffer = 1.5;
@@ -25,7 +24,6 @@ var idText3 = id + 8;
 var idText4 = id + 9;
 var idWave = id + 10;
 var idText5 = id + 11;
-var idFit = id + 12;
 
 var titleColor = "[orange]";
 var subtitleColor = "[gold]";
@@ -49,12 +47,14 @@ begin
     setmarker(:remove, idText4);
     setmarker(:remove, idWave);
     setmarker(:remove, idText5);
-    setmarker(:remove, idFit);
 
     baseBlock = getblock(:building, blockX, blockY);
-    baseBlock.enabled(0);
+
+
+    initialize();
 
     if @server then do
+        if @client then end(); end;
         server();
         client();
     while true; end;
@@ -70,99 +70,6 @@ void client()
     if bootClient then
         bootClient = 0;
 
-        makemarker(:shape, idShield, 0, 0, false);
-        setmarker(:shape, idShield, 100, 1, 1);
-        setmarker(:stroke, idShield, 12);
-        setmarker(:drawLayer, idShield, 125);
-        setmarker(:color, idShield, %6c87fd);
-        setmarker(:radius, idShield, radius * 8 + 12);
-        setmarker(:pos, idShield, blockX, blockY);
-
-        makemarker(:shape, idGlow1, 0, 0, false);
-        setmarker(:shape, idGlow1, 100, 0, 1);
-        setmarker(:drawLayer, idGlow1, 100);
-        setmarker(:pos, idGlow1, blockX, blockY);
-        setmarker(:color, idGlow1, %6c87fd);
-        setmarker(:arc, idGlow1, 75 / radius , 90 - 75 / radius);
-        setmarker(:radius, idGlow1, radius * 8);
-
-        makemarker(:shape, idGlow2, 0, 0, false);
-        setmarker(:shape, idGlow2, 100, 0, 1);
-        setmarker(:drawLayer, idGlow2, 100);
-        setmarker(:pos, idGlow2, blockX, blockY);
-        setmarker(:color, idGlow2, %6c87fd);
-        setmarker(:arc, idGlow2, 90 + 75 / radius, 180 - 75 / radius);
-        setmarker(:radius, idGlow2, radius * 8);
-
-        makemarker(:shape, idGlow3, 0, 0, false);
-        setmarker(:shape, idGlow3, 100, 0, 1);
-        setmarker(:drawLayer, idGlow3, 100);
-        setmarker(:pos, idGlow3, blockX, blockY);
-        setmarker(:color, idGlow3, %6c87fd);
-        setmarker(:arc, idGlow3, 180 + 75 / radius , 270 - 75 / radius);
-        setmarker(:radius, idGlow3, radius * 8);
-
-        makemarker(:shape, idGlow4, 0, 0, false);
-        setmarker(:shape, idGlow4, 100, 0, 1);
-        setmarker(:drawLayer, idGlow4, 100);
-        setmarker(:pos, idGlow4, blockX, blockY);
-        setmarker(:color, idGlow4, %6c87fd);
-        setmarker(:arc, idGlow4, 270 + 75 / radius, 360 - 75 / radius);
-        setmarker(:radius, idGlow4, radius * 8);
-
-        makemarker(:texture , idText1, 0, 0, false);
-        setmarker(:textureSize, idText1, 1.75, 1.75);
-        setmarker(:texture, idText1 , 0, "status-shielded");
-        setmarker(:color, idText1, %6c87fd);
-        setmarker(:drawLayer, idText1, 100);
-        setmarker(:minimap, idText1, 1);
-
-        makemarker(:texture , idText2, 0, 0, false);
-        setmarker(:textureSize, idText2, 1.75, 1.75);
-        setmarker(:texture, idText2 , 0, "status-shielded");
-        setmarker(:color, idText2, %6c87fd);
-        setmarker(:drawLayer, idText2, 100);
-        setmarker(:minimap, idText2, 1);
-
-        makemarker(:texture , idText3, 0, 0, false);
-        setmarker(:textureSize, idText3, 1.75, 1.75);
-        setmarker(:texture, idText3 , 0, "status-shielded");
-        setmarker(:color, idText3, %6c87fd);
-        setmarker(:drawLayer, idText3, 100);
-        setmarker(:minimap, idText3, 1);
-
-        makemarker(:texture , idText4, 0, 0, false);
-        setmarker(:textureSize, idText4, 1.75, 1.75);
-        setmarker(:texture, idText4 , 0, "status-shielded");
-        setmarker(:color, idText4, %6c87fd);
-        setmarker(:drawLayer, idText4, 100);
-        setmarker(:minimap, idText4, 1);
-
-        makemarker(:texture , idText5, 0, 0, false);
-        setmarker(:textureSize, idText5, 1.65, 1.65);
-        setmarker(:texture, idText5 , 0, "status-shielded");
-        setmarker(:color, idText5, %6c87fd);
-        setmarker(:drawLayer, idText5, 100);
-        setmarker(:minimap, idText5, 1);
-        //if fitSprite then
-            //setmarker(:pos, idText5, blockX - 1, blockY + 1);
-        /*else*/ setmarker(:pos, idText5, blockX, blockY);
-
-        if fitSprite then
-            makemarker(:texture , idFit, 0, 0, false);
-            setmarker(:texture, idFit , 0, "block-regen-projector-full");
-            setmarker(:textureSize, idFit, 4, 4);
-            setmarker(:drawLayer, idFit, 35);
-            setmarker(:pos, idFit, blockX, blockY);
-        end;
-        /*
-        makemarker(:shape, idWave, 0, 0, false);
-        setmarker(:shape, idWave, 100, 1, 0);
-        setmarker(:stroke, idWave, 4);
-        setmarker(:drawLayer, idWave, 50);
-        setmarker(:pos, idWave, blockX, blockY);
-        setmarker(:color, idWave, %6c87fd);
-        */
 
     end;
 
@@ -236,6 +143,15 @@ end;
 
 void server()
 
+    wait(1/60/60);
+    deltaTime = @second - time;
+    time = @second;
+
+    if baseBlock.sensor(@type) == @large-shield-projector then
+        baseBlock.setprop(@health, baseBlock.sensor(@health) + (baseBlock.sensor(@maxHealth) * 0.25 * deltaTime));
+        baseBlock.enabled(0);
+    end;
+
     if baseBlock.sensor(@dead) then stopProcessor(); end;
 
     for var i in 0 .. fetch(:unitCount, playerTeam, null) do
@@ -249,27 +165,94 @@ void server()
         var distance = len(unitX - blockX, unitY - blockY);
         var unitSize = unit.sensor(@size);
 
-        noinit radiusFixed;
-        if distance < radius then
-            radiusFixed = radius - unitSize / 2;
-        else
-            radiusFixed = radius + unitSize / 2;
-        end;
+        noinit pushDistance;
 
-    if distance >= radiusFixed - buffer && distance <= radiusFixed + buffer then
+        if distance < radius + unitSize / 2 then
+            pushDistance = radius + unitSize / 2;
 
-        if distance - (radiusFixed - buffer) < (radiusFixed + buffer) - distance then
-
-            unit.setprop(@x, blockX + cos(angle) * (radiusFixed - buffer));
-            unit.setprop(@y, blockY + sin(angle) * (radiusFixed - buffer));
-        else
-            // Closer to outer edge
-            unit.setprop(@x, blockX + cos(angle) * (radiusFixed + buffer));
-            unit.setprop(@y, blockY + sin(angle) * (radiusFixed + buffer));
+            unit.setprop(@x, blockX + cos(angle) * pushDistance);
+            unit.setprop(@y, blockY + sin(angle) * pushDistance);
         end;
     end;
+end;
 
-    end;
+void initialize()
+
+    makemarker(:shape, idShield, 0, 0, false);
+    setmarker(:shape, idShield, 100, 1, 1);
+    setmarker(:stroke, idShield, 12);
+    setmarker(:drawLayer, idShield, 125);
+    setmarker(:color, idShield, %6c87fd);
+    setmarker(:radius, idShield, radius * 8 + 12);
+    setmarker(:pos, idShield, blockX, blockY);
+
+    makemarker(:shape, idGlow1, 0, 0, false);
+    setmarker(:shape, idGlow1, 100, 0, 1);
+    setmarker(:drawLayer, idGlow1, 100);
+    setmarker(:pos, idGlow1, blockX, blockY);
+    setmarker(:color, idGlow1, %6c87fd);
+    setmarker(:arc, idGlow1, 75 / radius , 90 - 75 / radius);
+    setmarker(:radius, idGlow1, radius * 8);
+
+    makemarker(:shape, idGlow2, 0, 0, false);
+    setmarker(:shape, idGlow2, 100, 0, 1);
+    setmarker(:drawLayer, idGlow2, 100);
+    setmarker(:pos, idGlow2, blockX, blockY);
+    setmarker(:color, idGlow2, %6c87fd);
+    setmarker(:arc, idGlow2, 90 + 75 / radius, 180 - 75 / radius);
+    setmarker(:radius, idGlow2, radius * 8);
+
+    makemarker(:shape, idGlow3, 0, 0, false);
+    setmarker(:shape, idGlow3, 100, 0, 1);
+    setmarker(:drawLayer, idGlow3, 100);
+    setmarker(:pos, idGlow3, blockX, blockY);
+    setmarker(:color, idGlow3, %6c87fd);
+    setmarker(:arc, idGlow3, 180 + 75 / radius , 270 - 75 / radius);
+    setmarker(:radius, idGlow3, radius * 8);
+
+    makemarker(:shape, idGlow4, 0, 0, false);
+    setmarker(:shape, idGlow4, 100, 0, 1);
+    setmarker(:drawLayer, idGlow4, 100);
+    setmarker(:pos, idGlow4, blockX, blockY);
+    setmarker(:color, idGlow4, %6c87fd);
+    setmarker(:arc, idGlow4, 270 + 75 / radius, 360 - 75 / radius);
+    setmarker(:radius, idGlow4, radius * 8);
+
+    makemarker(:texture , idText1, 0, 0, false);
+    setmarker(:textureSize, idText1, 1.75, 1.75);
+    setmarker(:texture, idText1 , 0, "status-shielded");
+    setmarker(:color, idText1, %6c87fd);
+    setmarker(:drawLayer, idText1, 100);
+    setmarker(:minimap, idText1, 1);
+
+    makemarker(:texture , idText2, 0, 0, false);
+    setmarker(:textureSize, idText2, 1.75, 1.75);
+    setmarker(:texture, idText2 , 0, "status-shielded");
+    setmarker(:color, idText2, %6c87fd);
+    setmarker(:drawLayer, idText2, 100);
+    setmarker(:minimap, idText2, 1);
+
+    makemarker(:texture , idText3, 0, 0, false);
+    setmarker(:textureSize, idText3, 1.75, 1.75);
+    setmarker(:texture, idText3 , 0, "status-shielded");
+    setmarker(:color, idText3, %6c87fd);
+    setmarker(:drawLayer, idText3, 100);
+    setmarker(:minimap, idText3, 1);
+
+    makemarker(:texture , idText4, 0, 0, false);
+    setmarker(:textureSize, idText4, 1.75, 1.75);
+    setmarker(:texture, idText4 , 0, "status-shielded");
+    setmarker(:color, idText4, %6c87fd);
+    setmarker(:drawLayer, idText4, 100);
+    setmarker(:minimap, idText4, 1);
+
+    makemarker(:texture , idText5, 0, 0, false);
+    setmarker(:textureSize, idText5, 1.65, 1.65);
+    setmarker(:texture, idText5 , 0, "status-shielded");
+    setmarker(:color, idText5, %6c87fd);
+    setmarker(:drawLayer, idText5, 100);
+    setmarker(:minimap, idText5, 1);
+    setmarker(:pos, idText5, blockX, blockY);
 
 end;
 

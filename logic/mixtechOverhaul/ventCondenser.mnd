@@ -2,6 +2,8 @@
 #set goal = speed;
 require "../../logic/libs/interfaceLibrary.mnd";
 
+volatile processorId = null;
+
 noinit totalVents;
 guarded ventX = cell1;
 guarded ventY = cell2;
