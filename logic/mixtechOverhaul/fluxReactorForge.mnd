@@ -1,6 +1,8 @@
 #set syntax = strict;
 #set goal = size;
-require "../../core/libs/interfaceLibrary.mnd";
+require "../../logic/libs/interfaceLibrary.mnd";
+
+// Too close to the instruction limit, needs to be optimized/separated
 
 volatile processorId = "forge";
 
@@ -48,18 +50,17 @@ begin
 
     setrate(1000);
     team = @this.sensor(@team);
-    totalAether = 500;
 
+    // todo: Calculate the position dynamically with the core UI later
     interfaceX = 76.5;
     setmarker(:remove, idForge);
     setmarker(:remove, idForgeDisplay);
     setmarker(:remove, idForgeUpgrades);
     setmarker(:remove, idForgeAetherDisplay);
     setmarker(:remove, idPopup);
-    end();
 
     if @server then do
-    if @client then end(); end;
+        if @client then end(); end;
         common();
         server();
         client();

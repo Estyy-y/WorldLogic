@@ -1,9 +1,9 @@
 #set syntax = strict;
 #set goal = speed;
-require "../../core/libs/interfaceLibrary.mnd";
+require "../../logic/libs/interfaceLibrary.mnd";
 
-param totemX = 169;
-param totemY = 159;
+param totemX = null;
+param totemY = null;
 
 
 volatile processorId = "totem";
@@ -210,10 +210,9 @@ noinline void client()
     // Visual effects
     noinit rotation;
     if active != null then
-        rotation = (((baseAetherCooldown - aetherCooldown) / baseAetherCooldown) + 1)**3 * @tick;
+        rotation += (((baseAetherCooldown - aetherCooldown) / baseAetherCooldown) + 1)**3 * deltaTime * 90;
     end;
 
-    // ugly rotation snapping needs fix
     setmarker(:rotation, idTotem2, rotation + 90);
     setmarker(:rotation, idTotem3, rotation + 45);
     setmarker(:rotation, idTotem4, rotation + 135);
@@ -275,9 +274,9 @@ noinline void client()
         if active == null then
             print(textColor, "Build a battery  to\nconnect it to the network.\n\n Build the Forge \nto start generating Aether.");
         else
-            print(subtitleColor, "Interval:", textColor, " ", floor(aetherCooldown * 10) / 10);
+            print(subtitleColor, "Interval:", textColor, " ", floor(aetherCooldown));
             print( " (", closestChamber1 + closestChamber2 + closestChamber3, " / 3 )");
-            print(subtitleColor, "\nAmount:", textColor, " ", floor(aetherAmount * 10) / 10);
+            print(subtitleColor, "\nAmount:", textColor, " ", floor(aetherAmount));
             print( " (", closestPyro1 + closestPyro2 + closestPyro3, " / 3 )");
         end;
 
@@ -300,7 +299,7 @@ noinline void client()
 
     // Popup
 
-    popup(idPopup, processorId, popupDismissed, totemX, totemY, 3);
+    popup(idPopup, processorId, popupDismissed, totemX, totemY, 3, 0);
 
     // Aether packets
 
