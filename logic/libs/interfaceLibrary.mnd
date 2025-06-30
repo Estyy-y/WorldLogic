@@ -156,7 +156,6 @@ inline void resourceTooltip(in core, in item, in targetResources)
     var color = targetResources > ownedResources ? "[red]" : "[green]";
     print(color, min(ownedResources, targetResources), " / ", targetResources, " [white]");
     printchar(item);
-    print("\n");
 
 end;
 
@@ -265,4 +264,12 @@ inline void printDecimals(number, decimals)
 
     print(fracPart);
 end;
+
+def tooltipMarker(in id, in x, in y, in size)
+        makemarker(:text, id, 0, 0, false);
+        setmarker(:autoscale, id, true);
+        setmarker(:pos, id, x, y - size);
+        setmarker(:flushText, id, 0);
+end;
+
 
