@@ -1,0 +1,631 @@
+read *tmp5 processor1 "*signature"
+jump 0 notEqual *tmp5 "51a898f570f133de:v1"
+read *tmp11 processor2 "*signature"
+jump 2 notEqual *tmp11 "51a898f570f133de:v1"
+read *tmp17 processor3 "*signature"
+jump 4 notEqual *tmp17 "51a898f570f133de:v1"
+set .processorId "bertha"
+set team @sharded
+set berthaX 50
+set berthaY 50
+op add *tmp19 @thisx @thisy
+op add *tmp21 *tmp19 1
+op mul *tmp22 *tmp19 *tmp21
+op div *tmp23 *tmp22 2
+op add *tmp24 *tmp23 @thisy
+op mul *tmp18 *tmp24 1000
+set .idBertha1 *tmp18
+op add .idBertha2 *tmp18 1
+op add .idShadow *tmp18 2
+op add .idLeg1 *tmp18 3
+op add .idLeg2 *tmp18 4
+op add .idLeg3 *tmp18 5
+op add .idLeg4 *tmp18 6
+op add .idManualAim *tmp18 7
+op add .idAutoAim *tmp18 8
+op add .idPanel *tmp18 9
+op add .idVault *tmp18 10
+op add .idInfo *tmp18 11
+op add .idInfo2 *tmp18 12
+op add .idAim1 *tmp18 30
+op add .idAim2 *tmp18 31
+op add .idAim3 *tmp18 32
+op add .idAimTimeout *tmp18 33
+set .titleColor "[orange]"
+set .subtitleColor "[gold]"
+set .highlightColor "[blue]"
+set .textColor "[white]"
+setrate 1000
+op add *tmp43 *tmp18 1000
+set :i *tmp18
+jump 44 greaterThan *tmp18 *tmp43
+setmarker remove :i 0 0 0
+op add :i :i 1
+jump 41 lessThanEq :i *tmp43
+set .berthaBarrelX berthaX
+set .berthaBarrelY berthaY
+makemarker texture *tmp18 0 0 0
+makemarker texture .idBertha2 0 0 0
+makemarker texture .idShadow 0 0 0
+makemarker texture .idLeg1 0 0 0
+makemarker texture .idLeg2 0 0 0
+makemarker texture .idLeg3 0 0 0
+makemarker texture .idLeg4 0 0 0
+setmarker texture *tmp18 0 "titan-barrel-outline" 0
+setmarker texture .idBertha2 0 "titan-outline" 0
+setmarker texture .idShadow 0 "circle-shadow" 0
+setmarker texture .idLeg1 0 "titan-side-l-outline" 0
+setmarker texture .idLeg2 0 "titan-side-l-outline" 0
+setmarker texture .idLeg3 0 "titan-side-r-outline" 0
+setmarker texture .idLeg4 0 "titan-side-r-outline" 0
+setmarker textureSize *tmp18 3 7 0
+setmarker textureSize .idBertha2 4 8 0
+setmarker textureSize .idShadow 8 8 0
+setmarker textureSize .idLeg1 6 6 0
+setmarker textureSize .idLeg2 6 -6 0
+setmarker textureSize .idLeg3 -6 6 0
+setmarker textureSize .idLeg4 -6 -6 0
+setmarker rotation .idLeg1 45 0 0
+setmarker rotation .idLeg2 -45 0 0
+setmarker rotation .idLeg3 -45 0 0
+setmarker rotation .idLeg4 45 0 0
+setmarker color .idShadow %000000a7 0 0
+setmarker drawLayer *tmp18 55 0 0
+setmarker drawLayer .idBertha2 54.9 0 0
+setmarker drawLayer .idShadow 54 0 0
+setmarker drawLayer .idLeg1 54.1 0 0
+setmarker drawLayer .idLeg2 54.1 0 0
+setmarker drawLayer .idLeg3 54.1 0 0
+setmarker drawLayer .idLeg4 54.1 0 0
+setmarker pos *tmp18 berthaX berthaY 0
+setmarker pos .idBertha2 berthaX berthaY 0
+op sub *tmp44 berthaY 1
+setmarker pos .idShadow berthaX *tmp44 0
+op sub *tmp45 berthaX 3
+setmarker pos .idLeg1 *tmp45 berthaY 0
+op sub *tmp47 berthaY 0.5
+setmarker pos .idLeg2 *tmp45 *tmp47 0
+op add *tmp48 berthaX 3
+setmarker pos .idLeg3 *tmp48 berthaY 0
+setmarker pos .idLeg4 *tmp48 *tmp47 0
+jump 101 equal @server false
+set :common*retaddr 96
+set :server*retaddr 97
+jump 95 equal @client false
+end
+jump 107 always 0 0
+jump 215 always 0 0
+jump 93 equal @clientUnit null
+set :client*retaddr 100
+jump 355 always 0 0
+jump 93 always 0 0
+jump 0 equal @client false
+set :common*retaddr 105
+set :client*retaddr 106
+jump 107 always 0 0
+jump 355 always 0 0
+jump 104 always 0 0
+wait 0.0002777777777777778
+op sub .deltaTime @second .time
+set .time @second
+getblock building .vault berthaX berthaY
+set :mapButton:playerOut .manualAimButtonPlayer
+fetch playerCount :mapButton:playerCount team 0 0
+set :mapButton:i 0
+op sub *tmp268 berthaX 3.5
+op sub *tmp271 berthaX 0.5
+op add *tmp275 berthaY 4.5
+op add *tmp279 berthaY 6.5
+jump 140 greaterThan 0 :mapButton:playerCount
+fetch player :mapButton:player team :mapButton:i 0
+sensor :mapButton:cursorX :mapButton:player @shootX
+sensor :mapButton:cursorY :mapButton:player @shootY
+op greaterThanEq *tmp269 :mapButton:cursorX *tmp268
+op lessThanEq *tmp272 :mapButton:cursorX *tmp271
+op land *tmp273 *tmp269 *tmp272
+op greaterThanEq *tmp276 :mapButton:cursorY *tmp275
+op land *tmp277 *tmp273 *tmp276
+op lessThanEq *tmp280 :mapButton:cursorY *tmp279
+op land :mapButton:isHovering *tmp277 *tmp280
+sensor :mapButton:isClicking :mapButton:player @shooting
+op land *tmp283 :mapButton:isHovering :mapButton:isClicking
+jump 135 equal *tmp283 false
+set :mapButton:playerOut :mapButton:player
+set *tmp261 2
+jump 142 always 0 0
+jump 138 equal :mapButton:isHovering false
+set *tmp261 1
+jump 142 always 0 0
+op add :mapButton:i :mapButton:i 1
+jump 119 lessThanEq :mapButton:i :mapButton:playerCount
+set :mapButton:playerOut null
+set *tmp261 0
+set .manualAimButtonPlayer :mapButton:playerOut
+set .manualAimButton *tmp261
+fetch playerCount :mapButton.1:playerCount team 0 0
+set :mapButton.1:i 0
+op add *tmp295 berthaX 0.5
+op add *tmp298 berthaX 3.5
+jump 169 greaterThan 0 :mapButton.1:playerCount
+fetch player :mapButton.1:player team :mapButton.1:i 0
+sensor :mapButton.1:cursorX :mapButton.1:player @shootX
+sensor :mapButton.1:cursorY :mapButton.1:player @shootY
+op greaterThanEq *tmp296 :mapButton.1:cursorX *tmp295
+op lessThanEq *tmp299 :mapButton.1:cursorX *tmp298
+op land *tmp300 *tmp296 *tmp299
+op greaterThanEq *tmp303 :mapButton.1:cursorY *tmp275
+op land *tmp304 *tmp300 *tmp303
+op lessThanEq *tmp307 :mapButton.1:cursorY *tmp279
+op land :mapButton.1:isHovering *tmp304 *tmp307
+sensor :mapButton.1:isClicking :mapButton.1:player @shooting
+op land *tmp310 :mapButton.1:isHovering :mapButton.1:isClicking
+jump 164 equal *tmp310 false
+set *tmp288 2
+jump 170 always 0 0
+jump 167 equal :mapButton.1:isHovering false
+set *tmp288 1
+jump 170 always 0 0
+op add :mapButton.1:i :mapButton.1:i 1
+jump 149 lessThanEq :mapButton.1:i :mapButton.1:playerCount
+set *tmp288 0
+set .autoAimButton *tmp288
+op sub :common:dx berthaX .berthaBarrelX
+op sub :common:dy berthaY .berthaBarrelY
+op len :common:dist :common:dx :common:dy
+jump 186 lessThanEq :common:dist 0.01
+op mul :common:step .deltaTime 0.75
+jump 180 lessThanEq :common:step :common:dist
+set .berthaBarrelX berthaX
+set .berthaBarrelY berthaY
+jump 186 always 0 0
+op div :common:dirX :common:dx :common:dist
+op div :common:dirY :common:dy :common:dist
+op mul *tmp323 :common:dirX :common:step
+op add .berthaBarrelX .berthaBarrelX *tmp323
+op mul *tmp324 :common:dirY :common:step
+op add .berthaBarrelY .berthaBarrelY *tmp324
+set .targetAngle -90
+jump 192 equal .targetX null
+op sub *tmp333 berthaX .targetX
+op sub *tmp334 berthaY .targetY
+op angle *tmp335 *tmp333 *tmp334
+op mod .targetAngle *tmp335 360
+op sub *tmp337 .targetAngle .angle
+op mod .angleDiff *tmp337 360
+jump 196 lessThanEq .angleDiff 180
+op sub .angleDiff .angleDiff 360
+jump 198 greaterThanEq .angleDiff -180
+op add .angleDiff .angleDiff 360
+op lessThan *tmp343 :common:dist 0.01
+op equal *tmp344 .angle null
+op or *tmp346 *tmp343 *tmp344
+jump 214 equal *tmp346 false
+jump 205 lessThanEq .angleDiff 1
+op mul *tmp350 .deltaTime 72
+op add .angle .angle *tmp350
+jump 208 greaterThanEq .angleDiff -1
+op mul *tmp353 .deltaTime 72
+op sub .angle .angle *tmp353
+op abs *tmp354 .angleDiff 0
+op greaterThan *tmp355 *tmp354 1
+op greaterThan *tmp356 @second .berthaCooldown
+op land *tmp357 *tmp355 *tmp356
+jump 214 equal *tmp357 false
+op add .berthaCooldown @second 0.2
+set @counter :common*retaddr
+op equal *tmp360 .autoAimButton 2
+op greaterThan *tmp361 @second .buttonCooldown
+op land *tmp362 *tmp360 *tmp361
+jump 221 equal *tmp362 false
+set .aimingPlayer "auto"
+op add .buttonCooldown @second 0.5
+op equal *tmp365 .manualAimButton 2
+op greaterThan *tmp366 @second .buttonCooldown
+op land *tmp367 *tmp365 *tmp366
+jump 227 equal *tmp367 false
+set .aimingPlayer .manualAimButtonPlayer
+op add .buttonCooldown @second 0.5
+op notEqual *tmp370 .aimingPlayer "auto"
+op notEqual *tmp371 .aimingPlayer null
+op land *tmp372 *tmp370 *tmp371
+jump 249 equal *tmp372 false
+set .lastTargetX .targetX
+set .lastTargetY .targetY
+sensor .targetX .aimingPlayer @shootX
+sensor .targetY .aimingPlayer @shootY
+op notEqual *tmp378 .lastTargetX .targetX
+op notEqual *tmp379 .lastTargetY .targetY
+op or *tmp381 *tmp378 *tmp379
+jump 240 equal *tmp381 false
+op add .manualAimTimeout @second 10
+sensor *tmp384 .aimingPlayer @shooting
+op greaterThan *tmp385 @second .buttonCooldown
+op land *tmp386 *tmp384 *tmp385
+op greaterThan *tmp387 @second .manualAimTimeout
+op or *tmp389 *tmp386 *tmp387
+jump 247 equal *tmp389 false
+set .aimingPlayer null
+op sub .manualAimTimeoutClient .manualAimTimeout @second
+sync .manualAimTimeoutClient
+op equal *tmp392 .aimingPlayer "auto"
+op equal *tmp393 .targetChosen false
+op land *tmp394 *tmp392 *tmp393
+jump 260 equal *tmp394 false
+fetch coreCount :server:coreCount @blue 0 0
+op rand *tmp397 :server:coreCount 0
+op floor :server:randCore *tmp397 0
+fetch core :server:coreTarget @blue :server:randCore 0
+sensor .targetX :server:coreTarget @x
+sensor .targetY :server:coreTarget @y
+set .targetChosen true
+op notEqual *tmp402 .targetX null
+sensor *tmp403 .vault @blast-compound
+op greaterThan *tmp404 *tmp403 30
+op land *tmp405 *tmp402 *tmp404
+op greaterThan *tmp406 @second .berthaCooldown
+op land .ready *tmp405 *tmp406
+jump 351 equal .ready false
+set .targetChosen false
+op add .berthaCooldown @second 5
+sensor *tmp410 .vault @blast-compound
+op sub *tmp411 *tmp410 30
+setprop @blast-compound .vault *tmp411
+sensor .blastSynced .vault @blast-compound
+sync .blastSynced
+set .shotTrigger 1
+sensor *tmp414 .vault @surge-alloy
+jump 284 lessThanEq *tmp414 30
+sensor *tmp417 .vault @surge-alloy
+op sub *tmp418 *tmp417 30
+setprop @surge-alloy .vault *tmp418
+sensor .surgeSynced .vault @surge-alloy
+sync .surgeSynced
+set *tmp413 1
+jump 285 always 0 0
+set *tmp413 null
+set .surgeBoosted *tmp413
+sensor *tmp421 .vault @phase-fabric
+jump 295 lessThanEq *tmp421 30
+sensor *tmp424 .vault @phase-fabric
+op sub *tmp425 *tmp424 30
+setprop @phase-fabric .vault *tmp425
+sensor .phaseSynced .vault @phase-fabric
+sync .phaseSynced
+set *tmp420 1
+jump 296 always 0 0
+set *tmp420 null
+set .phaseBoosted *tmp420
+jump 341 equal .surgeBoosted false
+set :tripleShot:phase .phaseBoosted
+op cos *tmp561 .targetAngle 0
+op mul *tmp562 -10 *tmp561
+op add :tripleShot:x1 .targetX *tmp562
+op sin *tmp564 .targetAngle 0
+op mul *tmp565 -10 *tmp564
+op add :tripleShot:y1 .targetY *tmp565
+op add *tmp567 .targetAngle 120
+op cos *tmp568 *tmp567 0
+op mul *tmp569 -10 *tmp568
+op add :tripleShot:x2 .targetX *tmp569
+op sin *tmp572 *tmp567 0
+op mul *tmp573 -10 *tmp572
+op add :tripleShot:y2 .targetY *tmp573
+op add *tmp575 .targetAngle 240
+op cos *tmp576 *tmp575 0
+op mul *tmp577 -10 *tmp576
+op add :tripleShot:x3 .targetX *tmp577
+op sin *tmp580 *tmp575 0
+op mul *tmp581 -10 *tmp580
+op add :tripleShot:y3 .targetY *tmp581
+write berthaX processor1 ":bullet:bulletX"
+write berthaY processor1 ":bullet:bulletY"
+write :tripleShot:x1 processor1 ":bullet:targetX"
+write :tripleShot:y1 processor1 ":bullet:targetY"
+write :tripleShot:phase processor1 ":bullet:phaseBoosted"
+write false processor1 ":bullet*finished"
+write 1 processor1 "@counter"
+write berthaX processor2 ":bullet:bulletX"
+write berthaY processor2 ":bullet:bulletY"
+write :tripleShot:x2 processor2 ":bullet:targetX"
+write :tripleShot:y2 processor2 ":bullet:targetY"
+write :tripleShot:phase processor2 ":bullet:phaseBoosted"
+write false processor2 ":bullet*finished"
+write 1 processor2 "@counter"
+write berthaX processor3 ":bullet:bulletX"
+write berthaY processor3 ":bullet:bulletY"
+write :tripleShot:x3 processor3 ":bullet:targetX"
+write :tripleShot:y3 processor3 ":bullet:targetY"
+write :tripleShot:phase processor3 ":bullet:phaseBoosted"
+write false processor3 ":bullet*finished"
+write 1 processor3 "@counter"
+jump 348 always 0 0
+write berthaX processor1 ":bullet:bulletX"
+write berthaY processor1 ":bullet:bulletY"
+write .targetX processor1 ":bullet:targetX"
+write .targetY processor1 ":bullet:targetY"
+write .phaseBoosted processor1 ":bullet:phaseBoosted"
+write false processor1 ":bullet*finished"
+write 1 processor1 "@counter"
+sync .surgeBoosted
+sync .phaseBoosted
+sync .shotTrigger
+sync .targetX
+sync .targetY
+sync .aimingPlayer
+set @counter :server*retaddr
+jump 426 notEqual .shotTrigger 1
+setprop @blast-compound .vault .blastSynced
+setprop @surge-alloy .vault .surgeSynced
+setprop @phase-fabric .vault .phaseSynced
+op cos *tmp435 .targetAngle 0
+op mul *tmp436 *tmp435 1.5
+op add .berthaBarrelX berthaX *tmp436
+op sin *tmp438 .targetAngle 0
+op mul *tmp439 *tmp438 1.5
+op add .berthaBarrelY berthaY *tmp439
+op mul *tmp442 *tmp435 -4
+op add :client:bulletX .berthaBarrelX *tmp442
+op mul *tmp445 *tmp438 -4
+op add :client:bulletY .berthaBarrelY *tmp445
+playsound true @sfx-bang 1 0.5 0 :client:bulletX :client:bulletY 1
+op add *tmp447 .angle 180
+effect smokeColor :client:bulletX :client:bulletY *tmp447 %ff6363 0
+op add *tmp448 .angle 195
+effect smokeColor :client:bulletX :client:bulletY *tmp448 %ff6363 0
+op add *tmp449 .angle 165
+effect smokeColor :client:bulletX :client:bulletY *tmp449 %ff6363 0
+jump 385 notEqual .surgeBoosted false
+write :client:bulletX processor1 ":bullet:bulletX"
+write :client:bulletY processor1 ":bullet:bulletY"
+write .targetX processor1 ":bullet:targetX"
+write .targetY processor1 ":bullet:targetY"
+write .phaseBoosted processor1 ":bullet:phaseBoosted"
+write false processor1 ":bullet*finished"
+write 1 processor1 "@counter"
+jump 425 always 0 0
+set :tripleShot:phase .phaseBoosted
+op mul *tmp562 -10 *tmp435
+op add :tripleShot:x1 .targetX *tmp562
+op mul *tmp565 -10 *tmp438
+op add :tripleShot:y1 .targetY *tmp565
+op add *tmp567 .targetAngle 120
+op cos *tmp568 *tmp567 0
+op mul *tmp569 -10 *tmp568
+op add :tripleShot:x2 .targetX *tmp569
+op sin *tmp572 *tmp567 0
+op mul *tmp573 -10 *tmp572
+op add :tripleShot:y2 .targetY *tmp573
+op add *tmp575 .targetAngle 240
+op cos *tmp576 *tmp575 0
+op mul *tmp577 -10 *tmp576
+op add :tripleShot:x3 .targetX *tmp577
+op sin *tmp580 *tmp575 0
+op mul *tmp581 -10 *tmp580
+op add :tripleShot:y3 .targetY *tmp581
+write :client:bulletX processor1 ":bullet:bulletX"
+write :client:bulletY processor1 ":bullet:bulletY"
+write :tripleShot:x1 processor1 ":bullet:targetX"
+write :tripleShot:y1 processor1 ":bullet:targetY"
+write :tripleShot:phase processor1 ":bullet:phaseBoosted"
+write false processor1 ":bullet*finished"
+write 1 processor1 "@counter"
+write :client:bulletX processor2 ":bullet:bulletX"
+write :client:bulletY processor2 ":bullet:bulletY"
+write :tripleShot:x2 processor2 ":bullet:targetX"
+write :tripleShot:y2 processor2 ":bullet:targetY"
+write :tripleShot:phase processor2 ":bullet:phaseBoosted"
+write false processor2 ":bullet*finished"
+write 1 processor2 "@counter"
+write :client:bulletX processor3 ":bullet:bulletX"
+write :client:bulletY processor3 ":bullet:bulletY"
+write :tripleShot:x3 processor3 ":bullet:targetX"
+write :tripleShot:y3 processor3 ":bullet:targetY"
+write :tripleShot:phase processor3 ":bullet:phaseBoosted"
+write false processor3 ":bullet*finished"
+write 1 processor3 "@counter"
+set .shotTrigger 0
+sensor *tmp457 @clientUnit @shootX
+op sub *tmp458 *tmp457 berthaX
+sensor *tmp459 @clientUnit @shootY
+op sub *tmp460 *tmp459 berthaY
+op len *tmp461 *tmp458 *tmp460
+jump 550 greaterThanEq *tmp461 8
+jump 435 equal .manualAimButton 0
+print .highlightColor
+jump 436 always 0 0
+print .textColor
+print "[  ]"
+makemarker text .idManualAim 0 0 false
+setmarker fontSize .idManualAim 2.5 0 0
+setmarker flushText .idManualAim 0 0 0
+op sub *tmp466 berthaX 2
+op add *tmp467 berthaY 6.1
+setmarker pos .idManualAim *tmp466 *tmp467 0
+jump 446 equal .autoAimButton 0
+print .highlightColor
+jump 447 always 0 0
+print .textColor
+print "[  ]"
+makemarker text .idAutoAim 0 0 false
+setmarker fontSize .idAutoAim 2.5 0 0
+setmarker flushText .idAutoAim 0 0 0
+op add *tmp470 berthaX 2
+setmarker pos .idAutoAim *tmp470 *tmp467 0
+jump 462 notEqual .vault null
+print "[red]Vault Missing!"
+makemarker shapeText .idVault 0 0 false
+setmarker radius .idVault 16 0 0
+setmarker rotation .idVault 45 0 0
+setmarker color .idVault %ff6363 0 0
+setmarker flushText .idVault 0 0 0
+setmarker pos .idVault berthaX berthaY 0
+setmarker textHeight .idVault 3 0 0
+print .titleColor
+print " Big Bertha \n{0}Mode: "
+format .subtitleColor
+jump 468 notEqual .aimingPlayer "auto"
+print "Auto"
+jump 469 always 0 0
+print "Manual"
+jump 496 equal .vault null
+print "\n\nAmmo\n"
+sensor :resourceTooltip:ownedResources .vault @blast-compound
+set *tmp480 "[green]"
+jump 475 lessThanEq 30 :resourceTooltip:ownedResources
+set *tmp480 "[red]"
+op min *tmp481 :resourceTooltip:ownedResources 30
+print *tmp480
+print *tmp481
+print " / 30 [white]{0}\n\nBoosters\n"
+format .subtitleColor
+sensor :resourceTooltip.1:ownedResources .vault @surge-alloy
+set *tmp484 "[green]"
+jump 484 lessThanEq 30 :resourceTooltip.1:ownedResources
+set *tmp484 "[red]"
+op min *tmp485 :resourceTooltip.1:ownedResources 30
+print *tmp484
+print *tmp485
+print " / 30 [white]\n"
+sensor :resourceTooltip.2:ownedResources .vault @phase-fabric
+set *tmp488 "[green]"
+jump 492 lessThanEq 30 :resourceTooltip.2:ownedResources
+set *tmp488 "[red]"
+op min *tmp489 :resourceTooltip.2:ownedResources 30
+print *tmp488
+print *tmp489
+print " / 30 [white]"
+makemarker text .idPanel 0 0 false
+setmarker fontSize .idPanel 1.5 0 0
+setmarker flushText .idPanel 0 0 0
+op sub *tmp490 berthaY 5
+setmarker pos .idPanel berthaX *tmp490 0
+op add :playerButton.2:centerX berthaX 5
+sensor :playerButton.2:cursorX @clientUnit @shootX
+sensor :playerButton.2:cursorY @clientUnit @shootY
+op add *tmp496 berthaX 3.5
+op greaterThanEq *tmp497 :playerButton.2:cursorX *tmp496
+op add *tmp499 berthaX 6.5
+op lessThanEq *tmp500 :playerButton.2:cursorX *tmp499
+op land *tmp501 *tmp497 *tmp500
+op sub *tmp503 berthaY 1
+op greaterThanEq *tmp504 :playerButton.2:cursorY *tmp503
+op land *tmp505 *tmp501 *tmp504
+op add *tmp507 berthaY 1
+op lessThanEq *tmp508 :playerButton.2:cursorY *tmp507
+op land :playerButton.2:isHovering *tmp505 *tmp508
+sensor :playerButton.2:isClicking @clientUnit @shooting
+op land *tmp511 :playerButton.2:isHovering :playerButton.2:isClicking
+jump 520 equal *tmp511 false
+set *tmp492 2
+jump 525 always 0 0
+jump 523 equal :playerButton.2:isHovering false
+set *tmp492 1
+jump 525 always 0 0
+set *tmp492 0
+jump 525 always 0 0
+jump 528 equal *tmp492 0
+print .highlightColor
+jump 529 always 0 0
+print .textColor
+print "[ ? ]"
+makemarker text .idInfo 0 0 false
+setmarker fontSize .idInfo 2.5 0 0
+setmarker flushText .idInfo 0 0 0
+op add *tmp517 berthaY 0.5
+setmarker pos .idInfo :playerButton.2:centerX *tmp517 0
+jump 548 lessThan *tmp492 1
+print .titleColor
+print "Info\n{0}: Triple Shot\n{0}: Anticreep Payload\n{0}Not affected\nby overdrive"
+format .textColor
+format .textColor
+format .textColor
+makemarker text .idInfo2 0 0 false
+setmarker fontSize .idInfo2 1.5 0 0
+setmarker flushText .idInfo2 0 0 0
+op add *tmp520 berthaX 13
+op add *tmp521 berthaY 2
+setmarker pos .idInfo2 *tmp520 *tmp521 0
+jump 556 always 0 0
+setmarker remove .idInfo2 0 0 0
+jump 556 always 0 0
+setmarker remove .idManualAim 0 0 0
+setmarker remove .idAutoAim 0 0 0
+setmarker remove .idVault 0 0 0
+setmarker remove .idPanel 0 0 0
+setmarker remove .idInfo 0 0 0
+setmarker remove .idInfo2 0 0 0
+setmarker pos .idBertha1 .berthaBarrelX .berthaBarrelY 0
+op add *tmp522 .angle 90
+setmarker rotation .idBertha1 *tmp522 0 0
+setmarker rotation .idBertha2 *tmp522 0 0
+op equal *tmp524 .manualAimButton 1
+op equal *tmp525 .autoAimButton 1
+op or *tmp527 *tmp524 *tmp525
+op notEqual *tmp526 *tmp527 false
+op notEqual *tmp528 .aimingPlayer null
+op notEqual *tmp529 .aimingPlayer "auto"
+op land *tmp530 *tmp528 *tmp529
+op or *tmp532 *tmp526 *tmp530
+op notEqual *tmp531 *tmp532 false
+op notEqual *tmp533 .targetX null
+op land *tmp534 *tmp531 *tmp533
+jump 614 equal *tmp534 false
+op cos *tmp536 .targetAngle 0
+op mul *tmp537 *tmp536 8
+op sub :client:offSetX berthaX *tmp537
+op sin *tmp539 .targetAngle 0
+op mul *tmp540 *tmp539 8
+op sub :client:offSetY berthaY *tmp540
+set .lastAim @second
+makemarker line .idAim1 0 0 false
+setmarker pos .idAim1 :client:offSetX :client:offSetY 0
+setmarker endPos .idAim1 .targetX .targetY 0
+setmarker drawLayer .idAim1 100 0 0
+setmarker stroke .idAim1 2 0 0
+setmarker color .idAim1 %ff6464 0 0
+makemarker shape .idAim2 0 0 false
+setmarker pos .idAim2 :client:offSetX :client:offSetY 0
+setmarker shape .idAim2 4 1 0
+setmarker drawLayer .idAim2 100 0 0
+setmarker color .idAim2 %ff6464 0 0
+makemarker shape .idAim3 0 0 false
+setmarker pos .idAim3 .targetX .targetY 0
+setmarker shape .idAim3 4 1 0
+setmarker drawLayer .idAim3 100 0 0
+setmarker color .idAim3 %ff6464 0 0
+op lessThan *tmp543 .manualAimTimeoutClient 9
+op notEqual *tmp544 .aimingPlayer null
+op land *tmp545 *tmp543 *tmp544
+op notEqual *tmp546 .aimingPlayer "auto"
+op land *tmp547 *tmp545 *tmp546
+jump 612 equal *tmp547 false
+op floor *tmp549 .manualAimTimeoutClient 0
+print "[#ff6363]Timeout: "
+print *tmp549
+set :tooltipMarker:x .targetX
+set :tooltipMarker:y .targetY
+makemarker text .idAimTimeout 0 0 false
+setmarker autoscale .idAimTimeout true 0 0
+op sub *tmp551 :tooltipMarker:y 2
+setmarker pos .idAimTimeout :tooltipMarker:x *tmp551 0
+setmarker flushText .idAimTimeout 0 0 0
+set @counter :client*retaddr
+setmarker remove .idAimTimeout 0 0 0
+set @counter :client*retaddr
+setmarker remove .idAimTimeout 0 0 0
+op sub :client:timeElapsed @second .lastAim
+jump 620 lessThanEq :client:timeElapsed 0.5
+setmarker remove .idAim1 0 0 0
+setmarker remove .idAim2 0 0 0
+setmarker remove .idAim3 0 0 0
+op div *tmp555 :client:timeElapsed 0.5
+op sub :clamp:value 1 *tmp555
+op min *tmp558 :clamp:value 1
+op max *tmp557 0 *tmp558
+packcolor :client:aimColor.1 1 0.39215686274509803 0.39215686274509803 *tmp557
+setmarker color .idAim1 :client:aimColor.1 0 0
+setmarker color .idAim2 :client:aimColor.1 0 0
+setmarker color .idAim3 :client:aimColor.1 0 0
+set @counter :client*retaddr
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
+

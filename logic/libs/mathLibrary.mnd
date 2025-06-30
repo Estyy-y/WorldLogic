@@ -1,0 +1,3 @@
+inline def clamp(in value, in minVal, in maxVal)
+    return max(minVal, min(value, maxVal));
+end;

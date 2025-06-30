@@ -1,52 +1,94 @@
-set .processorId null
-set .time @tick
+jump 2 always 0 0
+jump 7 always 0 0
+set .processorId "berthaBullet"
 setrate 1000
-jump 0 equal .bulletX null
+set *signature "51a898f570f133de:v1"
+wait 1e12
+jump 5 always 0 0
+set .time @second
+jump 46 equal @server false
+op sub *tmp238 :bullet:bulletX :bullet:targetX
+op sub *tmp239 :bullet:bulletY :bullet:targetY
+op len *tmp240 *tmp238 *tmp239
+op div :bullet:shotEta *tmp240 100
+wait :bullet:shotEta
+set :isBlocked:processorOut :bullet:barrier
+fetch buildCount *tmp267 @sharded 0 @world-processor
+op sub *tmp269 *tmp267 1
+set :isBlocked:i 0
+jump 34 greaterThan 0 *tmp269
+fetch build :isBlocked:processor @sharded :isBlocked:i @world-processor
+read *tmp271 :isBlocked:processor ".processorId"
+jump 32 notEqual *tmp271 "floodBarrier"
+read :isBlocked:barrierX :isBlocked:processor ".shieldX"
+read :isBlocked:barrierY :isBlocked:processor ".shieldY"
+read :isBlocked:barrierRadius :isBlocked:processor ".serverRadius"
+op sub *tmp277 :bullet:targetX :isBlocked:barrierX
+op sub *tmp278 :bullet:targetY :isBlocked:barrierY
+op len *tmp279 *tmp277 *tmp278
+jump 32 greaterThanEq *tmp279 :isBlocked:barrierRadius
+set :isBlocked:processorOut :isBlocked:processor
+set :isBlocked*retval 1
+jump 35 always 0 0
+op add :isBlocked:i :isBlocked:i 1
+jump 19 lessThanEq :isBlocked:i *tmp269
+set :isBlocked*retval 0
+jump 40 equal :isBlocked*retval false
+read :bullet:barrierRadius :isBlocked:processorOut ".serverRadius"
+op sub *tmp245 :bullet:barrierRadius 7.5
+write *tmp245 :isBlocked:processorOut ".serverRadius"
+jump 46 always 0 0
+explosion @sharded :bullet:targetX :bullet:targetY 12 3000 1 1 1 true
+jump 46 equal :bullet:phaseBoosted false
+spawn @scathe-missile 0 0 0 @sharded :bullet:unit
+setprop @x :bullet:unit :bullet:targetX
+setprop @y :bullet:unit :bullet:targetY
+setprop @health :bullet:unit 0
+jump 90 equal @clientUnit null
+op sub *tmp250 :bullet:bulletX :bullet:targetX
+op sub *tmp251 :bullet:bulletY :bullet:targetY
+op angle :bullet:targetAngle *tmp250 *tmp251
+op cos *tmp255 :bullet:targetAngle 0
+op mul *tmp256 100 *tmp255
+op sin *tmp258 :bullet:targetAngle 0
+op mul *tmp259 100 *tmp258
 wait 0.0002777777777777778
-op sub :dt @tick .time
-op cos *tmp4 .angleTarget 0
-op mul *tmp5 .shotSpeed *tmp4
-op mul *tmp6 *tmp5 :dt
-op div *tmp7 *tmp6 60
-op sub .bulletX .bulletX *tmp7
-op sin *tmp8 .angleTarget 0
-op mul *tmp9 .shotSpeed *tmp8
-op mul *tmp10 *tmp9 :dt
-op div *tmp11 *tmp10 60
-op sub .bulletY .bulletY *tmp11
-effect shootBig .bulletX .bulletY .angleTarget %ff6363 0
-op sub *tmp12 .bulletX .targetX
-op sub *tmp13 .bulletY .targetY
-op len *tmp14 *tmp12 *tmp13
-jump 0 greaterThanEq *tmp14 2.5
-set :blocked 0
-fetch buildCount *tmp18 @sharded 0 @world-processor
-set :i 0
-jump 44 greaterThan 0 *tmp18
-fetch build :processor @sharded :i @world-processor
-read *tmp20 :processor "structureId"
-jump 42 notEqual *tmp20 "floodBarrier"
-read :barrierX :processor "blockX"
-read :barrierY :processor "blockY"
-read :barrierRadius :processor "radius"
-read *tmp26 :processor ".baseBlock"
-sensor :deadBlock *tmp26 @dead
-op sub *tmp28 .targetX :barrierX
-op sub *tmp29 .targetY :barrierY
-op len *tmp30 *tmp28 *tmp29
-op lessThan *tmp31 *tmp30 :barrierRadius
-op equal *tmp32 :deadBlock false
-op land *tmp33 *tmp31 *tmp32
-jump 42 equal *tmp33 false
-set :blocked 1
-jump 44 always 0 0
-op add :i :i 1
-jump 25 lessThanEq :i *tmp18
-jump 47 notEqual :blocked false
-effect explosion .targetX .targetY 5 0 0
-jump 49 always 0 0
-effect crossExplosion .targetX .targetY 120 %6c87fd 0
-effect sparkExplosion .targetX .targetY 0 %6c87fd 0
-set .bulletX null
-set .bulletY null
+op sub .deltaTime @second .time
+set .time @second
+op mul *tmp257 *tmp256 .deltaTime
+op sub :bullet:bulletX :bullet:bulletX *tmp257
+op mul *tmp260 *tmp259 .deltaTime
+op sub :bullet:bulletY :bullet:bulletY *tmp260
+effect shootBig :bullet:bulletX :bullet:bulletY :bullet:targetAngle %ff6363 0
+op sub *tmp261 :bullet:bulletX :bullet:targetX
+op sub *tmp262 :bullet:bulletY :bullet:targetY
+op len *tmp263 *tmp261 *tmp262
+jump 54 greaterThan *tmp263 2.5
+fetch buildCount *tmp267 @sharded 0 @world-processor
+op sub *tmp269 *tmp267 1
+set :isBlocked:i 0
+jump 84 greaterThan 0 *tmp269
+fetch build :isBlocked:processor @sharded :isBlocked:i @world-processor
+read *tmp271 :isBlocked:processor ".processorId"
+jump 82 notEqual *tmp271 "floodBarrier"
+read :isBlocked:barrierX :isBlocked:processor ".shieldX"
+read :isBlocked:barrierY :isBlocked:processor ".shieldY"
+read :isBlocked:barrierRadius :isBlocked:processor ".serverRadius"
+op sub *tmp277 :bullet:targetX :isBlocked:barrierX
+op sub *tmp278 :bullet:targetY :isBlocked:barrierY
+op len *tmp279 *tmp277 *tmp278
+jump 82 greaterThanEq *tmp279 :isBlocked:barrierRadius
+set :isBlocked*retval 1
+jump 85 always 0 0
+op add :isBlocked:i :isBlocked:i 1
+jump 70 lessThanEq :isBlocked:i *tmp269
+set :isBlocked*retval 0
+jump 89 equal :isBlocked*retval false
+effect crossExplosion :bullet:targetX :bullet:targetY 120 %6c87fd 0
+effect sparkExplosion :bullet:targetX :bullet:targetY 0 %6c87fd 0
+jump 90 always 0 0
+effect explosion :bullet:targetX :bullet:targetY 5 0 0
+set :bullet*finished true
+jump 5 always 0 0
+print "Compiled by Mindcode - github.com/cardillan/mindcode"
 
