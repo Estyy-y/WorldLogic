@@ -32,7 +32,7 @@ remote void bullet(in bulletX, in bulletY, in targetX, in targetY, blastBoosted,
     if blastBoosted then radius *= 2; end;
 
     shieldDamage = baseShieldDamage;
-    if surgeBoosted then shieldDamage *= 0.5; end;
+    if surgeBoosted then shieldDamage *= 0.75; end;
     if carbideBoosted then shieldDamage *= 3; end;
 
     noinit anticreepSize;

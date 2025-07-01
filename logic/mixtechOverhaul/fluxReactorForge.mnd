@@ -343,9 +343,6 @@ noinline void client()
 
     end;
 
-
-
-
 end;
 
 inline void setMiningSpeed(in value, in team)

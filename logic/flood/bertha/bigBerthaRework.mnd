@@ -10,7 +10,6 @@ param team = @sharded;
 param berthaX = 50;
 param berthaY = 50;
 
-const ammoCost = 30;
 const thoriumCost = 80;
 const blastCost = 50;
 const surgeCost = 40;
@@ -18,9 +17,7 @@ const phaseCost = 40;
 const carbideCost = 20;
 const cooldown = 5;
 
-// Stuff
-
-noinit berthaBarrelX, berthaBarrelY, lastTargetX, lastTargetY, targetChosen, ready, berthaCooldown, lastShot;
+noinit berthaBarrelX, berthaBarrelY, lastTargetX, lastTargetY, targetChosen, ready, berthaCooldown;
 volatile noinit aimingPlayer, targetX, targetY;
 volatile noinit thoriumSynced, shotTrigger;
 volatile noinit blastSynced, blastBoosted;
@@ -29,19 +26,17 @@ volatile noinit phaseSynced, phaseBoosted;
 volatile noinit carbideSynced, carbideBoosted;
 
 noinit angle, targetAngle, angleDiff;
-
 noinit vault;
 
-// Buttons
+//Button Variables
 noinit buttonCooldown;
-
 volatile noinit manualAimTimeoutClient;
 noinit manualAimButton, manualAimButtonPlayer, manualAimTimeout;
+noinit opened;
 
+//Time Variables
 noinit autoAimButton;
-
-// Time
-noinit time, deltaTime, lastAim;
+noinit time, deltaTime, lastAim , lastShot;
 
 var id = getId(out id);
 var idBertha1 = id;
@@ -299,53 +294,60 @@ noinline void client()
 
         end;
 
-
-        print(titleColor, " Big Bertha \n");
-        print(subtitleColor, "Mode: ");
-        print(aimingPlayer == "auto" ? "Auto" : "Manual");
-
-        if vault != null then
-            print("\n\nAmmo\n");
-            resourceTooltip(vault, @thorium, thoriumCost);
-            print(subtitleColor, "\n\nBoosters\n");
-            resourceTooltip(vault, @blast-compound, blastCost);
-            print("\n");
-            resourceTooltip(vault, @surge-alloy, surgeCost);
-            print("\n");
-            resourceTooltip(vault, @phase-fabric, phaseCost);
-            print("\n");
-            resourceTooltip(vault, @carbide, carbideCost);
-        end;
-
-        makemarker(:text, idPanel, 0, 0, false);
-        setmarker(:fontSize, idPanel, 1.5);
-        setmarker(:flushText, idPanel, 0);
-        setmarker(:pos, idPanel, berthaX, berthaY - 5);
-
         var infoButton = playerButton(berthaX + 5, berthaY, 3, 2, @clientUnit);
         print(infoButton != 0 ? highlightColor : textColor);
-        print("[ ? ]");
+
+        if opened then
+            print("[  ]");
+        else
+            print("[  ]");
+        end;
+
+        if infoButton == 2 && @second > buttonCooldown then
+            buttonCooldown = @second + 0.5;
+            if opened then
+                opened = 0;
+            else
+                opened = 1;
+            end;
+        end;
+
         makemarker(:text, idInfo, 0, 0, false);
         setmarker(:fontSize, idInfo, 2.5);
         setmarker(:flushText, idInfo, 0);
         setmarker(:pos, idInfo, berthaX + 5, berthaY + 0.5);
 
-        noinit opened;
-        if infoButton >= 1  then
 
-            print(titleColor, "Info\n");
-            print(textColor, ": Triple Shot\n");
-            print(textColor,": Anticreep Payload\n");
-            print(textColor, "Not affected\nby overdrive");
+        if opened then
 
-            makemarker(:text, idInfo2, 0, 0, false);
-            setmarker(:fontSize, idInfo2, 1.5);
-            setmarker(:flushText, idInfo2, 0);
-            setmarker(:pos, idInfo2, berthaX + 13, berthaY + 2);
+            print(titleColor, " Big Bertha \n");
+            print(subtitleColor, "Mode: ");
+            print(aimingPlayer == "auto" ? "Auto" : "Manual");
+
+            if vault != null then
+                print("\n\nAmmo\n");
+                resourceTooltipFull(vault, @thorium, thoriumCost);
+                print(subtitleColor, "\nBoosters\n");
+                resourceTooltipFull(vault, @blast-compound, blastCost);
+                print("\n");
+                resourceTooltipFull(vault, @surge-alloy, surgeCost);
+                print("\n");
+                resourceTooltipFull(vault, @phase-fabric, phaseCost);
+                print("\n");
+                resourceTooltipFull(vault, @carbide, carbideCost);
+            end;
+
+            makemarker(:text, idPanel, 0, 0, false);
+            setmarker(:fontSize, idPanel, 1.5);
+            setmarker(:flushText, idPanel, 0);
+            setmarker(:pos, idPanel, berthaX, berthaY - 5);
 
         else
-            setmarker(:remove, idInfo2);
+            setmarker(:remove, idPanel);
         end;
+
+
+
 
     else
 
@@ -354,7 +356,6 @@ noinline void client()
         setmarker(:remove, idVault);
         setmarker(:remove, idPanel);
         setmarker(:remove, idInfo);
-        setmarker(:remove, idInfo2);
 
     end;
 

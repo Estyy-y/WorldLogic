@@ -159,6 +159,22 @@ inline void resourceTooltip(in core, in item, in targetResources)
 
 end;
 
+inline void resourceTooltipFull(in core, in item, in targetResources)
+
+    var ownedResources = core.sensor(item);
+    var color = targetResources > ownedResources ? "[red]" : "[green]";
+    var maxDigit = floor(log10(targetResources)) + 1;
+    var currentDigit = floor(log10(ownedResources)) + 1;
+
+    print(color);
+    for var i in 1 .. maxDigit - currentDigit do
+        print("0");
+    end;
+    print(min(ownedResources, targetResources), " / ", targetResources, " [white]");
+    printchar(item);
+
+end;
+
 inline void formatTime(in time, in printHours, in printMinutes, in printSeconds)
     var hours = floor(time / 3600);
     var minutes = floor((time / 60) % 60);
