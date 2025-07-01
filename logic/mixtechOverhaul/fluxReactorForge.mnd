@@ -44,6 +44,8 @@ volatile upgradeList[] = (
 
 );
 
+volatile blockDamage;
+
 var baseUnitCap = 25;
 
 begin
@@ -82,6 +84,8 @@ noinline void common()
     forgeX = forgeBlock.sensor(@x);
     forgeY = forgeBlock.sensor(@y);
 
+    blockDamage = 1 + upgradeList[dataSize * 7 + 7] * upgradeList[dataSize * 7 + 5];
+
     setrule(:unitCap, baseUnitCap + upgradeList[dataSize * 0 + 7] * upgradeList[dataSize * 0 + 5]);
     setrule(:unitHealth, 1 + upgradeList[dataSize * 1 + 7] * upgradeList[dataSize * 1 + 5], team);
     setrule(:unitDamage, 1 + upgradeList[dataSize * 2 + 7] * upgradeList[dataSize * 2 + 5], team);
@@ -89,7 +93,7 @@ noinline void common()
     setrule(:unitBuildSpeed, 1 + upgradeList[dataSize * 4 + 7] * upgradeList[dataSize * 4 + 5], team);
     setMiningSpeed(1 + upgradeList[dataSize * 5 + 7] * upgradeList[dataSize * 5 + 5], team);
     setrule(:blockHealth, 1 + upgradeList[dataSize * 6 + 7] * upgradeList[dataSize * 6 + 5], team);
-    setrule(:blockDamage, 1 + upgradeList[dataSize * 7 + 7] * upgradeList[dataSize * 7 + 5], team);
+    setrule(:blockDamage, blockDamage , team);
     setrule(:buildSpeed, 1 + upgradeList[dataSize * 8 + 7] * upgradeList[dataSize * 8 + 5], team);
 
 end;

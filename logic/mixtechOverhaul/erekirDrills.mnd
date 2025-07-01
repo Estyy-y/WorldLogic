@@ -41,6 +41,7 @@ begin
     while true; end;
 
     if @client then do
+        common();
         client();
     while true; end;
 
@@ -183,24 +184,6 @@ void client()
 
     else
         setmarker(:remove, idPopup);
-    end;
-
-    for var team in @sharded, @crux do
-       for var i in 0 .. fetch(:buildCount, team, @impact-drill) do
-           drill = fetch(:build, team, i, @impact-drill);
-
-           var resource = drill.sensor(@firstItem);
-           drill.setprop(resource, 0);
-       end;
-    end;
-
-    for var team in @sharded, @crux do
-       for var i in 0 .. fetch(:buildCount, team, @eruption-drill) do
-           drill = fetch(:build, team, i, @eruption-drill);
-
-           var resource = drill.sensor(@firstItem);
-           drill.setprop(resource, 0);
-       end;
     end;
 end;
 

@@ -11,15 +11,22 @@ param berthaX = 50;
 param berthaY = 50;
 
 const ammoCost = 30;
+const thoriumCost = 80;
+const blastCost = 50;
+const surgeCost = 40;
+const phaseCost = 40;
+const carbideCost = 20;
 const cooldown = 5;
 
 // Stuff
 
-noinit berthaBarrelX, berthaBarrelY, lastTargetX, lastTargetY, targetChosen, ready, berthaCooldown;
+noinit berthaBarrelX, berthaBarrelY, lastTargetX, lastTargetY, targetChosen, ready, berthaCooldown, lastShot;
 volatile noinit aimingPlayer, targetX, targetY;
-volatile noinit blastSynced, shotTrigger;
+volatile noinit thoriumSynced, shotTrigger;
+volatile noinit blastSynced, blastBoosted;
 volatile noinit surgeSynced, surgeBoosted;
 volatile noinit phaseSynced, phaseBoosted;
+volatile noinit carbideSynced, carbideBoosted;
 
 noinit angle, targetAngle, angleDiff;
 
@@ -50,6 +57,7 @@ var idPanel = id + 9;
 var idVault = id + 10;
 var idInfo = id + 11;
 var idInfo2 = id + 12;
+var idHeat = id + 13;
 
 var idAim1 = id + 30;
 var idAim2 = id + 31;
@@ -116,7 +124,7 @@ noinline void common()
 
     // Angle
 
-    var rotationSpeed = 360 / 5;
+    var rotationSpeed = 360 / cooldown;
 
     if targetX != null then targetAngle = angle(berthaX - targetX, berthaY - targetY) % 360;
     else targetAngle = -90; end;
@@ -182,28 +190,29 @@ noinline void server()
         targetChosen = true;
     end;
 
-    ready = targetX != null && vault.sensor(@blast-compound) > ammoCost && @second > berthaCooldown;
+    ready = targetX != null && vault.sensor(@thorium) > thoriumCost && @second > berthaCooldown;
     if ready then
 
         targetChosen = false;
         berthaCooldown = @second + cooldown;
-        vault.setprop(@blast-compound, vault.sensor(@blast-compound) - ammoCost);
-        blastSynced = vault.sensor(@blast-compound);
-        sync(blastSynced);
-        shotTrigger = 1;
 
-        surgeBoosted = booster(@surge-alloy, ammoCost, ref surgeSynced);
-        phaseBoosted = booster(@phase-fabric, ammoCost, ref phaseSynced);
+        shotTrigger = booster(@thorium, thoriumCost, ref thoriumSynced);
+        blastBoosted = booster(@blast-compound, blastCost, ref blastSynced);
+        surgeBoosted = booster(@surge-alloy, surgeCost, ref surgeSynced);
+        phaseBoosted = booster(@phase-fabric, phaseCost, ref phaseSynced);
+        carbideBoosted = booster(@carbide, carbideCost, ref carbideSynced);
 
         if surgeBoosted then
-            tripleShot(berthaX, berthaY, phaseBoosted);
+            tripleShot(berthaX, berthaY, blastBoosted, surgeBoosted, phaseBoosted, carbideBoosted);
         else
-            async(processor1.bullet(berthaX, berthaY, targetX, targetY, phaseBoosted));
+            async(processor1.bullet(berthaX, berthaY, targetX, targetY, blastBoosted, surgeBoosted, phaseBoosted, carbideBoosted));
         end;
 
+        sync(shotTrigger);
+        sync(blastBoosted);
         sync(surgeBoosted);
         sync(phaseBoosted);
-        sync(shotTrigger);
+        sync(carbideBoosted);
 
     end;
 
@@ -217,9 +226,11 @@ noinline void client()
 
     if shotTrigger == 1 then
 
+        vault.setprop(@thorium, thoriumSynced);
         vault.setprop(@blast-compound, blastSynced);
         vault.setprop(@surge-alloy, surgeSynced);
         vault.setprop(@phase-fabric, phaseSynced);
+        vault.setprop(@carbide, carbideSynced);
 
         berthaBarrelX = berthaX + cos(targetAngle) * 1.5;
         berthaBarrelY = berthaY + sin(targetAngle) * 1.5;
@@ -227,18 +238,22 @@ noinline void client()
         var bulletX = berthaBarrelX + cos(targetAngle) * -4;
         var bulletY = berthaBarrelY + sin(targetAngle) * -4;
 
-        playsound(:true, @sfx-bang, 1, 0.5, bulletX, bulletY, 1);
+        playsound(:true, @sfx-dullExplosion, 1, 0.5, bulletX, bulletY, 1);
         effect(:smokeColor, bulletX, bulletY, angle + 180, %ff6363);
         effect(:smokeColor, bulletX, bulletY, angle + 195, %ff6363);
         effect(:smokeColor, bulletX, bulletY, angle + 165, %ff6363);
 
         if !surgeBoosted then
-            async(processor1.bullet(bulletX, bulletY, targetX, targetY, phaseBoosted));
+            async(processor1.bullet(bulletX, bulletY, targetX, targetY, blastBoosted, surgeBoosted, phaseBoosted, carbideBoosted));
         else
-            tripleShot(bulletX, bulletY, phaseBoosted);
+            tripleShot(bulletX, bulletY, blastBoosted, surgeBoosted, phaseBoosted, carbideBoosted);
         end;
 
         shotTrigger = 0;
+
+        lastShot = @second;
+
+
 
     end;
 
@@ -264,6 +279,7 @@ noinline void client()
 
         if vault == null then
 
+            setmarker(:remove, idVault);
             print("[red]Vault Missing!");
             makemarker(:shapeText, idVault, 0, 0, false);
             setmarker(:radius,idVault, 16);
@@ -273,7 +289,16 @@ noinline void client()
             setmarker(:pos, idVault, berthaX, berthaY);
             setmarker(:textHeight, idVault, 3);
 
+        else
+
+            setmarker(:remove, idVault);
+            makemarker(:shape, idVault, 0, 0, false);
+            setmarker(:radius, idVault, 16);
+            setmarker(:rotation, idVault, 45);
+            setmarker(:pos, idVault, berthaX, berthaY);
+
         end;
+
 
         print(titleColor, " Big Bertha \n");
         print(subtitleColor, "Mode: ");
@@ -281,11 +306,15 @@ noinline void client()
 
         if vault != null then
             print("\n\nAmmo\n");
-            resourceTooltip(vault, @blast-compound, ammoCost);
+            resourceTooltip(vault, @thorium, thoriumCost);
             print(subtitleColor, "\n\nBoosters\n");
-            resourceTooltip(vault, @surge-alloy, ammoCost);
+            resourceTooltip(vault, @blast-compound, blastCost);
             print("\n");
-            resourceTooltip(vault, @phase-fabric, ammoCost);
+            resourceTooltip(vault, @surge-alloy, surgeCost);
+            print("\n");
+            resourceTooltip(vault, @phase-fabric, phaseCost);
+            print("\n");
+            resourceTooltip(vault, @carbide, carbideCost);
         end;
 
         makemarker(:text, idPanel, 0, 0, false);
@@ -318,8 +347,6 @@ noinline void client()
             setmarker(:remove, idInfo2);
         end;
 
-
-
     else
 
         setmarker(:remove, idManualAim);
@@ -333,11 +360,17 @@ noinline void client()
 
     // Position
 
-
-
     setmarker(:pos, idBertha1, berthaBarrelX, berthaBarrelY);
+    setmarker(:pos, idHeat, berthaBarrelX, berthaBarrelY);
     setmarker(:rotation, idBertha1, angle + 90);
     setmarker(:rotation, idBertha2, angle + 90);
+    setmarker(:rotation, idHeat, angle + 90);
+
+    // Heat
+    var timeElapsed = @second - lastShot;
+    var alpha = clamp(1 - (timeElapsed / 2), 0, 1);
+    var heatColor = packcolor(255/255, 90/255,70/255, alpha);
+    setmarker(:color, idHeat, heatColor);
 
     // Aim Marker
     if (manualAimButton == 1 || autoAimButton == 1 || (aimingPlayer != null && aimingPlayer != "auto")) && targetX != null then
@@ -375,13 +408,13 @@ noinline void client()
 
     else
         setmarker(:remove, idAimTimeout);
-        var timeElapsed = @second - lastAim;
+        timeElapsed = @second - lastAim;
         if timeElapsed > 0.5 then
             setmarker(:remove, idAim1);
             setmarker(:remove, idAim2);
             setmarker(:remove, idAim3);
         end;
-        var alpha = clamp(1 - (timeElapsed / 0.5), 0, 1);
+        alpha = clamp(1 - (timeElapsed / 0.5), 0, 1);
         var aimColor = packcolor(255/255, 100/255, 100/255, alpha);
         setmarker(:color, idAim1, aimColor);
         setmarker(:color, idAim2, aimColor);
@@ -398,6 +431,7 @@ inline void initialize()
 
     makemarker(:texture, idBertha1, 0, 0, 0);
     makemarker(:texture, idBertha2, 0, 0, 0);
+    makemarker(:texture, idHeat, 0, 0, false);
     makemarker(:texture, idShadow, 0, 0, 0);
     makemarker(:texture, idLeg1, 0, 0, 0);
     makemarker(:texture, idLeg2, 0, 0, 0);
@@ -406,6 +440,7 @@ inline void initialize()
 
     setmarker(:texture, idBertha1, 0, "titan-barrel-outline");
     setmarker(:texture, idBertha2, 0, "titan-outline");
+    setmarker(:texture, idHeat, 0, "titan-barrel-heat");
     setmarker(:texture, idShadow, 0, "circle-shadow");
     setmarker(:texture, idLeg1, 0, "titan-side-l-outline");
     setmarker(:texture, idLeg2, 0, "titan-side-l-outline");
@@ -414,11 +449,13 @@ inline void initialize()
 
     setmarker(:textureSize, idBertha1, 3, 7);
     setmarker(:textureSize, idBertha2, 4, 8);
+    setmarker(:textureSize, idHeat, 3, 7);
     setmarker(:textureSize, idShadow, 8, 8);
     setmarker(:textureSize, idLeg1, 6, 6);
     setmarker(:textureSize, idLeg2, 6, -6);
     setmarker(:textureSize, idLeg3, -6, 6);
     setmarker(:textureSize, idLeg4, -6, -6);
+
 
     setmarker(:rotation, idLeg1, 45);
     setmarker(:rotation, idLeg2, -45);
@@ -429,7 +466,9 @@ inline void initialize()
 
     setmarker(:drawLayer, idBertha1, 55);
     setmarker(:drawLayer, idBertha2, 54.9);
+    setmarker(:drawLayer, idHeat, 100);
     setmarker(:drawLayer, idShadow, 54);
+
     setmarker(:drawLayer, idLeg1, 54.1);
     setmarker(:drawLayer, idLeg2, 54.1);
     setmarker(:drawLayer, idLeg3, 54.1);
@@ -437,6 +476,7 @@ inline void initialize()
 
     setmarker(:pos, idBertha1, berthaX, berthaY);
     setmarker(:pos, idBertha2, berthaX, berthaY);
+    setmarker(:pos, idHeat, berthaX, berthaY);
     setmarker(:pos, idShadow, berthaX, berthaY -1 );
     setmarker(:pos, idLeg1, berthaX - 3, berthaY);
     setmarker(:pos, idLeg2, berthaX - 3, berthaY - 0.5);
@@ -445,9 +485,14 @@ inline void initialize()
 
 end;
 
-void tripleShot(startX, startY, phase)
+void tripleShot(startX, startY, blast, surge, phase, carb)
 
-    var r = -10;
+    noinit r;
+    if blastBoosted then
+        r = -10;
+    else
+        r = -5;
+    end;
 
     var x1 = targetX + r * cos(targetAngle);
     var y1 = targetY + r * sin(targetAngle);
@@ -458,17 +503,19 @@ void tripleShot(startX, startY, phase)
     var x3 = targetX + r * cos(targetAngle + 240);
     var y3 = targetY + r * sin(targetAngle + 240);
 
-    async(processor1.bullet(startX, startY, x1, y1, phase));
-    async(processor2.bullet(startX, startY, x2, y2, phase));
-    async(processor3.bullet(startX, startY, x3, y3, phase));
+    async(processor1.bullet(startX, startY, x1, y1, blast, surge, phase, carb));
+    async(processor2.bullet(startX, startY, x2, y2, blast, surge, phase, carb));
+    async(processor3.bullet(startX, startY, x3, y3, blast, surge, phase, carb));
 
 end;
 
 inline def booster(in resource, in ammoCost, ref syncVar)
-    if vault.sensor(resource) >ammoCost then
+    var ret = 0;
+    if vault.sensor(resource) > ammoCost then
         vault.setprop(resource, vault.sensor(resource) - ammoCost);
-        syncVar = vault.sensor(resource);
-        sync(syncVar);
-        return 1;
+        ret = 1;
     end;
+    syncVar = vault.sensor(resource);
+    sync(syncVar);
+    return ret;
 end;
