@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download latest Mindcode JAR
+        run: |
+          curl -s https://api.github.com/repos/cardillan/mindcode/releases/latest \
+          | grep "browser_download_url.*\.jar" \
+          | cut -d '"' -f 4 \
+          | wget -i - -O mindcode-latest.jar
+
+      - name: Run Mindcode on all .mnd files
+        run: |
+          for file in $(find . -name "*.mnd"); do
+            echo "Processing $file"
+            java -jar mindcode-latest.jar "$file"
+          done
