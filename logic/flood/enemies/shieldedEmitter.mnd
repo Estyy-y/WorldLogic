@@ -10,8 +10,9 @@ param shieldMaxHealth = 250;
 param baseShieldRegen = 20;
 param maxRegenScale = 3;
 
-noinit time, deltaTime, didEffect;
-noinit shield, shieldX, shieldY, shieldSize, shieldRadius, shieldRegen, suspended, breakTime;
+noinit time, deltaTime, didEffect, lastSync;
+volatile noinit shield;
+noinit shieldX, shieldY, shieldSize, shieldRadius, shieldRegen, suspended, breakTime;
 volatile noinit shieldHealth;
 
 var id = getId(out id);
@@ -49,6 +50,7 @@ begin
     setmarker(:remove, idText5);
 
     time = @second;
+    lastSync = @second;
     shield = getlink(0);
     shieldX = shield.sensor(@x);
     shieldY = shield.sensor(@y);
@@ -111,6 +113,11 @@ noinline void server()
         didEffect = 1;
         setrate(10);
         return;
+    end;
+
+    if @second > lastSync then
+        lastSync = @second + 15;
+        sync(shield);
     end;
 
     shieldHealth = clamp(shieldHealth + shieldRegen * deltaTime, 0, shieldMaxHealth);
