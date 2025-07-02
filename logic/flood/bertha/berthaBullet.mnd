@@ -6,7 +6,7 @@ volatile processorId = "berthaBullet";
 
 const shotSpeed = 100;
 const baseRadius = 6;
-const baseShieldDamage = 5;
+const baseShieldDamage = 75;
 
 var baseDamage = 300;
 noinit damage, radius, shieldDamage;
@@ -17,14 +17,12 @@ var subtitleColor = "[gold]";
 var highlightColor = "[blue]";
 var textColor = "[white]";
 
-begin
-    setrate(1000);
-end;
-
 remote void bullet(in bulletX, in bulletY, in targetX, in targetY, blastBoosted, surgeBoosted, phaseBoosted, carbideBoosted)
 
+    setrate(1000);
     time = @second;
     damage = baseDamage;
+
     if blastBoosted then damage *= 1.5; end;
     if carbideBoosted then damage *= 2; end;
 
@@ -32,6 +30,7 @@ remote void bullet(in bulletX, in bulletY, in targetX, in targetY, blastBoosted,
     if blastBoosted then radius *= 2; end;
 
     shieldDamage = baseShieldDamage;
+    if blastBoosted then shieldDamage *= 1.5; end;
     if surgeBoosted then shieldDamage *= 0.75; end;
     if carbideBoosted then shieldDamage *= 3; end;
 
@@ -101,6 +100,7 @@ remote void bullet(in bulletX, in bulletY, in targetX, in targetY, blastBoosted,
             playsound(:true, @sfx-largeExplosion, 1, 0.5, bulletX, bulletY, 1);
         end;
     end;
+    setrate(10);
 end;
 
 def isBlocked(in targetX, in targetY, in out processorOut)
