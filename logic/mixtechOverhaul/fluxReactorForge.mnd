@@ -83,6 +83,7 @@ noinline void common()
 
     forgeX = forgeBlock.sensor(@x);
     forgeY = forgeBlock.sensor(@y);
+    aetherMultiplier = (forgeBlock.sensor(@efficiency) * 3 + 1) * forgeBlock.sensor(@timescale);
 
     blockDamage = 1 + upgradeList[dataSize * 7 + 7] * upgradeList[dataSize * 7 + 5];
 
@@ -102,12 +103,17 @@ noinline void server()
 
     aetherProduction = 0;
     noinit processorId;
+
     for var i in 0 .. fetch(:buildCount, @sharded, @world-processor) - 1 do
         var processor = fetch(:build, @sharded, i, @world-processor);
         // If the processor doesn't have the variable it keeps the last value (anuke issue)
         // make sure all processors have the variable
         processorId = processor.read(".processorId");
         if processorId == "totem" then
+            //print(fetch(:buildCount, @sharded, @world-processor) - 1);
+            // print("NUMBER:", i);
+            //setmarker(:remove, i);
+            //tooltipMarker(i, processor.sensor(@x), processor.sensor(@y));
             if processor.read(".active") == 0 then
                 continue;
             end;
@@ -116,8 +122,6 @@ noinline void server()
     end;
 
     sync(aetherProduction);
-
-    aetherMultiplier = forgeBlock.sensor(@efficiency) * 3 + 1;
 
     if @second > nextUpdate then
         nextUpdate = @second + 1;
@@ -203,8 +207,6 @@ noinline void client()
         when 1 then color = %ffd37f;
         when 2 then color = %f25555;
     end;
-
-    aetherMultiplier = forgeBlock.sensor(@efficiency) * 3 + 1;
 
     print(titleColor, " - - - - - - - - - - - - - - - - - - - - ");
     print("\nAether Forge\n\n\n\n\n\n");
@@ -325,14 +327,15 @@ noinline void client()
         var message1;
         message1.printflush();
 
-        var aetherProductionC = floor(aetherProduction * (forgeBlock.sensor(@efficiency) * 3 + 1) * 10) / 10;
+        var aetherProductionC = floor(aetherProduction * aetherMultiplier * 10) / 10;
         var totalAetherC = floor(totalAether);
 
         print(subtitleColor, "Aether \n");
-        print(textColor, totalAetherC, "\n(", aetherProductionC, "/s)");
-
-        print(subtitleColor, "\n\nHeat \n");
+        print(textColor, totalAetherC, " (+", aetherProductionC, "/s)");
+        print(subtitleColor, "\nHeat \n");
         print(textColor, floor((forgeBlock.sensor(@efficiency) * 3 + 1) * 10) / 10, "x Aether");
+        print(subtitleColor, "\nOverdrive \n");
+        print(textColor, floor(forgeBlock.sensor(@timescale) * 10) / 10, "x Aether");
 
         makemarker(:text, idForgeAetherDisplay, 0, 0, false);
         setmarker(:fontSize, idForgeAetherDisplay, 3);

@@ -20,7 +20,7 @@
 | Booster Material (per shot) | Effect                                                            |
 |-----------------------------|-------------------------------------------------------------------|
 | **50 Blast Compound**       | **+50%** Damage, **+100%** Splash Radius , **+50%** Shield Damage |
-| **40 Surge Alloy**          | **Triple Shot**, **-25%** Shield Damage (255% Total)              |
+| **40 Surge Alloy**          | **Triple Shot**, **-25%** Shield Damage (225% Total)              |
 | **40 Phase Fabric**         | **Anticreep Payload**                                             |
 | **20 Carbide**              | **+100%** Damage, **+200%** Shield Damage                         |
 

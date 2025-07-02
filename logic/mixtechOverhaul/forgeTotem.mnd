@@ -1,6 +1,7 @@
 #set syntax = strict;
 #set goal = speed;
 require "../../logic/libs/interfaceLibrary.mnd";
+require "../../logic/libs/mathLibrary.mnd";
 
 param totemX = null;
 param totemY = null;
@@ -146,45 +147,49 @@ noinline void common()
     closestChamber3 = min3;
 
 
-    aetherCooldown = baseAetherCooldown - closestChamber1.sensor(@efficiency) -
-                     closestChamber2.sensor(@efficiency) -
-                     closestChamber3.sensor(@efficiency);
+    var totalBoost = closestChamber1.sensor(@efficiency) * closestChamber1.sensor(@timescale) +
+                    closestChamber2.sensor(@efficiency) * closestChamber2.sensor(@timescale) +
+                    closestChamber3.sensor(@efficiency) * closestChamber3.sensor(@timescale);
 
+    aetherCooldown = mapRange(totalBoost, 0, 7.5, 5, 1);
 
     // 3 closest pyrolysis generators
 
-     closestPyro1 = null;
-     closestPyro2 = null;
-     closestPyro3 = null;
+    closestPyro1 = null;
+    closestPyro2 = null;
+    closestPyro3 = null;
 
-     min1 = null; min2 = null; min3 = null;
-     dist1 = null; dist2 = null; dist3 = null;
+    min1 = null; min2 = null; min3 = null;
+    dist1 = null; dist2 = null; dist3 = null;
 
-     for var i in 0 .. fetch(:buildCount, team, @pyrolysis-generator) do
-         var build = fetch(:build, team, i, @pyrolysis-generator);
-         if build.sensor(@dead) || build.sensor(@efficiency) != 1 then continue; end;
-         var distance = len(build.sensor(@x) - totemX, build.sensor(@y) - totemY);
-         if distance > totemRange then continue; end;
+    for var i in 0 .. fetch(:buildCount, team, @pyrolysis-generator) do
+        var build = fetch(:build, team, i, @pyrolysis-generator);
+        if build.sensor(@dead) || build.sensor(@efficiency) != 1 then continue; end;
+        var distance = len(build.sensor(@x) - totemX, build.sensor(@y) - totemY);
+        if distance > totemRange then continue; end;
 
-         if dist1 == null || distance < dist1 then
-             dist3 = dist2; min3 = min2;
-             dist2 = dist1; min2 = min1;
-             dist1 = distance; min1 = build;
-         else if dist2 == null || distance < dist2 then
-             dist3 = dist2; min3 = min2;
-             dist2 = distance; min2 = build;
-         else if dist3 == null || distance < dist3 then
-             dist3 = distance; min3 = build;
-         end; end; end;
-     end;
+        if dist1 == null || distance < dist1 then
+            dist3 = dist2; min3 = min2;
+            dist2 = dist1; min2 = min1;
+            dist1 = distance; min1 = build;
+        else if dist2 == null || distance < dist2 then
+            dist3 = dist2; min3 = min2;
+            dist2 = distance; min2 = build;
+        else if dist3 == null || distance < dist3 then
+            dist3 = distance; min3 = build;
+        end; end; end;
+    end;
 
-     closestPyro1 = min1;
-     closestPyro2 = min2;
-     closestPyro3 = min3;
+    closestPyro1 = min1;
+    closestPyro2 = min2;
+    closestPyro3 = min3;
 
-     aetherAmount = baseAetherAmount + closestPyro1.sensor(@efficiency) +
-                      closestPyro2.sensor(@efficiency) +
-                      closestPyro3.sensor(@efficiency);
+    totalBoost = closestPyro1.sensor(@efficiency) * closestPyro1.sensor(@timescale) +
+                     closestPyro2.sensor(@efficiency) * closestPyro2.sensor(@timescale) +
+                     closestPyro3.sensor(@efficiency) * closestPyro3.sensor(@timescale);
+
+    aetherAmount = mapRange(totalBoost, 0, 7.5, 1, 10);
+
 
 
 end;
@@ -274,9 +279,11 @@ noinline void client()
         if active == null then
             print(textColor, "Build a battery  to\nconnect it to the network.\n\n Build the Forge \nto start generating Aether.");
         else
-            print(subtitleColor, "Interval:", textColor, " ", floor(aetherCooldown));
+            print(subtitleColor, "Interval:", textColor, " ");
+            printDecimals(aetherCooldown, 0);
             print( " (", closestChamber1 + closestChamber2 + closestChamber3, " / 3 )");
-            print(subtitleColor, "\nAmount:", textColor, " ", floor(aetherAmount));
+            print(subtitleColor, "\nAmount:", textColor, " ");
+            printDecimals(aetherAmount, 0);
             print( " (", closestPyro1 + closestPyro2 + closestPyro3, " / 3 )");
         end;
 

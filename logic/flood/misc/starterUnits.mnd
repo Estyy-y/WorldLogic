@@ -1,5 +1,7 @@
 #set syntax = strict;
 
+volatile processorId = null;
+
 begin
 
     for var team in @sharded, @crux do
@@ -14,8 +16,8 @@ begin
             case core.sensor(@type)
                 when @core-shard then
                     spawn(@mace, coreX - 2, coreY - 2, 0, team);
-                    spawn(@dagger, coreX + 2, coreY - 2, 0, team);
-                    spawn(@dagger, coreX - 2, coreY + 2, 0, team);
+                    spawn(@mace, coreX + 2, coreY - 2, 0, team);
+                    spawn(@mace, coreX - 2, coreY + 2, 0, team);
                     spawn(@mace, coreX + 2, coreY + 2, 0, team);
                 when @core-foundation then
                     spawn(@mace, coreX - 3, coreY - 3, 0, team);
@@ -23,10 +25,10 @@ begin
                     spawn(@mace, coreX - 3, coreY + 3, 0, team);
                     spawn(@mace, coreX + 3, coreY + 3, 0, team);
                 when @core-nucleus then
-                    spawn(@dagger, coreX - 4, coreY, 0, team);
-                    spawn(@dagger, coreX, coreY - 4, 0, team);
-                    spawn(@dagger, coreX, coreY + 4, 0, team);
-                    spawn(@dagger, coreX + 4, coreY, 0, team);
+                    spawn(@mace, coreX - 4, coreY, 0, team);
+                    spawn(@mace, coreX, coreY - 4, 0, team);
+                    spawn(@mace, coreX, coreY + 4, 0, team);
+                    spawn(@mace, coreX + 4, coreY, 0, team);
                     spawn(@mace, coreX - 4, coreY - 4, 0, team);
                     spawn(@mace, coreX + 4, coreY - 4, 0, team);
                     spawn(@mace, coreX - 4, coreY + 4, 0, team);
