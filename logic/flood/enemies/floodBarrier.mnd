@@ -7,12 +7,11 @@ require "../../../logic/libs/mathLibrary.mnd";
 volatile processorId = "floodBarrier";
 param maxRadius = 30;
 param shieldMaxHealth = 25;
-param regenSpeed = 2;
+param baseShieldRegen = 2;
 
-volatile serverRadius;
 noinit time, deltaTime, didEffect;
-noinit shield, shieldX, shieldY, shieldSize, radius, factor;
-noinit shieldHealth;
+noinit shield, shieldX, shieldY, shieldSize, shieldRadius, shieldRegen, suspended, breakTime;
+volatile noinit shieldHealth;
 
 var id = getId(out id);
 var idShield = id;
@@ -26,6 +25,7 @@ var idText3 = id + 8;
 var idText4 = id + 9;
 var idText5 = id + 10;
 var idTooltip = id + 11;
+var idHover = id + 12;
 
 var titleColor = "[orange]";
 var subtitleColor = "[gold]";
@@ -53,7 +53,7 @@ begin
     shieldY = shield.sensor(@y);
     shieldSize = shield.sensor(@size);
     shieldHealth = shieldMaxHealth;
-    radius = 0;
+    shieldRadius = 0;
 
 
     if shield != null && !shield.sensor(@dead) then
@@ -80,6 +80,70 @@ noinline void common()
     deltaTime = @second - time;
     time = @second;
 
+    //The Big Bertha (Bullet) is the only thing that interacts with shield Health (for now)
+    //Suspend the shield for 10 seconds if the HP drops below 1
+    if shieldHealth < 1 && !suspended then breakTime = @second + 15; end;
+
+    //Kickstart the shield when the breakTime ends
+    if @second > breakTime && shieldHealth < 1 then
+        shieldHealth = max(5, shieldMaxHealth * 0.1);
+    end;
+
+    suspended = isSuspended(shieldX, shieldY, shieldSize) || (breakTime > @second && shieldHealth < 1);
+
+    shieldRegen = baseShieldRegen;
+    if suspended then shieldRegen = shieldMaxHealth * -0.01; end;
+
+    if !suspended then
+        const minFactor = 0.25;
+        var healthRatio = shieldHealth / shieldMaxHealth;
+        shieldRadius = maxRadius * (minFactor + (1 - minFactor) * healthRatio);
+    else
+        shieldHealth = 0;
+        shieldRadius = 0;
+    end;
+end;
+
+noinline void server()
+
+    if shield.sensor(@dead) || shield == null then
+        didEffect = 1;
+        setrate(10);
+        return;
+    end;
+
+    shieldHealth = clamp(shieldHealth + shieldRegen * deltaTime, 0, shieldMaxHealth);
+    sync(shieldHealth);
+
+    for var team in @crux, @sharded, @malis, @green do
+        for var i in 0 .. fetch(:unitCount, team, null) - 1 do
+
+            var unit = fetch(:unit, team, i, null);
+            if !isFlying(unit) then continue; end;
+
+            var unitX = unit.sensor(@x);
+            var unitY = unit.sensor(@y);
+            var shieldDX = unitX - shieldX;
+            var shieldDY = unitY - shieldY;
+            var distance = len(shieldDX, shieldDY);
+            var unitSize = unit.sensor(@size);
+
+            noinit pushDistance;
+
+            if distance < shieldRadius + unitSize / 2 then
+                pushDistance = shieldRadius + unitSize / 2;
+
+                var dirX = shieldDX / distance;
+                var dirY = shieldDY / distance;
+
+                var newX = shieldX + dirX * pushDistance;
+                var newY = shieldY + dirY * pushDistance;
+
+                unit.setprop(@x, newX);
+                unit.setprop(@y, newY);
+            end;
+        end;
+    end;
 end;
 
 noinline void client()
@@ -105,19 +169,23 @@ noinline void client()
         return;
     end;
 
-    if getblock(:building, @clientUnit.sensor(@shootX), @clientUnit.sensor(@shootY)) == shield then
-
-        print("[blue] [white]- ", ceil(serverRadius / maxRadius * 100), "%");
-        tooltipMarker(idTooltip, shieldX, shieldY, shield.sensor(@size));
-
+    print("[blue] Shielded Emitter \n");
+    if !suspended then
+        print("[blue] [white]", ceil(shieldRadius / maxRadius * 100), "%\n");
+        print("[blue] [white]", ceil(shieldHealth), " / ", shieldMaxHealth, " (+", shieldRegen, "/s)");
     else
-
-        setmarker(:remove, idTooltip);
-
+        if breakTime > @second then
+            print("[red] Broken (", ceil(breakTime - @second), "...)");
+        else
+            print("[red] Suspended");
+        end;
     end;
+    hoverMarker(idTooltip, shield, shieldX, shieldY - shieldSize);
+
+
 
     var angle = @tick / 4;
-    radius = max(0.1, min(maxRadius, radius + (serverRadius - radius) * deltaTime));
+    var radius = max(0.1, min(maxRadius, radius + (shieldRadius - radius) * deltaTime));
     var radiusDisplay = radius * 8;
 
     setmarker(:radius, idShield, radiusDisplay + 12);
@@ -181,55 +249,6 @@ noinline void client()
 
             unit.setprop(@x, shieldX + cos(angle) * pushDistance);
             unit.setprop(@y, shieldY + sin(angle) * pushDistance);
-        end;
-    end;
-end;
-
-noinline void server()
-
-    if shield.sensor(@dead) || shield == null then
-        didEffect = 1;
-        setrate(10);
-        return;
-    end;
-
-    if !isSuspended(shieldX, shieldY, shieldSize) then
-        factor = regenSpeed / 100; else regenSpeed / -100;
-    end;
-
-    shieldHealth = clamp(shieldHealth + shieldMaxHealth * factor * deltaTime, 0, shieldMaxHealth);
-    var shieldSize = shieldHealth / shieldMaxHealth;
-
-    serverRadius = maxRadius * shieldSize;
-    sync(serverRadius);
-
-    for var team in @crux, @sharded, @malis, @green do
-        for var i in 0 .. fetch(:unitCount, team, null) - 1 do
-
-            var unit = fetch(:unit, team, i, null);
-            if !isFlying(unit) then continue; end;
-
-            var unitX = unit.sensor(@x);
-            var unitY = unit.sensor(@y);
-            var shieldDX = unitX - shieldX;
-            var shieldDY = unitY - shieldY;
-            var distance = len(shieldDX, shieldDY);
-            var unitSize = unit.sensor(@size);
-
-            noinit pushDistance;
-
-            if distance < serverRadius + unitSize / 2 then
-                pushDistance = serverRadius + unitSize / 2;
-
-                var dirX = shieldDX / distance;
-                var dirY = shieldDY / distance;
-
-                var newX = shieldX + dirX * pushDistance;
-                var newY = shieldY + dirY * pushDistance;
-
-                unit.setprop(@x, newX);
-                unit.setprop(@y, newY);
-            end;
         end;
     end;
 end;
@@ -309,28 +328,30 @@ inline def isFlying(in unit)
 
     var id = unit.sensor(@type).sensor(@id);
     case id
-        when 14 .. 25, 35 .. 37, 49 .. 55 then return 1;
+        when 10, 14 .. 25, 35 .. 37, 49 .. 55 then return 1;
         when 5 .. 8 then
             if unit.sensor(@boosting) then return 1; else return 0; end;
+        when 0 then
+            case unit.sensor(@type)
+                when @anthicus-missile, @quell-missile, @disrupt-missile, @scathe-missile, @scathe-missile-surge, @scathe-missile-surge-split, @scathe-missile-phase then return 1;
+                else return 0;
+            end;
         else return 0;
     end;
 end;
 
 inline def isSuspended(in x, in y, in size)
-    var floodedBlocks = 0;
     var baseX = ceil(x - size / 2);
     var baseY = ceil(y - size / 2);
-
     for var dx in 0 ... size do
-        if hasFlood(baseX + dx, baseY - 1) then floodedBlocks++; end;
-        if hasFlood(baseX + dx, baseY + size) then floodedBlocks++; end;
+        if !hasFlood(baseX + dx, baseY - 1) then return 1; end;
+        if !hasFlood(baseX + dx, baseY + size) then return 1; end;
     end;
     for var dy in 0 ... size do
-        if hasFlood(baseX - 1, baseY + dy) then floodedBlocks++; end;
-        if hasFlood(baseX + size, baseY + dy) then floodedBlocks++; end;
+        if !hasFlood(baseX - 1, baseY + dy) then return 1; end;
+        if !hasFlood(baseX + size, baseY + dy) then return 1; end;
     end;
-    if floodedBlocks >= 3 then return 0;
-    else return 1; end;
+    return 0;
 end;
 
 noinline def hasFlood(in x, in y);

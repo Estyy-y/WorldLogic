@@ -95,7 +95,7 @@ remote void bullet(in bulletX, in bulletY, in targetX, in targetY, blastBoosted,
         if isBlocked(targetX, targetY, out barrier) then
             effect(:crossExplosion, targetX, targetY, 120, %6c87fd);
             effect(:sparkExplosion, targetX, targetY, %6c87fd);
-            playsound(:true, @sfx-shockBlast, 1, 1.75, bulletX, bulletY, 1);
+            playsound(:true, @sfx-plasmaboom, 1, 0.6, bulletX, bulletY, 1);
         else
             effect(:explosion, targetX, targetY, radius / 2);
             playsound(:true, @sfx-largeExplosion, 1, 0.5, bulletX, bulletY, 1);
@@ -112,7 +112,7 @@ def isBlocked(in targetX, in targetY, in out processorOut)
 
             var barrierX = processor.read(".shieldX");
             var barrierY = processor.read(".shieldY");
-            var barrierRadius = processor.read(".serverRadius");
+            var barrierRadius = processor.read(".shieldRadius");
 
             if len(targetX - barrierX, targetY - barrierY) < barrierRadius then
                 processorOut = processor;

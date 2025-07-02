@@ -265,13 +265,11 @@ inline void printDecimals(number, decimals)
         scale *= 10;
     end;
 
-    var raw = floor(number * scale);         // Shift decimal and floor
-    var intPart = floor(raw / scale);        // Whole number
-    var fracPart = raw % scale;              // Decimal part
-
+    var raw = floor(number * scale);
+    var intPart = floor(raw / scale);
+    var fracPart = raw % scale;
     print(intPart, ".");
 
-    // Leading zeros for decimal part
     var pad = scale / 10;
     while pad > 1 and fracPart < pad do
         print("0");
@@ -281,11 +279,23 @@ inline void printDecimals(number, decimals)
     print(fracPart);
 end;
 
-def tooltipMarker(in id, in x, in y, in size)
-        makemarker(:text, id, 0, 0, false);
-        setmarker(:autoscale, id, true);
-        setmarker(:pos, id, x, y - size);
-        setmarker(:flushText, id, 0);
+def tooltipMarker(in id, in x, in y)
+    makemarker(:text, id, 0, 0, false);
+    setmarker(:fontSize, id, 1.5);
+    setmarker(:pos, id, x, y);
+    setmarker(:flushText, id, 0);
 end;
 
+def hoverMarker(in id, in building, in x, in y);
+
+    if getblock(:building, @clientUnit.sensor(@shootX), @clientUnit.sensor(@shootY)) == building then
+        makemarker(:text, id, 0, 0, false);
+        setmarker(:fontSize, id, 1.5);
+        setmarker(:pos, id, x, y);
+        setmarker(:flushText, id, 0);
+    else
+        printflush(0);
+        setmarker(:remove, id);
+    end;
+end;
 
