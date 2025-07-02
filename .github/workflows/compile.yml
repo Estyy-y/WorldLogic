@@ -31,5 +31,8 @@ jobs:
         run: |
           for file in $(find . -name "*.mnd"); do
             echo "Processing $file"
-            java -jar mindcode-latest.jar "$file"
+                  if ! java -jar mindcode-latest.jar -o - "$file" > /dev/null; then
+            echo "Compilation failed for $file"
+            exit 1
+          fi
           done
